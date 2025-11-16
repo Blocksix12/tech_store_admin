@@ -164,7 +164,6 @@
         }
 
         .menu-item .badge {
-            margin-left: auto;
             padding: 3px 8px;
             font-size: 0.7rem;
             font-weight: 600;
@@ -225,6 +224,10 @@
         .submenu-item:hover::before {
             background: white;
             transform: scale(1.3);
+        }
+
+        .submenu-item .badge {
+            margin-left: auto;
         }
 
         /* ============================================
@@ -907,7 +910,6 @@
             <div class="menu-item" onclick="toggleSubmenu(this)">
                 <i class="bi bi-boxes"></i>
                 <span>Tồn kho</span>
-                <span class="badge bg-warning">12</span>
                 <i class="bi bi-chevron-down"></i>
             </div>
             <div class="submenu">
@@ -918,7 +920,7 @@
                 <a href="/admin/inventory/transfer" class="submenu-item">Điều chuyển</a>
                 <a href="/admin/inventory/alerts" class="submenu-item">
                     Cảnh báo tồn kho
-                    <span class="badge bg-danger ms-auto">12</span>
+                    <span class="badge bg-danger">12</span>
                 </a>
             </div>
         </div>
@@ -928,14 +930,13 @@
             <div class="menu-item" onclick="toggleSubmenu(this)">
                 <i class="bi bi-cart-check-fill"></i>
                 <span>Đơn hàng</span>
-                <span class="badge bg-danger">5</span>
                 <i class="bi bi-chevron-down"></i>
             </div>
             <div class="submenu">
                 <a href="/admin/orders" class="submenu-item">Danh sách đơn hàng</a>
                 <a href="/admin/orders/pending" class="submenu-item">
                     Chờ xử lý
-                    <span class="badge bg-warning text-dark ms-auto">5</span>
+                    <span class="badge bg-warning text-dark">5</span>
                 </a>
                 <a href="/admin/orders/processing" class="submenu-item">Đang xử lý</a>
                 <a href="/admin/orders/shipped" class="submenu-item">Đang giao</a>
@@ -1123,12 +1124,10 @@
             <!-- User Menu -->
             <div class="dropdown">
                 <div class="user-menu" data-bs-toggle="dropdown" aria-expanded="false">
-                    <div class="user-avatar">
-                        <span th:text="${#authentication.name?.substring(0,1)?.toUpperCase()}">A</span>
-                    </div>
+                    <div class="user-avatar">A</div>
                     <div class="user-info">
-                        <div class="user-name" th:text="${#authentication.name}">Admin User</div>
-                        <div class="user-role" sec:authentication="principal.authorities">SuperAdmin</div>
+                        <div class="user-name">Admin User</div>
+                        <div class="user-role">Administrator</div>
                     </div>
                     <i class="bi bi-chevron-down"></i>
                 </div>
@@ -1153,12 +1152,10 @@
                     </li>
                     <li><hr class="dropdown-divider"></li>
                     <li>
-                        <form th:action="@{/logout}" method="post">
-                            <button type="submit" class="dropdown-item">
-                                <i class="bi bi-box-arrow-right"></i>
-                                <span>Đăng xuất</span>
-                            </button>
-                        </form>
+                        <a class="dropdown-item" href="/logout">
+                            <i class="bi bi-box-arrow-right"></i>
+                            <span>Đăng xuất</span>
+                        </a>
                     </li>
                 </ul>
             </div>
@@ -1174,7 +1171,7 @@
                     <div class="stat-card-header">
                         <div>
                             <div class="stat-label">Doanh thu tháng này</div>
-                            <div class="stat-value" th:text="${totalRevenue} ?: '156.000.000₫'">156.000.000₫</div>
+                            <div class="stat-value">156.000.000₫</div>
                             <div class="stat-change positive">
                                 <i class="bi bi-arrow-up"></i>
                                 <span>12.5% vs tháng trước</span>
@@ -1192,7 +1189,7 @@
                     <div class="stat-card-header">
                         <div>
                             <div class="stat-label">Đơn hàng hôm nay</div>
-                            <div class="stat-value" th:text="${totalOrders} ?: '1.245'">1.245</div>
+                            <div class="stat-value">1.245</div>
                             <div class="stat-change positive">
                                 <i class="bi bi-arrow-up"></i>
                                 <span>8.2% vs hôm qua</span>
@@ -1210,7 +1207,7 @@
                     <div class="stat-card-header">
                         <div>
                             <div class="stat-label">Khách hàng</div>
-                            <div class="stat-value" th:text="${totalCustomers} ?: '3.782'">3.782</div>
+                            <div class="stat-value">3.782</div>
                             <div class="stat-change positive">
                                 <i class="bi bi-arrow-up"></i>
                                 <span>152 khách hàng mới</span>
@@ -1228,7 +1225,7 @@
                     <div class="stat-card-header">
                         <div>
                             <div class="stat-label">Sản phẩm</div>
-                            <div class="stat-value" th:text="${totalProducts} ?: '856'">856</div>
+                            <div class="stat-value">856</div>
                             <div class="stat-change neutral">
                                 <i class="bi bi-exclamation-triangle"></i>
                                 <span>23 sản phẩm cần nhập</span>
@@ -1277,44 +1274,7 @@
                             </tr>
                             </thead>
                             <tbody>
-                            <tr th:each="order : ${recentOrders}">
-                                <td>
-                                    <span class="order-number" th:text="${order.orderNumber}">#ORD-12345</span>
-                                </td>
-                                <td>
-                                    <div>
-                                        <div class="fw-bold" th:text="${order.customerName}">Nguyễn Văn A</div>
-                                        <small class="text-muted" th:text="${order.customerEmail}">email@example.com</small>
-                                    </div>
-                                </td>
-                                <td>
-                                    <small th:text="${order.itemCount} + ' sản phẩm'">3 sản phẩm</small>
-                                </td>
-                                <td>
-                                    <strong th:text="${order.total}">1.250.000₫</strong>
-                                </td>
-                                <td>
-                                        <span class="status-badge"
-                                              th:classappend="${order.status == 'COMPLETED' ? 'completed' :
-                                                              order.status == 'PENDING' ? 'pending' :
-                                                              order.status == 'PROCESSING' ? 'processing' : 'cancelled'}"
-                                              th:text="${order.statusText}">Đang xử lý</span>
-                                </td>
-                                <td th:text="${#temporals.format(order.createdAt, 'dd/MM/yyyy')}">01/11/2025</td>
-                                <td>
-                                    <div class="btn-group btn-group-sm">
-                                        <a th:href="@{/admin/orders/{id}(id=${order.id})}"
-                                           class="btn btn-sm btn-outline-primary">
-                                            <i class="bi bi-eye"></i>
-                                        </a>
-                                        <button class="btn btn-sm btn-outline-success" title="In hóa đơn">
-                                            <i class="bi bi-printer"></i>
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-                            <!-- Sample static data -->
-                            <tr th:if="${#lists.isEmpty(recentOrders)}">
+                            <tr>
                                 <td><span class="order-number">#ORD-12345</span></td>
                                 <td>
                                     <div>
@@ -1333,7 +1293,7 @@
                                     </div>
                                 </td>
                             </tr>
-                            <tr th:if="${#lists.isEmpty(recentOrders)}">
+                            <tr>
                                 <td><span class="order-number">#ORD-12344</span></td>
                                 <td>
                                     <div>
@@ -1352,7 +1312,7 @@
                                     </div>
                                 </td>
                             </tr>
-                            <tr th:if="${#lists.isEmpty(recentOrders)}">
+                            <tr>
                                 <td><span class="order-number">#ORD-12343</span></td>
                                 <td>
                                     <div>
@@ -1371,7 +1331,7 @@
                                     </div>
                                 </td>
                             </tr>
-                            <tr th:if="${#lists.isEmpty(recentOrders)}">
+                            <tr>
                                 <td><span class="order-number">#ORD-12342</span></td>
                                 <td>
                                     <div>
@@ -1405,19 +1365,7 @@
                         Sản phẩm bán chạy
                     </h5>
                     <div>
-                        <div class="product-item" th:each="product, stat : ${topProducts}">
-                            <div class="product-info">
-                                <div>
-                                    <div class="product-name" th:text="${product.name}">iPhone 15 Pro Max</div>
-                                    <div class="product-meta" th:text="${product.variant}">256GB - Titan Tự Nhiên</div>
-                                </div>
-                                <div class="product-badge" th:text="${product.soldCount} + ' đã bán'">
-                                    245 đã bán
-                                </div>
-                            </div>
-                        </div>
-                        <!-- Static sample data -->
-                        <div class="product-item" th:if="${#lists.isEmpty(topProducts)}">
+                        <div class="product-item">
                             <div class="product-info">
                                 <div>
                                     <div class="product-name">iPhone 15 Pro Max</div>
@@ -1426,7 +1374,7 @@
                                 <div class="product-badge">245 đã bán</div>
                             </div>
                         </div>
-                        <div class="product-item" th:if="${#lists.isEmpty(topProducts)}">
+                        <div class="product-item">
                             <div class="product-info">
                                 <div>
                                     <div class="product-name">Samsung Galaxy S24 Ultra</div>
@@ -1435,7 +1383,7 @@
                                 <div class="product-badge">198 đã bán</div>
                             </div>
                         </div>
-                        <div class="product-item" th:if="${#lists.isEmpty(topProducts)}">
+                        <div class="product-item">
                             <div class="product-info">
                                 <div>
                                     <div class="product-name">MacBook Pro M3</div>

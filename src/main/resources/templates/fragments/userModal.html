@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<!-- User Modal Fragment -->
+<div th:fragment="userModal">
+    <div class="modal fade" id="userModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="bi bi-person-plus-fill"></i>
+                        Thêm người dùng mới
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="userForm">
+                        <input type="hidden" name="id" id="userId">
+
+                        <div class="mb-3">
+                            <label class="form-label">
+                                <i class="bi bi-person"></i>
+                                Username *
+                            </label>
+                            <input type="text"
+                                   class="form-control"
+                                   name="username"
+                                   placeholder="Nhập username"
+                                   required>
+                            <div class="form-text">Username dùng để đăng nhập</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">
+                                <i class="bi bi-person-badge"></i>
+                                Họ và tên *
+                            </label>
+                            <input type="text"
+                                   class="form-control"
+                                   name="fullname"
+                                   placeholder="Nhập họ và tên"
+                                   required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">
+                                <i class="bi bi-envelope"></i>
+                                Email *
+                            </label>
+                            <input type="email"
+                                   class="form-control"
+                                   name="email"
+                                   placeholder="example@email.com"
+                                   required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">
+                                <i class="bi bi-telephone"></i>
+                                Số điện thoại *
+                            </label>
+                            <input type="tel"
+                                   class="form-control"
+                                   name="phone"
+                                   placeholder="0123456789"
+                                   pattern="[0-9]{10,11}"
+                                   required>
+                            <div class="form-text">Nhập 10-11 số</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">
+                                <i class="bi bi-check-circle"></i>
+                                Trạng thái
+                            </label>
+                            <select class="form-select" name="status">
+                                <option value="ACTIVE" selected>Hoạt động</option>
+                                <option value="LOCKED">Bị khóa</option>
+                            </select>
+                        </div>
+
+                        <div class="alert alert-info d-flex align-items-center" role="alert">
+                            <i class="bi bi-info-circle-fill me-2"></i>
+                            <small>Tất cả các trường đánh dấu (*) là bắt buộc</small>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="bi bi-x-circle"></i>
+                        Hủy
+                    </button>
+                    <button type="submit" form="userForm" class="btn btn-primary">
+                        <i class="bi bi-check-circle"></i>
+                        Lưu
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
