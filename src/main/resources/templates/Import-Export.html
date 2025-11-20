@@ -1,0 +1,1030 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Import/Export Sản phẩm - Admin Dashboard</title>
+
+    <!-- Bootstrap 5.3 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Dashboard CSS -->
+    <link rel="stylesheet" th:href="@{/css/Dashboard.css}" />
+    <!-- Import Export CSS -->
+    <link rel="stylesheet" th:href="@{/css/ImportExport.css}" />
+</head>
+<body>
+
+<!-- Sidebar -->
+<div class="sidebar" id="sidebar">
+    <!-- Toggle Button -->
+    <button class="sidebar-toggle" onclick="toggleSidebarCollapse()" title="Thu gọn/Mở rộng">
+        <i class="bi bi-chevron-left"></i>
+    </button>
+
+    <div class="sidebar-brand">
+        <i class="bi bi-shop-window"></i>
+        <span class="sidebar-brand-text">E-Commerce</span>
+    </div>
+
+    <div class="sidebar-menu">
+        <div class="menu-section-title">Main</div>
+
+        <!-- Dashboard -->
+        <a href="/admin/dashboard" class="menu-item">
+            <i class="bi bi-grid-fill"></i>
+            <span>Dashboard</span>
+        </a>
+
+        <div class="menu-section-title">Quản lý</div>
+
+        <!-- Quản lý sản phẩm -->
+        <div>
+            <div class="menu-item open active" onclick="toggleSubmenu(this)">
+                <i class="bi bi-box-seam-fill"></i>
+                <span>Sản phẩm</span>
+                <i class="bi bi-chevron-down"></i>
+            </div>
+            <div class="submenu show">
+                <a href="/admin/products" class="submenu-item">Danh sách sản phẩm</a>
+                <a href="/admin/products/add" class="submenu-item">Thêm sản phẩm</a>
+                <a href="/admin/categories" class="submenu-item">Danh mục</a>
+                <a href="/admin/brands" class="submenu-item">Thương hiệu</a>
+                <a href="/admin/attributes" class="submenu-item">Thuộc tính</a>
+                <a href="/admin/products/import" class="submenu-item active">Import/Export</a>
+            </div>
+        </div>
+
+        <!-- Quản lý tồn kho -->
+        <div>
+            <div class="menu-item" onclick="toggleSubmenu(this)">
+                <i class="bi bi-boxes"></i>
+                <span>Tồn kho</span>
+                <span class="badge bg-warning">12</span>
+                <i class="bi bi-chevron-down"></i>
+            </div>
+            <div class="submenu">
+                <a href="/admin/inventory" class="submenu-item">Quản lý kho</a>
+                <a href="/admin/inventory/warehouses" class="submenu-item">Kho hàng</a>
+                <a href="/admin/inventory/stock-in" class="submenu-item">Nhập kho</a>
+                <a href="/admin/inventory/stock-out" class="submenu-item">Xuất kho</a>
+                <a href="/admin/inventory/transfer" class="submenu-item">Điều chuyển</a>
+            </div>
+        </div>
+
+        <!-- Other menu items... -->
+    </div>
+</div>
+
+<!-- Main Content -->
+<div class="main-content">
+    <!-- Topbar -->
+    <div class="topbar">
+        <div class="topbar-left">
+            <button class="mobile-menu-btn" onclick="toggleSidebar()">
+                <i class="bi bi-list"></i>
+            </button>
+            <div>
+                <h1 class="page-title">Import/Export Sản phẩm</h1>
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="/admin">Trang chủ</a></li>
+                        <li class="breadcrumb-item"><a href="/admin/products">Sản phẩm</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">Import/Export</li>
+                    </ol>
+                </nav>
+            </div>
+        </div>
+
+        <div class="topbar-right">
+            <!-- Search -->
+            <div class="search-box">
+                <i class="bi bi-search"></i>
+                <input type="text" class="form-control" placeholder="Tìm kiếm...">
+            </div>
+
+            <!-- Notifications -->
+            <div class="dropdown">
+                <div class="topbar-icon" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="bi bi-bell-fill"></i>
+                    <span class="badge bg-danger">5</span>
+                </div>
+            </div>
+
+            <!-- User Menu -->
+            <div class="dropdown">
+                <div class="user-menu" data-bs-toggle="dropdown" aria-expanded="false">
+                    <div class="user-avatar">
+                        <span>N</span>
+                    </div>
+                    <div class="user-info">
+                        <div class="user-name">NvkhoaDev54</div>
+                    </div>
+                    <i class="bi bi-chevron-down"></i>
+                </div>
+                <ul class="dropdown-menu dropdown-menu-end">
+                    <li>
+                        <a class="dropdown-item" href="/admin/profile">
+                            <i class="bi bi-person"></i>
+                            <span>Hồ sơ của tôi</span>
+                        </a>
+                    </li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li>
+                        <form th:action="@{/logout}" method="post">
+                            <button type="submit" class="dropdown-item">
+                                <i class="bi bi-box-arrow-right"></i>
+                                <span>Đăng xuất</span>
+                            </button>
+                        </form>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Content Area -->
+    <div class="content-area">
+        <!-- Tab Navigation -->
+        <div class="nav-tabs-container fade-in-up">
+            <ul class="nav nav-tabs" id="importExportTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="import-tab" data-bs-toggle="tab" data-bs-target="#import"
+                            type="button" role="tab">
+                        <i class="bi bi-upload"></i>
+                        Import Sản phẩm
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="export-tab" data-bs-toggle="tab" data-bs-target="#export"
+                            type="button" role="tab">
+                        <i class="bi bi-download"></i>
+                        Export Sản phẩm
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="history-tab" data-bs-toggle="tab" data-bs-target="#history"
+                            type="button" role="tab">
+                        <i class="bi bi-clock-history"></i>
+                        Lịch sử
+                    </button>
+                </li>
+            </ul>
+        </div>
+
+        <div class="tab-content" id="importExportTabContent">
+            <!-- Import Tab -->
+            <div class="tab-pane fade show active" id="import" role="tabpanel">
+                <div class="row g-4">
+                    <!-- Left Column - Upload & Settings -->
+                    <div class="col-lg-8">
+                        <!-- Upload Section -->
+                        <div class="import-section fade-in-up">
+                            <div class="section-header">
+                                <h5 class="section-title">
+                                    <i class="bi bi-cloud-upload"></i>
+                                    Upload File
+                                </h5>
+                            </div>
+                            <div class="section-body">
+                                <!-- File Upload Area -->
+                                <div class="upload-area" id="uploadArea">
+                                    <input type="file" id="importFile" accept=".xlsx,.xls,.csv" hidden>
+                                    <label for="importFile" class="upload-label">
+                                        <div class="upload-icon">
+                                            <i class="bi bi-cloud-arrow-up"></i>
+                                        </div>
+                                        <h5>Kéo thả file hoặc click để chọn</h5>
+                                        <p>Hỗ trợ: Excel (.xlsx, .xls) và CSV (.csv)</p>
+                                        <p class="text-muted">Kích thước tối đa: 10MB</p>
+                                        <button type="button" class="btn btn-primary mt-3">
+                                            <i class="bi bi-folder2-open"></i>
+                                            Chọn file
+                                        </button>
+                                    </label>
+                                </div>
+
+                                <!-- File Info (shown after upload) -->
+                                <div class="file-info" id="fileInfo" style="display: none;">
+                                    <div class="file-details">
+                                        <div class="file-icon">
+                                            <i class="bi bi-file-earmark-excel"></i>
+                                        </div>
+                                        <div class="file-meta">
+                                            <h6 id="fileName">products.xlsx</h6>
+                                            <div class="file-stats">
+                                                <span id="fileSize">2.4 MB</span>
+                                                <span>•</span>
+                                                <span id="fileRows">1,234 dòng</span>
+                                                <span>•</span>
+                                                <span class="text-success">
+                                                    <i class="bi bi-check-circle"></i>
+                                                    Sẵn sàng
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeFile()">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </div>
+                                    <div class="progress" style="height: 4px; margin-top: 15px;">
+                                        <div class="progress-bar bg-success" id="uploadProgress" style="width: 0%"></div>
+                                    </div>
+                                </div>
+
+                                <!-- Import Settings -->
+                                <div class="import-settings" id="importSettings" style="display: none;">
+                                    <h6 class="mb-3">
+                                        <i class="bi bi-gear"></i>
+                                        Cài đặt Import
+                                    </h6>
+                                    <div class="row g-3">
+                                        <div class="col-md-6">
+                                            <label class="form-label">Xử lý trùng lặp</label>
+                                            <select class="form-select" id="duplicateHandling">
+                                                <option value="skip">Bỏ qua</option>
+                                                <option value="update">Cập nhật</option>
+                                                <option value="error">Báo lỗi</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">Trường khóa</label>
+                                            <select class="form-select" id="keyField">
+                                                <option value="sku">SKU</option>
+                                                <option value="name">Tên sản phẩm</option>
+                                                <option value="id">ID</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">Encoding</label>
+                                            <select class="form-select" id="encoding">
+                                                <option value="utf8">UTF-8</option>
+                                                <option value="utf16">UTF-16</option>
+                                                <option value="windows1252">Windows-1252</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">Delimiter (CSV)</label>
+                                            <select class="form-select" id="delimiter">
+                                                <option value=",">Dấu phẩy (,)</option>
+                                                <option value=";">Dấu chấm phẩy (;)</option>
+                                                <option value="\t">Tab</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-check mt-3">
+                                        <input class="form-check-input" type="checkbox" id="hasHeader" checked>
+                                        <label class="form-check-label" for="hasHeader">
+                                            Dòng đầu tiên là tiêu đề
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="validateData" checked>
+                                        <label class="form-check-label" for="validateData">
+                                            Xác thực dữ liệu trước khi import
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="createBackup">
+                                        <label class="form-check-label" for="createBackup">
+                                            Tạo bản sao lưu trước khi import
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Column Mapping -->
+                        <div class="import-section fade-in-up" id="columnMappingSection" style="display: none; animation-delay: 0.1s;">
+                            <div class="section-header">
+                                <h5 class="section-title">
+                                    <i class="bi bi-diagram-3"></i>
+                                    Ánh xạ cột
+                                </h5>
+                                <button class="btn btn-sm btn-outline-primary" onclick="autoMapColumns()">
+                                    <i class="bi bi-magic"></i>
+                                    Tự động ánh xạ
+                                </button>
+                            </div>
+                            <div class="section-body">
+                                <div class="column-mapping-list" id="columnMappingList">
+                                    <!-- Dynamic column mapping items will be inserted here -->
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Data Preview -->
+                        <div class="import-section fade-in-up" id="dataPreviewSection" style="display: none; animation-delay: 0.2s;">
+                            <div class="section-header">
+                                <h5 class="section-title">
+                                    <i class="bi bi-eye"></i>
+                                    Xem trước dữ liệu
+                                </h5>
+                                <span class="badge bg-info">5 dòng đầu tiên</span>
+                            </div>
+                            <div class="section-body">
+                                <div class="table-responsive">
+                                    <table class="table table-hover" id="previewTable">
+                                        <thead>
+                                        <tr>
+                                            <th>#</th>
+                                            <th>Tên sản phẩm</th>
+                                            <th>SKU</th>
+                                            <th>Giá</th>
+                                            <th>Tồn kho</th>
+                                            <th>Trạng thái</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody id="previewTableBody">
+                                        <!-- Preview data will be inserted here -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Validation Results -->
+                        <div class="import-section fade-in-up" id="validationSection" style="display: none; animation-delay: 0.3s;">
+                            <div class="section-header">
+                                <h5 class="section-title">
+                                    <i class="bi bi-shield-check"></i>
+                                    Kết quả xác thực
+                                </h5>
+                            </div>
+                            <div class="section-body">
+                                <div class="validation-summary">
+                                    <div class="validation-stat success">
+                                        <i class="bi bi-check-circle-fill"></i>
+                                        <div>
+                                            <span class="stat-value" id="validCount">1,180</span>
+                                            <span class="stat-label">Hợp lệ</span>
+                                        </div>
+                                    </div>
+                                    <div class="validation-stat warning">
+                                        <i class="bi bi-exclamation-triangle-fill"></i>
+                                        <div>
+                                            <span class="stat-value" id="warningCount">34</span>
+                                            <span class="stat-label">Cảnh báo</span>
+                                        </div>
+                                    </div>
+                                    <div class="validation-stat error">
+                                        <i class="bi bi-x-circle-fill"></i>
+                                        <div>
+                                            <span class="stat-value" id="errorCount">20</span>
+                                            <span class="stat-label">Lỗi</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Validation Errors List -->
+                                <div class="validation-errors" id="validationErrors">
+                                    <h6>Chi tiết lỗi:</h6>
+                                    <div class="error-list">
+                                        <!-- Error items will be inserted here -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="import-actions" id="importActions" style="display: none;">
+                            <button type="button" class="btn btn-secondary" onclick="resetImport()">
+                                <i class="bi bi-arrow-clockwise"></i>
+                                Làm lại
+                            </button>
+                            <button type="button" class="btn btn-success btn-lg" onclick="startImport()">
+                                <i class="bi bi-check-circle"></i>
+                                Bắt đầu Import
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Right Column - Guide & Templates -->
+                    <div class="col-lg-4">
+                        <!-- Quick Guide -->
+                        <div class="import-section fade-in-up" style="animation-delay: 0.1s;">
+                            <div class="section-header">
+                                <h5 class="section-title">
+                                    <i class="bi bi-lightbulb"></i>
+                                    Hướng dẫn nhanh
+                                </h5>
+                            </div>
+                            <div class="section-body">
+                                <div class="guide-steps">
+                                    <div class="guide-step">
+                                        <div class="step-number">1</div>
+                                        <div class="step-content">
+                                            <h6>Tải template</h6>
+                                            <p>Download file mẫu Excel hoặc CSV</p>
+                                        </div>
+                                    </div>
+                                    <div class="guide-step">
+                                        <div class="step-number">2</div>
+                                        <div class="step-content">
+                                            <h6>Điền dữ liệu</h6>
+                                            <p>Nhập thông tin sản phẩm vào file</p>
+                                        </div>
+                                    </div>
+                                    <div class="guide-step">
+                                        <div class="step-number">3</div>
+                                        <div class="step-content">
+                                            <h6>Upload file</h6>
+                                            <p>Kéo thả hoặc chọn file để upload</p>
+                                        </div>
+                                    </div>
+                                    <div class="guide-step">
+                                        <div class="step-number">4</div>
+                                        <div class="step-content">
+                                            <h6>Xác thực</h6>
+                                            <p>Kiểm tra và sửa lỗi nếu có</p>
+                                        </div>
+                                    </div>
+                                    <div class="guide-step">
+                                        <div class="step-number">5</div>
+                                        <div class="step-content">
+                                            <h6>Import</h6>
+                                            <p>Nhấn nút Import để hoàn tất</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Templates -->
+                        <div class="import-section fade-in-up" style="animation-delay: 0.2s;">
+                            <div class="section-header">
+                                <h5 class="section-title">
+                                    <i class="bi bi-file-earmark-arrow-down"></i>
+                                    File mẫu
+                                </h5>
+                            </div>
+                            <div class="section-body">
+                                <div class="template-list">
+                                    <a href="/templates/products-template.xlsx" class="template-item" download>
+                                        <div class="template-icon excel">
+                                            <i class="bi bi-file-earmark-excel"></i>
+                                        </div>
+                                        <div class="template-info">
+                                            <h6>Sản phẩm đơn giản</h6>
+                                            <p>Excel • 15 KB</p>
+                                        </div>
+                                        <i class="bi bi-download"></i>
+                                    </a>
+
+                                    <a href="/templates/products-variants-template.xlsx" class="template-item" download>
+                                        <div class="template-icon excel">
+                                            <i class="bi bi-file-earmark-excel"></i>
+                                        </div>
+                                        <div class="template-info">
+                                            <h6>Sản phẩm có biến thể</h6>
+                                            <p>Excel • 18 KB</p>
+                                        </div>
+                                        <i class="bi bi-download"></i>
+                                    </a>
+
+                                    <a href="/templates/products-template.csv" class="template-item" download>
+                                        <div class="template-icon csv">
+                                            <i class="bi bi-filetype-csv"></i>
+                                        </div>
+                                        <div class="template-info">
+                                            <h6>CSV Template</h6>
+                                            <p>CSV • 8 KB</p>
+                                        </div>
+                                        <i class="bi bi-download"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Import Stats -->
+                        <div class="import-section fade-in-up" style="animation-delay: 0.3s;">
+                            <div class="section-header">
+                                <h5 class="section-title">
+                                    <i class="bi bi-graph-up"></i>
+                                    Thống kê
+                                </h5>
+                            </div>
+                            <div class="section-body">
+                                <div class="stats-list">
+                                    <div class="stat-item-small">
+                                        <span class="stat-label-small">Import hôm nay:</span>
+                                        <span class="stat-value-small text-success">234</span>
+                                    </div>
+                                    <div class="stat-item-small">
+                                        <span class="stat-label-small">Import tuần này:</span>
+                                        <span class="stat-value-small text-primary">1,456</span>
+                                    </div>
+                                    <div class="stat-item-small">
+                                        <span class="stat-label-small">Tổng cộng:</span>
+                                        <span class="stat-value-small text-info">12,345</span>
+                                    </div>
+                                    <div class="stat-item-small">
+                                        <span class="stat-label-small">Lỗi:</span>
+                                        <span class="stat-value-small text-danger">23</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Export Tab -->
+            <div class="tab-pane fade" id="export" role="tabpanel">
+                <div class="row g-4">
+                    <!-- Left Column - Export Options -->
+                    <div class="col-lg-8">
+                        <!-- Export Settings -->
+                        <div class="import-section fade-in-up">
+                            <div class="section-header">
+                                <h5 class="section-title">
+                                    <i class="bi bi-sliders"></i>
+                                    Tùy chọn Export
+                                </h5>
+                            </div>
+                            <div class="section-body">
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label">Định dạng file</label>
+                                        <select class="form-select" id="exportFormat">
+                                            <option value="xlsx">Excel (.xlsx)</option>
+                                            <option value="xls">Excel 97-2003 (.xls)</option>
+                                            <option value="csv">CSV (.csv)</option>
+                                            <option value="json">JSON (.json)</option>
+                                            <option value="xml">XML (.xml)</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Encoding</label>
+                                        <select class="form-select" id="exportEncoding">
+                                            <option value="utf8">UTF-8</option>
+                                            <option value="utf8bom">UTF-8 with BOM</option>
+                                            <option value="utf16">UTF-16</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <!-- Export Filters -->
+                                <div class="export-filters mt-4">
+                                    <h6 class="mb-3">
+                                        <i class="bi bi-funnel"></i>
+                                        Bộ lọc
+                                    </h6>
+                                    <div class="row g-3">
+                                        <div class="col-md-6">
+                                            <label class="form-label">Danh mục</label>
+                                            <select class="form-select" id="exportCategory">
+                                                <option value="">Tất cả danh mục</option>
+                                                <option value="1">Điện thoại</option>
+                                                <option value="2">Laptop</option>
+                                                <option value="3">Tablet</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">Thương hiệu</label>
+                                            <select class="form-select" id="exportBrand">
+                                                <option value="">Tất cả thương hiệu</option>
+                                                <option value="1">Apple</option>
+                                                <option value="2">Samsung</option>
+                                                <option value="3">Xiaomi</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">Trạng thái</label>
+                                            <select class="form-select" id="exportStatus">
+                                                <option value="">Tất cả</option>
+                                                <option value="active">Đang bán</option>
+                                                <option value="inactive">Ngừng bán</option>
+                                                <option value="draft">Nháp</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">Tồn kho</label>
+                                            <select class="form-select" id="exportStock">
+                                                <option value="">Tất cả</option>
+                                                <option value="in-stock">Còn hàng</option>
+                                                <option value="low-stock">Sắp hết</option>
+                                                <option value="out-stock">Hết hàng</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <!-- Date Range -->
+                                    <div class="row g-3 mt-2">
+                                        <div class="col-md-6">
+                                            <label class="form-label">Từ ngày</label>
+                                            <input type="date" class="form-control" id="exportDateFrom">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">Đến ngày</label>
+                                            <input type="date" class="form-control" id="exportDateTo">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Select Fields -->
+                                <div class="export-fields mt-4">
+                                    <h6 class="mb-3">
+                                        <i class="bi bi-check2-square"></i>
+                                        Chọn trường dữ liệu
+                                    </h6>
+                                    <div class="fields-select-all mb-3">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="selectAllFields" checked onchange="toggleAllFields()">
+                                            <label class="form-check-label" for="selectAllFields">
+                                                <strong>Chọn tất cả</strong>
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="row g-2">
+                                        <div class="col-md-4">
+                                            <div class="form-check">
+                                                <input class="form-check-input export-field" type="checkbox" value="id" id="field-id" checked>
+                                                <label class="form-check-label" for="field-id">ID</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-check">
+                                                <input class="form-check-input export-field" type="checkbox" value="name" id="field-name" checked>
+                                                <label class="form-check-label" for="field-name">Tên sản phẩm</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-check">
+                                                <input class="form-check-input export-field" type="checkbox" value="sku" id="field-sku" checked>
+                                                <label class="form-check-label" for="field-sku">SKU</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-check">
+                                                <input class="form-check-input export-field" type="checkbox" value="price" id="field-price" checked>
+                                                <label class="form-check-label" for="field-price">Giá</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-check">
+                                                <input class="form-check-input export-field" type="checkbox" value="sale-price" id="field-sale-price" checked>
+                                                <label class="form-check-label" for="field-sale-price">Giá KM</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-check">
+                                                <input class="form-check-input export-field" type="checkbox" value="stock" id="field-stock" checked>
+                                                <label class="form-check-label" for="field-stock">Tồn kho</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-check">
+                                                <input class="form-check-input export-field" type="checkbox" value="category" id="field-category" checked>
+                                                <label class="form-check-label" for="field-category">Danh mục</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-check">
+                                                <input class="form-check-input export-field" type="checkbox" value="brand" id="field-brand" checked>
+                                                <label class="form-check-label" for="field-brand">Thương hiệu</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-check">
+                                                <input class="form-check-input export-field" type="checkbox" value="status" id="field-status" checked>
+                                                <label class="form-check-label" for="field-status">Trạng thái</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-check">
+                                                <input class="form-check-input export-field" type="checkbox" value="description" id="field-description">
+                                                <label class="form-check-label" for="field-description">Mô tả</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-check">
+                                                <input class="form-check-input export-field" type="checkbox" value="images" id="field-images">
+                                                <label class="form-check-label" for="field-images">Hình ảnh</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-check">
+                                                <input class="form-check-input export-field" type="checkbox" value="created-date" id="field-created">
+                                                <label class="form-check-label" for="field-created">Ngày tạo</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Export Actions -->
+                                <div class="export-actions mt-4">
+                                    <button type="button" class="btn btn-secondary" onclick="resetExport()">
+                                        <i class="bi bi-arrow-clockwise"></i>
+                                        Làm mới
+                                    </button>
+                                    <button type="button" class="btn btn-success btn-lg" onclick="startExport()">
+                                        <i class="bi bi-download"></i>
+                                        Export dữ liệu
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Export Preview -->
+                        <div class="import-section fade-in-up" id="exportPreviewSection" style="display: none; animation-delay: 0.1s;">
+                            <div class="section-header">
+                                <h5 class="section-title">
+                                    <i class="bi bi-eye"></i>
+                                    Xem trước
+                                </h5>
+                                <span class="badge bg-info" id="exportCountBadge">856 sản phẩm</span>
+                            </div>
+                            <div class="section-body">
+                                <div class="table-responsive">
+                                    <table class="table table-hover" id="exportPreviewTable">
+                                        <thead>
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>Tên sản phẩm</th>
+                                            <th>SKU</th>
+                                            <th>Giá</th>
+                                            <th>Tồn kho</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody id="exportPreviewBody">
+                                        <!-- Preview data -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right Column - Quick Export -->
+                    <div class="col-lg-4">
+                        <!-- Quick Export -->
+                        <div class="import-section fade-in-up">
+                            <div class="section-header">
+                                <h5 class="section-title">
+                                    <i class="bi bi-lightning"></i>
+                                    Export nhanh
+                                </h5>
+                            </div>
+                            <div class="section-body">
+                                <div class="quick-export-list">
+                                    <button class="quick-export-btn" onclick="quickExport('all')">
+                                        <i class="bi bi-collection"></i>
+                                        <div>
+                                            <h6>Tất cả sản phẩm</h6>
+                                            <p>856 sản phẩm</p>
+                                        </div>
+                                    </button>
+
+                                    <button class="quick-export-btn" onclick="quickExport('active')">
+                                        <i class="bi bi-check-circle"></i>
+                                        <div>
+                                            <h6>Sản phẩm đang bán</h6>
+                                            <p>745 sản phẩm</p>
+                                        </div>
+                                    </button>
+
+                                    <button class="quick-export-btn" onclick="quickExport('low-stock')">
+                                        <i class="bi bi-exclamation-triangle"></i>
+                                        <div>
+                                            <h6>Sắp hết hàng</h6>
+                                            <p>23 sản phẩm</p>
+                                        </div>
+                                    </button>
+
+                                    <button class="quick-export-btn" onclick="quickExport('out-stock')">
+                                        <i class="bi bi-x-circle"></i>
+                                        <div>
+                                            <h6>Hết hàng</h6>
+                                            <p>12 sản phẩm</p>
+                                        </div>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Export Stats -->
+                        <div class="import-section fade-in-up" style="animation-delay: 0.1s;">
+                            <div class="section-header">
+                                <h5 class="section-title">
+                                    <i class="bi bi-graph-up"></i>
+                                    Thống kê Export
+                                </h5>
+                            </div>
+                            <div class="section-body">
+                                <div class="stats-list">
+                                    <div class="stat-item-small">
+                                        <span class="stat-label-small">Export hôm nay:</span>
+                                        <span class="stat-value-small text-success">45</span>
+                                    </div>
+                                    <div class="stat-item-small">
+                                        <span class="stat-label-small">Export tuần này:</span>
+                                        <span class="stat-value-small text-primary">234</span>
+                                    </div>
+                                    <div class="stat-item-small">
+                                        <span class="stat-label-small">Tổng cộng:</span>
+                                        <span class="stat-value-small text-info">5,678</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- History Tab -->
+            <div class="tab-pane fade" id="history" role="tabpanel">
+                <div class="import-section fade-in-up">
+                    <div class="section-header">
+                        <h5 class="section-title">
+                            <i class="bi bi-clock-history"></i>
+                            Lịch sử Import/Export
+                        </h5>
+                        <div>
+                            <button class="btn btn-sm btn-outline-primary">
+                                <i class="bi bi-funnel"></i>
+                                Lọc
+                            </button>
+                            <button class="btn btn-sm btn-outline-danger" onclick="clearHistory()">
+                                <i class="bi bi-trash"></i>
+                                Xóa lịch sử
+                            </button>
+                        </div>
+                    </div>
+                    <div class="section-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                <tr>
+                                    <th>Thời gian</th>
+                                    <th>Loại</th>
+                                    <th>File</th>
+                                    <th>Trạng thái</th>
+                                    <th>Số lượng</th>
+                                    <th>Người thực hiện</th>
+                                    <th>Thao tác</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr>
+                                    <td>14/11/2025 01:15</td>
+                                    <td><span class="badge bg-primary">Import</span></td>
+                                    <td>products_2025.xlsx</td>
+                                    <td><span class="badge bg-success">Hoàn thành</span></td>
+                                    <td>1,234</td>
+                                    <td>NvkhoaDev54</td>
+                                    <td>
+                                        <div class="btn-group btn-group-sm">
+                                            <button class="btn btn-outline-primary" title="Chi tiết">
+                                                <i class="bi bi-eye"></i>
+                                            </button>
+                                            <button class="btn btn-outline-success" title="Tải xuống">
+                                                <i class="bi bi-download"></i>
+                                            </button>
+                                            <button class="btn btn-outline-danger" title="Xóa">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>13/11/2025 14:30</td>
+                                    <td><span class="badge bg-success">Export</span></td>
+                                    <td>export_all_products.xlsx</td>
+                                    <td><span class="badge bg-success">Hoàn thành</span></td>
+                                    <td>856</td>
+                                    <td>NvkhoaDev54</td>
+                                    <td>
+                                        <div class="btn-group btn-group-sm">
+                                            <button class="btn btn-outline-primary" title="Chi tiết">
+                                                <i class="bi bi-eye"></i>
+                                            </button>
+                                            <button class="btn btn-outline-success" title="Tải xuống">
+                                                <i class="bi bi-download"></i>
+                                            </button>
+                                            <button class="btn btn-outline-danger" title="Xóa">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>12/11/2025 09:20</td>
+                                    <td><span class="badge bg-primary">Import</span></td>
+                                    <td>new_products.csv</td>
+                                    <td><span class="badge bg-warning">Cảnh báo</span></td>
+                                    <td>456</td>
+                                    <td>NvkhoaDev54</td>
+                                    <td>
+                                        <div class="btn-group btn-group-sm">
+                                            <button class="btn btn-outline-primary" title="Chi tiết">
+                                                <i class="bi bi-eye"></i>
+                                            </button>
+                                            <button class="btn btn-outline-success" title="Tải xuống">
+                                                <i class="bi bi-download"></i>
+                                            </button>
+                                            <button class="btn btn-outline-danger" title="Xóa">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>11/11/2025 16:45</td>
+                                    <td><span class="badge bg-primary">Import</span></td>
+                                    <td>invalid_data.xlsx</td>
+                                    <td><span class="badge bg-danger">Thất bại</span></td>
+                                    <td>0</td>
+                                    <td>NvkhoaDev54</td>
+                                    <td>
+                                        <div class="btn-group btn-group-sm">
+                                            <button class="btn btn-outline-primary" title="Chi tiết">
+                                                <i class="bi bi-eye"></i>
+                                            </button>
+                                            <button class="btn btn-outline-success" title="Tải xuống">
+                                                <i class="bi bi-download"></i>
+                                            </button>
+                                            <button class="btn btn-outline-danger" title="Xóa">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Pagination -->
+                        <div class="pagination-wrapper">
+                            <div class="pagination-info">
+                                Hiển thị <strong>1-4</strong> trong tổng số <strong>45</strong> bản ghi
+                            </div>
+                            <nav>
+                                <ul class="pagination mb-0">
+                                    <li class="page-item disabled">
+                                        <a class="page-link" href="#"><i class="bi bi-chevron-left"></i></a>
+                                    </li>
+                                    <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                                    <li class="page-item"><a class="page-link" href="#">2</a></li>
+                                    <li class="page-item"><a class="page-link" href="#">3</a></li>
+                                    <li class="page-item">
+                                        <a class="page-link" href="#"><i class="bi bi-chevron-right"></i></a>
+                                    </li>
+                                </ul>
+                            </nav>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Progress Modal -->
+<div class="modal fade" id="progressModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="bi bi-hourglass-split"></i>
+                    Đang xử lý...
+                </h5>
+            </div>
+            <div class="modal-body">
+                <div class="progress-info">
+                    <div class="progress-stats">
+                        <span id="progressText">Đang import sản phẩm...</span>
+                        <span id="progressPercent">45%</span>
+                    </div>
+                    <div class="progress" style="height: 10px;">
+                        <div class="progress-bar progress-bar-striped progress-bar-animated"
+                             id="progressBar" style="width: 45%"></div>
+                    </div>
+                    <div class="progress-details mt-3">
+                        <small>
+                            <span id="processedCount">450</span> / <span id="totalCount">1000</span> sản phẩm
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- jQuery -->
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<!-- SheetJS (for Excel handling) -->
+<script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+<!-- Dashboard JS -->
+<script th:src="@{/javascript/Dashboard.js}"></script>
+<!-- Import Export JS -->
+<script th:src="@{/javascript/ImportExport.js}"></script>
+
+</body>
+</html>

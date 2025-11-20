@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Danh sách Sản phẩm - Admin Dashboard</title>
+
+    <!-- Bootstrap 5.3 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Dashboard CSS (chung) -->
+    <link rel="stylesheet" th:href="@{/css/Dashboard.css}" />
+    <!-- Product List CSS (riêng) -->
+    <link rel="stylesheet" th:href="@{/css/ProductList.css}" />
+</head>
+<body>
+
+<!-- Sidebar -->
+<div class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+        <i class="bi bi-shop-window"></i>
+        <span class="sidebar-brand-text">E-Commerce</span>
+    </div>
+
+    <div class="sidebar-menu">
+        <div class="menu-section-title">Main</div>
+
+        <!-- Dashboard -->
+        <a href="/admin/dashboard" class="menu-item">
+            <i class="bi bi-grid-fill"></i>
+            <span>Dashboard</span>
+        </a>
+
+        <div class="menu-section-title">Quản lý</div>
+
+        <!-- Quản lý sản phẩm -->
+        <div>
+            <div class="menu-item open active" onclick="toggleSubmenu(this)">
+                <i class="bi bi-box-seam-fill"></i>
+                <span>Sản phẩm</span>
+                <i class="bi bi-chevron-down"></i>
+            </div>
+            <div class="submenu show">
+                <a href="/admin/products" class="submenu-item active">Danh sách sản phẩm</a>
+                <a href="/admin/products/add" class="submenu-item">Thêm sản phẩm</a>
+                <a href="/admin/categories" class="submenu-item">Danh mục</a>
+                <a href="/admin/brands" class="submenu-item">Thương hiệu</a>
+                <a href="/admin/attributes" class="submenu-item">Thuộc tính</a>
+                <a href="/admin/products/import" class="submenu-item">Import/Export</a>
+            </div>
+        </div>
+
+        <!-- Quản lý tồn kho -->
+        <div>
+            <div class="menu-item" onclick="toggleSubmenu(this)">
+                <i class="bi bi-boxes"></i>
+                <span>Tồn kho</span>
+                <span class="badge bg-warning">12</span>
+                <i class="bi bi-chevron-down"></i>
+            </div>
+            <div class="submenu">
+                <a href="/admin/inventory" class="submenu-item">Quản lý kho</a>
+                <a href="/admin/inventory/warehouses" class="submenu-item">Kho hàng</a>
+                <a href="/admin/inventory/stock-in" class="submenu-item">Nhập kho</a>
+                <a href="/admin/inventory/stock-out" class="submenu-item">Xuất kho</a>
+                <a href="/admin/inventory/transfer" class="submenu-item">Điều chuyển</a>
+                <a href="/admin/inventory/alerts" class="submenu-item">
+                    Cảnh báo tồn kho
+                    <span class="badge bg-danger ms-auto">12</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Quản lý đơn hàng -->
+        <div>
+            <div class="menu-item" onclick="toggleSubmenu(this)">
+                <i class="bi bi-cart-check-fill"></i>
+                <span>Đơn hàng</span>
+                <span class="badge bg-danger">5</span>
+                <i class="bi bi-chevron-down"></i>
+            </div>
+            <div class="submenu">
+                <a href="/admin/orders" class="submenu-item">Danh sách đơn hàng</a>
+                <a href="/admin/orders/pending" class="submenu-item">
+                    Chờ xử lý
+                    <span class="badge bg-warning text-dark ms-auto">5</span>
+                </a>
+                <a href="/admin/orders/processing" class="submenu-item">Đang xử lý</a>
+                <a href="/admin/orders/shipped" class="submenu-item">Đang giao</a>
+                <a href="/admin/orders/refunds" class="submenu-item">Hoàn trả</a>
+            </div>
+        </div>
+
+        <!-- Quản lý khách hàng -->
+        <div>
+            <div class="menu-item" onclick="toggleSubmenu(this)">
+                <i class="bi bi-people-fill"></i>
+                <span>Khách hàng</span>
+                <i class="bi bi-chevron-down"></i>
+            </div>
+            <div class="submenu">
+                <a href="/admin/customers" class="submenu-item">Danh sách khách hàng</a>
+                <a href="/admin/customers/groups" class="submenu-item">Nhóm khách hàng</a>
+                <a href="/admin/customers/reviews" class="submenu-item">Đánh giá</a>
+                <a href="/admin/users/roles" class="submenu-item">Phân quyền</a>
+            </div>
+        </div>
+
+        <div class="menu-section-title">Marketing & Content</div>
+
+        <!-- Marketing -->
+        <div>
+            <div class="menu-item" onclick="toggleSubmenu(this)">
+                <i class="bi bi-megaphone-fill"></i>
+                <span>Marketing</span>
+                <i class="bi bi-chevron-down"></i>
+            </div>
+            <div class="submenu">
+                <a href="/admin/promotions" class="submenu-item">Khuyến mãi</a>
+                <a href="/admin/coupons" class="submenu-item">Mã giảm giá</a>
+                <a href="/admin/campaigns" class="submenu-item">Chiến dịch</a>
+                <a href="/admin/emails" class="submenu-item">Email Marketing</a>
+            </div>
+        </div>
+
+        <!-- CMS -->
+        <div>
+            <div class="menu-item" onclick="toggleSubmenu(this)">
+                <i class="bi bi-file-earmark-text-fill"></i>
+                <span>Nội dung</span>
+                <i class="bi bi-chevron-down"></i>
+            </div>
+            <div class="submenu">
+                <a href="/admin/pages" class="submenu-item">Trang tĩnh</a>
+                <a href="/admin/blog" class="submenu-item">Blog/Tin tức</a>
+                <a href="/admin/banners" class="submenu-item">Banner & Slider</a>
+                <a href="/admin/seo" class="submenu-item">SEO</a>
+            </div>
+        </div>
+
+        <!-- Phản hồi & Đánh giá -->
+        <a href="/admin/reviews" class="menu-item">
+            <i class="bi bi-star-fill"></i>
+            <span>Phản hồi & Đánh giá</span>
+            <span class="badge bg-info">8</span>
+        </a>
+
+        <div class="menu-section-title">Analytics</div>
+
+        <!-- Báo cáo -->
+        <div>
+            <div class="menu-item" onclick="toggleSubmenu(this)">
+                <i class="bi bi-graph-up-arrow"></i>
+                <span>Báo cáo</span>
+                <i class="bi bi-chevron-down"></i>
+            </div>
+            <div class="submenu">
+                <a href="/admin/reports/sales" class="submenu-item">Doanh thu</a>
+                <a href="/admin/reports/products" class="submenu-item">Sản phẩm</a>
+                <a href="/admin/reports/customers" class="submenu-item">Khách hàng</a>
+                <a href="/admin/reports/inventory" class="submenu-item">Tồn kho</a>
+                <a href="/admin/reports/export" class="submenu-item">Export báo cáo</a>
+            </div>
+        </div>
+
+        <div class="menu-section-title">System</div>
+
+        <!-- Cài đặt -->
+        <div>
+            <div class="menu-item" onclick="toggleSubmenu(this)">
+                <i class="bi bi-gear-fill"></i>
+                <span>Cài đặt</span>
+                <i class="bi bi-chevron-down"></i>
+            </div>
+            <div class="submenu">
+                <a href="/admin/settings/general" class="submenu-item">Cài đặt chung</a>
+                <a href="/admin/settings/shipping" class="submenu-item">Vận chuyển</a>
+                <a href="/admin/settings/payment" class="submenu-item">Thanh toán</a>
+                <a href="/admin/settings/email" class="submenu-item">Email SMTP</a>
+                <a href="/admin/settings/users" class="submenu-item">Quản trị viên</a>
+                <a href="/admin/settings/audit-logs" class="submenu-item">Audit Logs</a>
+            </div>
+        </div>
+
+        <!-- 2FA Security -->
+        <a href="/admin/2fa" class="menu-item">
+            <i class="bi bi-shield-check"></i>
+            <span>Xác thực 2FA</span>
+        </a>
+    </div>
+</div>
+
+<!-- Main Content -->
+<div class="main-content">
+    <!-- Topbar -->
+    <div class="topbar">
+        <div class="topbar-left">
+            <button class="mobile-menu-btn" onclick="toggleSidebar()">
+                <i class="bi bi-list"></i>
+            </button>
+            <div>
+                <h1 class="page-title">Danh sách Sản phẩm</h1>
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="/admin">Trang chủ</a></li>
+                        <li class="breadcrumb-item"><a href="/admin/products">Sản phẩm</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">Danh sách</li>
+                    </ol>
+                </nav>
+            </div>
+        </div>
+
+        <div class="topbar-right">
+            <!-- Search -->
+            <div class="search-box">
+                <i class="bi bi-search"></i>
+                <input type="text" class="form-control" placeholder="Tìm kiếm sản phẩm, đơn hàng...">
+            </div>
+
+            <!-- Notifications -->
+            <div class="dropdown">
+                <div class="topbar-icon" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="bi bi-bell-fill"></i>
+                    <span class="badge bg-danger">5</span>
+                </div>
+                <ul class="dropdown-menu dropdown-menu-end">
+                    <li class="px-3 py-2"><strong>Thông báo</strong></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li>
+                        <a class="dropdown-item" href="#">
+                            <i class="bi bi-cart-check text-success"></i>
+                            <span>3 đơn hàng mới</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item" href="#">
+                            <i class="bi bi-exclamation-triangle text-warning"></i>
+                            <span>12 sản phẩm sắp hết</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item" href="#">
+                            <i class="bi bi-star text-info"></i>
+                            <span>8 đánh giá mới</span>
+                        </a>
+                    </li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item text-center" href="#">Xem tất cả</a></li>
+                </ul>
+            </div>
+
+            <!-- Messages -->
+            <div class="dropdown">
+                <div class="topbar-icon" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="bi bi-chat-dots-fill"></i>
+                    <span class="badge bg-success">2</span>
+                </div>
+                <ul class="dropdown-menu dropdown-menu-end">
+                    <li class="px-3 py-2"><strong>Tin nhắn</strong></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li>
+                        <a class="dropdown-item" href="#">
+                            <i class="bi bi-person-circle"></i>
+                            <span>Khách hàng yêu cầu hỗ trợ</span>
+                        </a>
+                    </li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item text-center" href="#">Xem tất cả</a></li>
+                </ul>
+            </div>
+
+            <!-- User Menu -->
+            <div class="dropdown">
+                <div class="user-menu" data-bs-toggle="dropdown" aria-expanded="false">
+                    <div class="user-avatar">
+                        <span th:text="${#authentication.name?.substring(0,1)?.toUpperCase()}">A</span>
+                    </div>
+                    <div class="user-info">
+                        <div class="user-name" th:text="${#authentication.name}">Admin User</div>
+                        <div sec:authorize="isAuthenticated()">
+                            <span sec:authentication="authorities"></span>
+                        </div>
+                    </div>
+                    <i class="bi bi-chevron-down"></i>
+                </div>
+                <ul class="dropdown-menu dropdown-menu-end">
+                    <li>
+                        <a class="dropdown-item" href="/admin/profile">
+                            <i class="bi bi-person"></i>
+                            <span>Hồ sơ của tôi</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item" href="/admin/settings">
+                            <i class="bi bi-gear"></i>
+                            <span>Cài đặt</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item" href="/admin/activity-log">
+                            <i class="bi bi-clock-history"></i>
+                            <span>Nhật ký hoạt động</span>
+                        </a>
+                    </li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li>
+                        <form th:action="@{/logout}" method="post">
+                            <button type="submit" class="dropdown-item">
+                                <i class="bi bi-box-arrow-right"></i>
+                                <span>Đăng xuất</span>
+                            </button>
+                        </form>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Content Area -->
+    <div class="content-area">
+        <!-- Bulk Actions -->
+        <div class="bulk-actions" id="bulkActions">
+            <input type="checkbox" class="form-check-input" checked disabled>
+            <span><strong>0</strong> sản phẩm được chọn</span>
+            <button class="btn btn-sm btn-primary"><i class="bi bi-pencil"></i> Chỉnh sửa hàng loạt</button>
+            <button class="btn btn-sm btn-success"><i class="bi bi-check-circle"></i> Kích hoạt</button>
+            <button class="btn btn-sm btn-warning"><i class="bi bi-x-circle"></i> Vô hiệu hóa</button>
+            <button class="btn btn-sm btn-danger"><i class="bi bi-trash"></i> Xóa</button>
+            <button class="btn btn-sm btn-outline-secondary ms-auto" onclick="clearSelection()">Hủy</button>
+        </div>
+
+        <!-- Filters Bar -->
+        <div class="filters-bar fade-in-up">
+            <div class="filters-row">
+                <div class="filters-left">
+                    <div class="filter-group">
+                        <label>Danh mục</label>
+                        <select class="form-select">
+                            <option>Tất cả danh mục</option>
+                            <option>Điện thoại</option>
+                            <option>Laptop</option>
+                            <option>Tablet</option>
+                            <option>Phụ kiện</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-group">
+                        <label>Thương hiệu</label>
+                        <select class="form-select">
+                            <option>Tất cả thương hiệu</option>
+                            <option>Apple</option>
+                            <option>Samsung</option>
+                            <option>Xiaomi</option>
+                            <option>Dell</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-group">
+                        <label>Trạng thái</label>
+                        <select class="form-select">
+                            <option>Tất cả trạng thái</option>
+                            <option>Đang bán</option>
+                            <option>Ngừng bán</option>
+                            <option>Nháp</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-group">
+                        <label>Tồn kho</label>
+                        <select class="form-select">
+                            <option>Tất cả</option>
+                            <option>Còn hàng</option>
+                            <option>Sắp hết</option>
+                            <option>Hết hàng</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="table-actions">
+                    <button class="btn btn-outline-primary">
+                        <i class="bi bi-funnel"></i> Lọc
+                    </button>
+                    <button class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-clockwise"></i> Reset
+                    </button>
+                    <a href="/admin/products/add" class="btn btn-primary">
+                        <i class="bi bi-plus-lg"></i> Thêm sản phẩm
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Products Table -->
+        <div class="custom-table fade-in-up" style="animation-delay: 0.1s;">
+            <div class="table-header">
+                <h5 class="table-title">
+                    <i class="bi bi-box-seam"></i>
+                    856 Sản phẩm
+                </h5>
+                <div class="table-actions">
+                    <button class="btn btn-sm btn-outline-primary">
+                        <i class="bi bi-download"></i> Xuất Excel
+                    </button>
+                    <button class="btn btn-sm btn-outline-primary">
+                        <i class="bi bi-upload"></i> Nhập Excel
+                    </button>
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead>
+                    <tr>
+                        <th style="width: 50px;">
+                            <input type="checkbox" class="form-check-input" onclick="toggleSelectAll(this)">
+                        </th>
+                        <th style="width: 400px;">Sản phẩm</th>
+                        <th>SKU</th>
+                        <th>Danh mục</th>
+                        <th>Giá</th>
+                        <th>Tồn kho</th>
+                        <th>Trạng thái</th>
+                        <th style="width: 150px;">Thao tác</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <!-- Dynamic data loop -->
+                    <tr th:each="product : ${products}">
+                        <td>
+                            <input type="checkbox" class="form-check-input product-checkbox">
+                        </td>
+                        <td>
+                            <div class="product-info-cell">
+                                <img th:src="${product.imageUrl}" alt="Product" class="product-image">
+                                <div class="product-details">
+                                    <h6 th:text="${product.name}">Product Name</h6>
+                                    <span class="product-sku" th:text="${product.variant}">Variant</span>
+                                </div>
+                            </div>
+                        </td>
+                        <td><span class="text-muted" th:text="${product.sku}">SKU</span></td>
+                        <td th:text="${product.category}">Category</td>
+                        <td><strong th:text="${product.price}">Price</strong></td>
+                        <td>
+                            <div class="stock-info">
+                                <span class="stock-count" th:text="${product.stockCount} + ' sản phẩm'">Stock</span>
+                                <span class="status-badge"
+                                      th:classappend="${product.stockStatus == 'IN_STOCK' ? 'in-stock' :
+                                                       product.stockStatus == 'LOW_STOCK' ? 'low-stock' : 'out-of-stock'}"
+                                      th:text="${product.stockStatusText}">Stock Status</span>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="status-badge"
+                                  th:classappend="${product.status == 'ACTIVE' ? 'active' :
+                                                   product.status == 'INACTIVE' ? 'inactive' : 'draft'}"
+                                  th:text="${product.statusText}">Status</span>
+                        </td>
+                        <td>
+                            <div class="btn-group btn-group-sm">
+                                <a th:href="@{/admin/products/{id}(id=${product.id})}"
+                                   class="btn btn-sm btn-outline-primary" title="Xem">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                                <a th:href="@{/admin/products/edit/{id}(id=${product.id})}"
+                                   class="btn btn-sm btn-outline-success" title="Sửa">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                <button class="btn btn-sm btn-outline-danger action-btn-delete"
+                                        th:data-id="${product.id}" title="Xóa">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+
+                    <!-- Static sample data (if no dynamic data) -->
+                    <tr th:if="${#lists.isEmpty(products)}">
+                        <td>
+                            <input type="checkbox" class="form-check-input product-checkbox">
+                        </td>
+                        <td>
+                            <div class="product-info-cell">
+                                <img src="https://via.placeholder.com/60" alt="Product" class="product-image">
+                                <div class="product-details">
+                                    <h6>iPhone 15 Pro Max</h6>
+                                    <span class="product-sku">256GB - Titan Tự Nhiên</span>
+                                </div>
+                            </div>
+                        </td>
+                        <td><span class="text-muted">IP15PM-256-TN</span></td>
+                        <td>Điện thoại</td>
+                        <td><strong>29.990.000₫</strong></td>
+                        <td>
+                            <div class="stock-info">
+                                <span class="stock-count">156 sản phẩm</span>
+                                <span class="status-badge in-stock">Còn hàng</span>
+                            </div>
+                        </td>
+                        <td><span class="status-badge active">Đang bán</span></td>
+                        <td>
+                            <div class="btn-group btn-group-sm">
+                                <button class="btn btn-sm btn-outline-primary" title="Xem">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-success" title="Sửa">
+                                    <i class="bi bi-pencil"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-danger action-btn-delete" title="Xóa">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+
+                    <tr th:if="${#lists.isEmpty(products)}">
+                        <td>
+                            <input type="checkbox" class="form-check-input product-checkbox">
+                        </td>
+                        <td>
+                            <div class="product-info-cell">
+                                <img src="https://via.placeholder.com/60" alt="Product" class="product-image">
+                                <div class="product-details">
+                                    <h6>Samsung Galaxy S24 Ultra</h6>
+                                    <span class="product-sku">512GB - Titanium Gray</span>
+                                </div>
+                            </div>
+                        </td>
+                        <td><span class="text-muted">SS24U-512-TG</span></td>
+                        <td>Điện thoại</td>
+                        <td><strong>28.990.000₫</strong></td>
+                        <td>
+                            <div class="stock-info">
+                                <span class="stock-count">23 sản phẩm</span>
+                                <span class="status-badge low-stock">Sắp hết</span>
+                            </div>
+                        </td>
+                        <td><span class="status-badge active">Đang bán</span></td>
+                        <td>
+                            <div class="btn-group btn-group-sm">
+                                <button class="btn btn-sm btn-outline-primary" title="Xem">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-success" title="Sửa">
+                                    <i class="bi bi-pencil"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-danger action-btn-delete" title="Xóa">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+
+                    <tr th:if="${#lists.isEmpty(products)}">
+                        <td>
+                            <input type="checkbox" class="form-check-input product-checkbox">
+                        </td>
+                        <td>
+                            <div class="product-info-cell">
+                                <img src="https://via.placeholder.com/60" alt="Product" class="product-image">
+                                <div class="product-details">
+                                    <h6>MacBook Pro M3</h6>
+                                    <span class="product-sku">16GB RAM - 512GB SSD</span>
+                                </div>
+                            </div>
+                        </td>
+                        <td><span class="text-muted">MBP-M3-16-512</span></td>
+                        <td>Laptop</td>
+                        <td><strong>45.990.000₫</strong></td>
+                        <td>
+                            <div class="stock-info">
+                                <span class="stock-count">0 sản phẩm</span>
+                                <span class="status-badge out-of-stock">Hết hàng</span>
+                            </div>
+                        </td>
+                        <td><span class="status-badge inactive">Ngừng bán</span></td>
+                        <td>
+                            <div class="btn-group btn-group-sm">
+                                <button class="btn btn-sm btn-outline-primary" title="Xem">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-success" title="Sửa">
+                                    <i class="bi bi-pencil"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-danger action-btn-delete" title="Xóa">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+
+                    <tr th:if="${#lists.isEmpty(products)}">
+                        <td>
+                            <input type="checkbox" class="form-check-input product-checkbox">
+                        </td>
+                        <td>
+                            <div class="product-info-cell">
+                                <img src="https://via.placeholder.com/60" alt="Product" class="product-image">
+                                <div class="product-details">
+                                    <h6>iPad Pro M2 11 inch</h6>
+                                    <span class="product-sku">256GB - WiFi + Cellular</span>
+                                </div>
+                            </div>
+                        </td>
+                        <td><span class="text-muted">IPADPM2-11-256</span></td>
+                        <td>Tablet</td>
+                        <td><strong>24.990.000₫</strong></td>
+                        <td>
+                            <div class="stock-info">
+                                <span class="stock-count">89 sản phẩm</span>
+                                <span class="status-badge in-stock">Còn hàng</span>
+                            </div>
+                        </td>
+                        <td><span class="status-badge active">Đang bán</span></td>
+                        <td>
+                            <div class="btn-group btn-group-sm">
+                                <button class="btn btn-sm btn-outline-primary" title="Xem">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-success" title="Sửa">
+                                    <i class="bi bi-pencil"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-danger action-btn-delete" title="Xóa">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+
+                    <tr th:if="${#lists.isEmpty(products)}">
+                        <td>
+                            <input type="checkbox" class="form-check-input product-checkbox">
+                        </td>
+                        <td>
+                            <div class="product-info-cell">
+                                <img src="https://via.placeholder.com/60" alt="Product" class="product-image">
+                                <div class="product-details">
+                                    <h6>AirPods Pro (Gen 2)</h6>
+                                    <span class="product-sku">USB-C - Noise Cancelling</span>
+                                </div>
+                            </div>
+                        </td>
+                        <td><span class="text-muted">APP2-USBC</span></td>
+                        <td>Phụ kiện</td>
+                        <td><strong>6.490.000₫</strong></td>
+                        <td>
+                            <div class="stock-info">
+                                <span class="stock-count">234 sản phẩm</span>
+                                <span class="status-badge in-stock">Còn hàng</span>
+                            </div>
+                        </td>
+                        <td><span class="status-badge active">Đang bán</span></td>
+                        <td>
+                            <div class="btn-group btn-group-sm">
+                                <button class="btn btn-sm btn-outline-primary" title="Xem">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-success" title="Sửa">
+                                    <i class="bi bi-pencil"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-danger action-btn-delete" title="Xóa">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            <div class="pagination-wrapper">
+                <div class="pagination-info">
+                    Hiển thị <strong>1-10</strong> trong tổng số <strong>856</strong> sản phẩm
+                </div>
+                <nav>
+                    <ul class="pagination mb-0">
+                        <li class="page-item disabled">
+                            <a class="page-link" href="#"><i class="bi bi-chevron-left"></i></a>
+                        </li>
+                        <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                        <li class="page-item"><a class="page-link" href="#">2</a></li>
+                        <li class="page-item"><a class="page-link" href="#">3</a></li>
+                        <li class="page-item"><a class="page-link" href="#">4</a></li>
+                        <li class="page-item"><a class="page-link" href="#">5</a></li>
+                        <li class="page-item">
+                            <a class="page-link" href="#">...</a>
+                        </li>
+                        <li class="page-item"><a class="page-link" href="#">86</a></li>
+                        <li class="page-item">
+                            <a class="page-link" href="#"><i class="bi bi-chevron-right"></i></a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script th:src="@{/javascript/Dashboard.js}"></script>
+<script th:src="@{/javascript/ProductList.js}"></script>
+
+</body>
+</html>

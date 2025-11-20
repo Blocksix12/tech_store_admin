@@ -1,6 +1,7 @@
 package com.teamforone.tech_store.config;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -15,6 +16,8 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfiguration {
+    @Autowired
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private static final String[] WHITE_LIST_URL = {
             "/auth/admin/register",
             "/admin/2fa/phone/**",
@@ -22,10 +25,18 @@ public class SecurityConfiguration {
             "/auth/admin/update/{id}",
             "/auth/login",
             "/api/v1/auth/refresh-token",
-            "/api/v1/auth/verify"
+            "/api/v1/auth/verify",
+            "/admin/**",
+            "/css/**",
+            "/js/**",
+            "/javascript/**",
+            "/images/**",
+            "/static/**",
+            "/favicon.ico",
+            "/webjars/**"
     };
 
-    private final JwtAuthenticationFilter jwtAuthenticationFilter;
+
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity htpp) throws Exception {

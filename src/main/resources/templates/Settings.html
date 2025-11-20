@@ -1,0 +1,1310 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cài đặt - Admin Dashboard</title>
+
+    <!-- Bootstrap 5.3 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Dashboard CSS -->
+    <link rel="stylesheet" th:href="@{/css/Dashboard.css}" />
+    <!-- Settings CSS -->
+    <link rel="stylesheet" th:href="@{/css/Settings.css}" />
+</head>
+<body>
+
+<!-- Sidebar -->
+<div class="sidebar" id="sidebar">
+    <!-- Toggle Button -->
+    <button class="sidebar-toggle" onclick="toggleSidebarCollapse()" title="Thu gọn/Mở rộng">
+        <i class="bi bi-chevron-left"></i>
+    </button>
+
+    <div class="sidebar-brand">
+        <i class="bi bi-shop-window"></i>
+        <span class="sidebar-brand-text">E-Commerce</span>
+    </div>
+
+    <div class="sidebar-menu">
+        <div class="menu-section-title">Main</div>
+
+        <!-- Dashboard -->
+        <a href="/admin/dashboard" class="menu-item">
+            <i class="bi bi-grid-fill"></i>
+            <span>Dashboard</span>
+        </a>
+
+        <div class="menu-section-title">System</div>
+
+        <!-- Cài đặt -->
+        <div>
+            <div class="menu-item open active" onclick="toggleSubmenu(this)">
+                <i class="bi bi-gear-fill"></i>
+                <span>Cài đặt</span>
+                <i class="bi bi-chevron-down"></i>
+            </div>
+            <div class="submenu show">
+                <a href="/admin/settings/general" class="submenu-item active">Cài đặt chung</a>
+                <a href="/admin/settings/shipping" class="submenu-item">Vận chuyển</a>
+                <a href="/admin/settings/payment" class="submenu-item">Thanh toán</a>
+                <a href="/admin/settings/email" class="submenu-item">Email SMTP</a>
+                <a href="/admin/settings/users" class="submenu-item">Quản trị viên</a>
+                <a href="/admin/settings/audit-logs" class="submenu-item">Audit Logs</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Main Content -->
+<div class="main-content">
+    <!-- Topbar -->
+    <div class="topbar">
+        <div class="topbar-left">
+            <button class="mobile-menu-btn" onclick="toggleSidebar()">
+                <i class="bi bi-list"></i>
+            </button>
+            <div>
+                <h1 class="page-title">Cài đặt hệ thống</h1>
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="/admin">Trang chủ</a></li>
+                        <li class="breadcrumb-item active">Cài đặt</li>
+                    </ol>
+                </nav>
+            </div>
+        </div>
+
+        <div class="topbar-right">
+            <!-- Search Settings -->
+            <div class="search-box">
+                <i class="bi bi-search"></i>
+                <input type="text" class="form-control" placeholder="Tìm kiếm cài đặt..." id="searchSettings">
+            </div>
+
+            <!-- Notifications -->
+            <div class="dropdown">
+                <div class="topbar-icon" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="bi bi-bell-fill"></i>
+                    <span class="badge bg-danger">5</span>
+                </div>
+            </div>
+
+            <!-- User Menu -->
+            <div class="dropdown">
+                <div class="user-menu" data-bs-toggle="dropdown" aria-expanded="false">
+                    <div class="user-avatar">
+                        <span>N</span>
+                    </div>
+                    <div class="user-info">
+                        <div class="user-name">NvkhoaDev54</div>
+                    </div>
+                    <i class="bi bi-chevron-down"></i>
+                </div>
+                <ul class="dropdown-menu dropdown-menu-end">
+                    <li>
+                        <a class="dropdown-item" href="/admin/profile">
+                            <i class="bi bi-person"></i>
+                            <span>Hồ sơ của tôi</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item active" href="/admin/settings">
+                            <i class="bi bi-gear"></i>
+                            <span>Cài đặt</span>
+                        </a>
+                    </li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li>
+                        <form th:action="@{/logout}" method="post">
+                            <button type="submit" class="dropdown-item">
+                                <i class="bi bi-box-arrow-right"></i>
+                                <span>Đăng xuất</span>
+                            </button>
+                        </form>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Content Area -->
+    <div class="content-area">
+        <div class="row g-4">
+            <!-- Left Sidebar Navigation -->
+            <div class="col-lg-3">
+                <div class="settings-sidebar fade-in-up">
+                    <div class="settings-sidebar-header">
+                        <i class="bi bi-sliders"></i>
+                        <span>Danh mục cài đặt</span>
+                    </div>
+
+                    <div class="settings-nav-group">
+                        <a href="#general" class="settings-nav-link active" onclick="showSection('general')">
+                            <i class="bi bi-gear"></i>
+                            <span>Cài đặt chung</span>
+                            <i class="bi bi-chevron-right"></i>
+                        </a>
+                        <a href="#shipping" class="settings-nav-link" onclick="showSection('shipping')">
+                            <i class="bi bi-truck"></i>
+                            <span>Vận chuyển</span>
+                            <i class="bi bi-chevron-right"></i>
+                        </a>
+                        <a href="#payment" class="settings-nav-link" onclick="showSection('payment')">
+                            <i class="bi bi-credit-card"></i>
+                            <span>Thanh toán</span>
+                            <i class="bi bi-chevron-right"></i>
+                        </a>
+                        <a href="#email" class="settings-nav-link" onclick="showSection('email')">
+                            <i class="bi bi-envelope"></i>
+                            <span>Email SMTP</span>
+                            <i class="bi bi-chevron-right"></i>
+                        </a>
+                        <a href="#users" class="settings-nav-link" onclick="showSection('users')">
+                            <i class="bi bi-people"></i>
+                            <span>Quản trị viên</span>
+                            <i class="bi bi-chevron-right"></i>
+                        </a>
+                        <a href="#audit-logs" class="settings-nav-link" onclick="showSection('audit-logs')">
+                            <i class="bi bi-journal-text"></i>
+                            <span>Audit Logs</span>
+                            <i class="bi bi-chevron-right"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Content Area -->
+            <div class="col-lg-9">
+                <!-- Cài đặt chung -->
+                <div class="settings-content active fade-in-up" id="general-section">
+                    <div class="settings-header">
+                        <div>
+                            <h3><i class="bi bi-gear"></i> Cài đặt chung</h3>
+                            <p>Cấu hình thông tin cơ bản của hệ thống</p>
+                        </div>
+                        <button class="btn btn-success" onclick="saveSettings('general')">
+                            <i class="bi bi-check-circle"></i>
+                            Lưu thay đổi
+                        </button>
+                    </div>
+
+                    <div class="settings-card">
+                        <div class="settings-card-header">
+                            <h5><i class="bi bi-info-circle"></i> Thông tin website</h5>
+                        </div>
+                        <div class="settings-card-body">
+                            <div class="row g-3">
+                                <div class="col-12">
+                                    <label class="form-label">Tên website</label>
+                                    <input type="text" class="form-control" value="E-Commerce Admin" placeholder="Nhập tên website">
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label">Slogan</label>
+                                    <input type="text" class="form-control" value="Nền tảng quản lý bán hàng hiện đại" placeholder="Slogan">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">URL Website</label>
+                                    <input type="url" class="form-control" value="https://example.com" placeholder="https://example.com">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Email liên hệ</label>
+                                    <input type="email" class="form-control" value="contact@example.com" placeholder="email@example.com">
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label">Mô tả</label>
+                                    <textarea class="form-control" rows="3" placeholder="Mô tả về website">Hệ thống quản lý bán hàng trực tuyến chuyên nghiệp với đầy đủ tính năng.</textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="settings-card">
+                        <div class="settings-card-header">
+                            <h5><i class="bi bi-image"></i> Logo & Favicon</h5>
+                        </div>
+                        <div class="settings-card-body">
+                            <div class="row g-4">
+                                <div class="col-md-6">
+                                    <label class="form-label">Logo</label>
+                                    <div class="image-upload-box">
+                                        <div class="image-preview">
+                                            <img src="https://via.placeholder.com/200x60?text=Your+Logo" id="logoPreview" alt="Logo">
+                                        </div>
+                                        <input type="file" id="logoInput" accept="image/*" hidden onchange="handleImageUpload(event, 'logoPreview')">
+                                        <button type="button" class="btn btn-primary btn-sm mt-2" onclick="document.getElementById('logoInput').click()">
+                                            <i class="bi bi-upload"></i> Tải lên Logo
+                                        </button>
+                                        <small class="d-block text-muted mt-2">Khuyến nghị: PNG/SVG, 200x60px, nền trong suốt</small>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Favicon</label>
+                                    <div class="image-upload-box">
+                                        <div class="image-preview small">
+                                            <img src="https://via.placeholder.com/32?text=F" id="faviconPreview" alt="Favicon">
+                                        </div>
+                                        <input type="file" id="faviconInput" accept="image/*" hidden onchange="handleImageUpload(event, 'faviconPreview')">
+                                        <button type="button" class="btn btn-primary btn-sm mt-2" onclick="document.getElementById('faviconInput').click()">
+                                            <i class="bi bi-upload"></i> Tải lên Favicon
+                                        </button>
+                                        <small class="d-block text-muted mt-2">Khuyến nghị: ICO/PNG, 32x32px hoặc 16x16px</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="settings-card">
+                        <div class="settings-card-header">
+                            <h5><i class="bi bi-building"></i> Thông tin công ty</h5>
+                        </div>
+                        <div class="settings-card-body">
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label">Tên công ty</label>
+                                    <input type="text" class="form-control" value="E-Commerce Co., Ltd" placeholder="Tên công ty">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Số điện thoại</label>
+                                    <input type="tel" class="form-control" value="+84 123 456 789" placeholder="+84 xxx xxx xxx">
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label">Địa chỉ</label>
+                                    <input type="text" class="form-control" value="123 Nguyễn Văn Linh, Hà Nội, Việt Nam" placeholder="Địa chỉ đầy đủ">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Mã số thuế</label>
+                                    <input type="text" class="form-control" value="0123456789" placeholder="Mã số thuế">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Hotline</label>
+                                    <input type="tel" class="form-control" value="1900-xxxx" placeholder="1900-xxxx">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="settings-card">
+                        <div class="settings-card-header">
+                            <h5><i class="bi bi-globe"></i> Bản địa hóa</h5>
+                        </div>
+                        <div class="settings-card-body">
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label">Ngôn ngữ mặc định</label>
+                                    <select class="form-select">
+                                        <option value="vi" selected>Tiếng Việt</option>
+                                        <option value="en">English</option>
+                                        <option value="ja">日本語</option>
+                                        <option value="ko">한국어</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Múi giờ</label>
+                                    <select class="form-select">
+                                        <option value="Asia/Ho_Chi_Minh" selected>Asia/Ho Chi Minh (UTC+7)</option>
+                                        <option value="Asia/Tokyo">Asia/Tokyo (UTC+9)</option>
+                                        <option value="America/New_York">America/New York (UTC-5)</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Tiền tệ</label>
+                                    <select class="form-select">
+                                        <option value="VND" selected>VND - Việt Nam Đồng</option>
+                                        <option value="USD">USD - US Dollar</option>
+                                        <option value="EUR">EUR - Euro</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Định dạng ngày</label>
+                                    <select class="form-select">
+                                        <option value="DD/MM/YYYY" selected>DD/MM/YYYY</option>
+                                        <option value="MM/DD/YYYY">MM/DD/YYYY</option>
+                                        <option value="YYYY-MM-DD">YYYY-MM-DD</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Vận chuyển -->
+                <div class="settings-content fade-in-up" id="shipping-section" style="display: none;">
+                    <div class="settings-header">
+                        <div>
+                            <h3><i class="bi bi-truck"></i> Vận chuyển</h3>
+                            <p>Cấu hình các phương thức vận chuyển</p>
+                        </div>
+                        <button class="btn btn-success" onclick="saveSettings('shipping')">
+                            <i class="bi bi-check-circle"></i>
+                            Lưu thay đổi
+                        </button>
+                    </div>
+
+                    <div class="settings-card">
+                        <div class="settings-card-header">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <h5><i class="bi bi-truck"></i> Đơn vị vận chuyển</h5>
+                                <button class="btn btn-primary btn-sm" onclick="addShippingMethod()">
+                                    <i class="bi bi-plus-circle"></i> Thêm đơn vị
+                                </button>
+                            </div>
+                        </div>
+                        <div class="settings-card-body">
+                            <div class="shipping-methods-list">
+                                <!-- Giao hàng nhanh -->
+                                <div class="shipping-method-item">
+                                    <div class="shipping-method-info">
+                                        <div class="shipping-method-logo">
+                                            <img src="https://via.placeholder.com/60?text=GHN" alt="GHN">
+                                        </div>
+                                        <div class="shipping-method-details">
+                                            <h6>Giao Hàng Nhanh (GHN)</h6>
+                                            <p>Giao hàng toàn quốc 1-3 ngày</p>
+                                            <span class="badge bg-success">Đang hoạt động</span>
+                                        </div>
+                                    </div>
+                                    <div class="shipping-method-actions">
+                                        <button class="btn btn-sm btn-outline-primary" onclick="editShippingMethod('ghn')">
+                                            <i class="bi bi-pencil"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-danger" onclick="deleteShippingMethod('ghn')">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                        <div class="form-check form-switch ms-2">
+                                            <input class="form-check-input" type="checkbox" checked>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Giao hàng tiết kiệm -->
+                                <div class="shipping-method-item">
+                                    <div class="shipping-method-info">
+                                        <div class="shipping-method-logo">
+                                            <img src="https://via.placeholder.com/60?text=GHTK" alt="GHTK">
+                                        </div>
+                                        <div class="shipping-method-details">
+                                            <h6>Giao Hàng Tiết Kiệm (GHTK)</h6>
+                                            <p>Tiết kiệm chi phí, giao 2-4 ngày</p>
+                                            <span class="badge bg-success">Đang hoạt động</span>
+                                        </div>
+                                    </div>
+                                    <div class="shipping-method-actions">
+                                        <button class="btn btn-sm btn-outline-primary" onclick="editShippingMethod('ghtk')">
+                                            <i class="bi bi-pencil"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-danger" onclick="deleteShippingMethod('ghtk')">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                        <div class="form-check form-switch ms-2">
+                                            <input class="form-check-input" type="checkbox" checked>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Viettel Post -->
+                                <div class="shipping-method-item">
+                                    <div class="shipping-method-info">
+                                        <div class="shipping-method-logo">
+                                            <img src="https://via.placeholder.com/60?text=VTP" alt="VTP">
+                                        </div>
+                                        <div class="shipping-method-details">
+                                            <h6>Viettel Post</h6>
+                                            <p>Mạng lưới rộng khắp, uy tín</p>
+                                            <span class="badge bg-secondary">Tạm ngừng</span>
+                                        </div>
+                                    </div>
+                                    <div class="shipping-method-actions">
+                                        <button class="btn btn-sm btn-outline-primary" onclick="editShippingMethod('vtp')">
+                                            <i class="bi bi-pencil"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-danger" onclick="deleteShippingMethod('vtp')">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                        <div class="form-check form-switch ms-2">
+                                            <input class="form-check-input" type="checkbox">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="settings-card">
+                        <div class="settings-card-header">
+                            <h5><i class="bi bi-gear"></i> Cài đặt vận chuyển</h5>
+                        </div>
+                        <div class="settings-card-body">
+                            <div class="setting-toggle-item">
+                                <div class="setting-toggle-info">
+                                    <h6>Miễn phí vận chuyển</h6>
+                                    <p>Cho đơn hàng trên một giá trị nhất định</p>
+                                </div>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="freeShipping" checked>
+                                </div>
+                            </div>
+
+                            <div class="row g-3 mt-2" id="freeShippingSettings">
+                                <div class="col-md-6">
+                                    <label class="form-label">Giá trị đơn hàng tối thiểu</label>
+                                    <div class="input-group">
+                                        <input type="number" class="form-control" value="500000" min="0">
+                                        <span class="input-group-text">₫</span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Áp dụng cho khu vực</label>
+                                    <select class="form-select">
+                                        <option value="all" selected>Toàn quốc</option>
+                                        <option value="city">Nội thành</option>
+                                        <option value="specific">Khu vực cụ thể</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="setting-toggle-item mt-3">
+                                <div class="setting-toggle-info">
+                                    <h6>Tính phí vận chuyển tự động</h6>
+                                    <p>Dựa trên trọng lượng và khoảng cách</p>
+                                </div>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="autoCalculate" checked>
+                                </div>
+                            </div>
+
+                            <div class="setting-toggle-item mt-3">
+                                <div class="setting-toggle-info">
+                                    <h6>Cho phép khách hàng chọn đơn vị vận chuyển</h6>
+                                    <p>Hiển thị nhiều lựa chọn khi checkout</p>
+                                </div>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="customerChoice" checked>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Thanh toán -->
+                <div class="settings-content fade-in-up" id="payment-section" style="display: none;">
+                    <div class="settings-header">
+                        <div>
+                            <h3><i class="bi bi-credit-card"></i> Thanh toán</h3>
+                            <p>Cấu hình các phương thức thanh toán</p>
+                        </div>
+                        <button class="btn btn-success" onclick="saveSettings('payment')">
+                            <i class="bi bi-check-circle"></i>
+                            Lưu thay đổi
+                        </button>
+                    </div>
+
+                    <div class="settings-card">
+                        <div class="settings-card-header">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <h5><i class="bi bi-wallet2"></i> Phương thức thanh toán</h5>
+                                <button class="btn btn-primary btn-sm" onclick="addPaymentMethod()">
+                                    <i class="bi bi-plus-circle"></i> Thêm phương thức
+                                </button>
+                            </div>
+                        </div>
+                        <div class="settings-card-body">
+                            <div class="payment-methods-list">
+                                <!-- COD -->
+                                <div class="payment-method-item">
+                                    <div class="payment-method-info">
+                                        <div class="payment-method-icon cod">
+                                            <i class="bi bi-cash-coin"></i>
+                                        </div>
+                                        <div class="payment-method-details">
+                                            <h6>Thanh toán khi nhận hàng (COD)</h6>
+                                            <p>Khách hàng thanh toán trực tiếp khi nhận hàng</p>
+                                            <span class="badge bg-success">Đang hoạt động</span>
+                                        </div>
+                                    </div>
+                                    <div class="payment-method-actions">
+                                        <button class="btn btn-sm btn-outline-primary" onclick="editPaymentMethod('cod')">
+                                            <i class="bi bi-gear"></i> Cấu hình
+                                        </button>
+                                        <div class="form-check form-switch ms-2">
+                                            <input class="form-check-input" type="checkbox" checked>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Bank Transfer -->
+                                <div class="payment-method-item">
+                                    <div class="payment-method-info">
+                                        <div class="payment-method-icon bank">
+                                            <i class="bi bi-bank"></i>
+                                        </div>
+                                        <div class="payment-method-details">
+                                            <h6>Chuyển khoản ngân hàng</h6>
+                                            <p>Chuyển khoản trực tiếp qua tài khoản ngân hàng</p>
+                                            <span class="badge bg-success">Đang hoạt động</span>
+                                        </div>
+                                    </div>
+                                    <div class="payment-method-actions">
+                                        <button class="btn btn-sm btn-outline-primary" onclick="editPaymentMethod('bank')">
+                                            <i class="bi bi-gear"></i> Cấu hình
+                                        </button>
+                                        <div class="form-check form-switch ms-2">
+                                            <input class="form-check-input" type="checkbox" checked>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- VNPay -->
+                                <div class="payment-method-item">
+                                    <div class="payment-method-info">
+                                        <div class="payment-method-icon vnpay">
+                                            <img src="https://via.placeholder.com/60?text=VNPay" alt="VNPay">
+                                        </div>
+                                        <div class="payment-method-details">
+                                            <h6>VNPay</h6>
+                                            <p>Thanh toán qua ví điện tử VNPay</p>
+                                            <span class="badge bg-success">Đang hoạt động</span>
+                                        </div>
+                                    </div>
+                                    <div class="payment-method-actions">
+                                        <button class="btn btn-sm btn-outline-primary" onclick="editPaymentMethod('vnpay')">
+                                            <i class="bi bi-gear"></i> Cấu hình
+                                        </button>
+                                        <div class="form-check form-switch ms-2">
+                                            <input class="form-check-input" type="checkbox" checked>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- MoMo -->
+                                <div class="payment-method-item">
+                                    <div class="payment-method-info">
+                                        <div class="payment-method-icon momo">
+                                            <img src="https://via.placeholder.com/60?text=MoMo" alt="MoMo">
+                                        </div>
+                                        <div class="payment-method-details">
+                                            <h6>MoMo</h6>
+                                            <p>Thanh toán qua ví điện tử MoMo</p>
+                                            <span class="badge bg-success">Đang hoạt động</span>
+                                        </div>
+                                    </div>
+                                    <div class="payment-method-actions">
+                                        <button class="btn btn-sm btn-outline-primary" onclick="editPaymentMethod('momo')">
+                                            <i class="bi bi-gear"></i> Cấu hình
+                                        </button>
+                                        <div class="form-check form-switch ms-2">
+                                            <input class="form-check-input" type="checkbox" checked>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- PayPal -->
+                                <div class="payment-method-item">
+                                    <div class="payment-method-info">
+                                        <div class="payment-method-icon paypal">
+                                            <img src="https://via.placeholder.com/60?text=PayPal" alt="PayPal">
+                                        </div>
+                                        <div class="payment-method-details">
+                                            <h6>PayPal</h6>
+                                            <p>Thanh toán quốc tế qua PayPal</p>
+                                            <span class="badge bg-secondary">Tạm ngừng</span>
+                                        </div>
+                                    </div>
+                                    <div class="payment-method-actions">
+                                        <button class="btn btn-sm btn-outline-primary" onclick="editPaymentMethod('paypal')">
+                                            <i class="bi bi-gear"></i> Cấu hình
+                                        </button>
+                                        <div class="form-check form-switch ms-2">
+                                            <input class="form-check-input" type="checkbox">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="settings-card">
+                        <div class="settings-card-header">
+                            <h5><i class="bi bi-bank"></i> Thông tin tài khoản ngân hàng</h5>
+                        </div>
+                        <div class="settings-card-body">
+                            <div class="bank-accounts-list">
+                                <div class="bank-account-item">
+                                    <div class="bank-account-info">
+                                        <div class="bank-logo">
+                                            <img src="https://via.placeholder.com/50?text=VCB" alt="Vietcombank">
+                                        </div>
+                                        <div>
+                                            <h6>Vietcombank</h6>
+                                            <p class="mb-1"><strong>STK:</strong> 0123456789</p>
+                                            <p class="mb-0"><strong>Chủ TK:</strong> NGUYEN VAN KHOA</p>
+                                        </div>
+                                    </div>
+                                    <div class="bank-account-actions">
+                                        <button class="btn btn-sm btn-outline-primary">
+                                            <i class="bi bi-pencil"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-danger">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="bank-account-item">
+                                    <div class="bank-account-info">
+                                        <div class="bank-logo">
+                                            <img src="https://via.placeholder.com/50?text=TCB" alt="Techcombank">
+                                        </div>
+                                        <div>
+                                            <h6>Techcombank</h6>
+                                            <p class="mb-1"><strong>STK:</strong> 9876543210</p>
+                                            <p class="mb-0"><strong>Chủ TK:</strong> NGUYEN VAN KHOA</p>
+                                        </div>
+                                    </div>
+                                    <div class="bank-account-actions">
+                                        <button class="btn btn-sm btn-outline-primary">
+                                            <i class="bi bi-pencil"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-danger">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <button class="btn btn-outline-primary w-100 mt-3" onclick="addBankAccount()">
+                                    <i class="bi bi-plus-circle"></i>
+                                    Thêm tài khoản ngân hàng
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="settings-card">
+                        <div class="settings-card-header">
+                            <h5><i class="bi bi-gear"></i> Cài đặt thanh toán</h5>
+                        </div>
+                        <div class="settings-card-body">
+                            <div class="setting-toggle-item">
+                                <div class="setting-toggle-info">
+                                    <h6>Thanh toán một phần</h6>
+                                    <p>Cho phép khách hàng thanh toán trước một phần đơn hàng</p>
+                                </div>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="partialPayment">
+                                </div>
+                            </div>
+
+                            <div class="setting-toggle-item">
+                                <div class="setting-toggle-info">
+                                    <h6>Lưu thông tin thanh toán</h6>
+                                    <p>Lưu thông tin thẻ để thanh toán nhanh lần sau</p>
+                                </div>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="savePaymentInfo">
+                                </div>
+                            </div>
+
+                            <div class="setting-toggle-item">
+                                <div class="setting-toggle-info">
+                                    <h6>Xác thực thanh toán 3D Secure</h6>
+                                    <p>Tăng cường bảo mật cho thanh toán thẻ</p>
+                                </div>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="3dSecure" checked>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Email SMTP -->
+                <div class="settings-content fade-in-up" id="email-section" style="display: none;">
+                    <div class="settings-header">
+                        <div>
+                            <h3><i class="bi bi-envelope"></i> Email SMTP</h3>
+                            <p>Cấu hình máy chủ email</p>
+                        </div>
+                        <button class="btn btn-success" onclick="saveSettings('email')">
+                            <i class="bi bi-check-circle"></i>
+                            Lưu thay đổi
+                        </button>
+                    </div>
+
+                    <div class="settings-card">
+                        <div class="settings-card-header">
+                            <h5><i class="bi bi-server"></i> Cấu hình SMTP</h5>
+                        </div>
+                        <div class="settings-card-body">
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label">SMTP Host</label>
+                                    <input type="text" class="form-control" value="smtp.gmail.com" placeholder="smtp.example.com">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">SMTP Port</label>
+                                    <input type="number" class="form-control" value="587" placeholder="587">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Email người gửi</label>
+                                    <input type="email" class="form-control" value="noreply@example.com" placeholder="noreply@example.com">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Tên người gửi</label>
+                                    <input type="text" class="form-control" value="E-Commerce" placeholder="Tên hiển thị">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Username</label>
+                                    <input type="text" class="form-control" value="admin@example.com" placeholder="Username SMTP">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Password</label>
+                                    <div class="input-group">
+                                        <input type="password" class="form-control" id="smtpPassword" value="************" placeholder="Password">
+                                        <button class="btn btn-outline-secondary" type="button" onclick="togglePasswordVisibility('smtpPassword')">
+                                            <i class="bi bi-eye"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Mã hóa</label>
+                                    <select class="form-select">
+                                        <option value="tls" selected>TLS</option>
+                                        <option value="ssl">SSL</option>
+                                        <option value="none">None</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6 d-flex align-items-end">
+                                    <button class="btn btn-outline-primary w-100" onclick="testEmailConnection()">
+                                        <i class="bi bi-send"></i>
+                                        Gửi email test
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="settings-card">
+                        <div class="settings-card-header">
+                            <h5><i class="bi bi-file-earmark-text"></i> Mẫu Email</h5>
+                        </div>
+                        <div class="settings-card-body">
+                            <div class="email-templates-list">
+                                <div class="email-template-item">
+                                    <div class="email-template-info">
+                                        <i class="bi bi-person-check"></i>
+                                        <div>
+                                            <h6>Email chào mừng</h6>
+                                            <p>Gửi khi khách hàng đăng ký tài khoản mới</p>
+                                        </div>
+                                    </div>
+                                    <div class="email-template-actions">
+                                        <button class="btn btn-sm btn-outline-primary" onclick="editEmailTemplate('welcome')">
+                                            <i class="bi bi-pencil"></i> Chỉnh sửa
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-secondary" onclick="previewEmailTemplate('welcome')">
+                                            <i class="bi bi-eye"></i> Xem trước
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="email-template-item">
+                                    <div class="email-template-info">
+                                        <i class="bi bi-cart-check"></i>
+                                        <div>
+                                            <h6>Xác nhận đơn hàng</h6>
+                                            <p>Gửi khi đơn hàng được đặt thành công</p>
+                                        </div>
+                                    </div>
+                                    <div class="email-template-actions">
+                                        <button class="btn btn-sm btn-outline-primary" onclick="editEmailTemplate('order-confirm')">
+                                            <i class="bi bi-pencil"></i> Chỉnh sửa
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-secondary" onclick="previewEmailTemplate('order-confirm')">
+                                            <i class="bi bi-eye"></i> Xem trước
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="email-template-item">
+                                    <div class="email-template-info">
+                                        <i class="bi bi-truck"></i>
+                                        <div>
+                                            <h6>Đơn hàng đang giao</h6>
+                                            <p>Thông báo khi đơn hàng đang được vận chuyển</p>
+                                        </div>
+                                    </div>
+                                    <div class="email-template-actions">
+                                        <button class="btn btn-sm btn-outline-primary" onclick="editEmailTemplate('shipping')">
+                                            <i class="bi bi-pencil"></i> Chỉnh sửa
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-secondary" onclick="previewEmailTemplate('shipping')">
+                                            <i class="bi bi-eye"></i> Xem trước
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="email-template-item">
+                                    <div class="email-template-info">
+                                        <i class="bi bi-key"></i>
+                                        <div>
+                                            <h6>Đặt lại mật khẩu</h6>
+                                            <p>Email chứa link đặt lại mật khẩu</p>
+                                        </div>
+                                    </div>
+                                    <div class="email-template-actions">
+                                        <button class="btn btn-sm btn-outline-primary" onclick="editEmailTemplate('reset-password')">
+                                            <i class="bi bi-pencil"></i> Chỉnh sửa
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-secondary" onclick="previewEmailTemplate('reset-password')">
+                                            <i class="bi bi-eye"></i> Xem trước
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="email-template-item">
+                                    <div class="email-template-info">
+                                        <i class="bi bi-receipt"></i>
+                                        <div>
+                                            <h6>Hóa đơn điện tử</h6>
+                                            <p>Gửi hóa đơn chi tiết đơn hàng</p>
+                                        </div>
+                                    </div>
+                                    <div class="email-template-actions">
+                                        <button class="btn btn-sm btn-outline-primary" onclick="editEmailTemplate('invoice')">
+                                            <i class="bi bi-pencil"></i> Chỉnh sửa
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-secondary" onclick="previewEmailTemplate('invoice')">
+                                            <i class="bi bi-eye"></i> Xem trước
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quản trị viên -->
+                <div class="settings-content fade-in-up" id="users-section" style="display: none;">
+                    <div class="settings-header">
+                        <div>
+                            <h3><i class="bi bi-people"></i> Quản trị viên</h3>
+                            <p>Quản lý người dùng và phân quyền</p>
+                        </div>
+                        <button class="btn btn-primary" onclick="addAdmin()">
+                            <i class="bi bi-plus-circle"></i>
+                            Thêm quản trị viên
+                        </button>
+                    </div>
+
+                    <div class="settings-card">
+                        <div class="settings-card-header">
+                            <h5><i class="bi bi-people-fill"></i> Danh sách quản trị viên</h5>
+                        </div>
+                        <div class="settings-card-body">
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead>
+                                    <tr>
+                                        <th>Người dùng</th>
+                                        <th>Email</th>
+                                        <th>Vai trò</th>
+                                        <th>Trạng thái</th>
+                                        <th>Lần đăng nhập cuối</th>
+                                        <th>Thao tác</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <tr>
+                                        <td>
+                                            <div class="d-flex align-items-center gap-2">
+                                                <div class="user-avatar-small">N</div>
+                                                <div>
+                                                    <strong>NvkhoaDev54</strong>
+                                                    <br>
+                                                    <small class="text-muted">Nguyễn Văn Khoa</small>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>nvkhoadev54@gmail.com</td>
+                                        <td><span class="badge bg-danger">Super Admin</span></td>
+                                        <td><span class="badge bg-success">Hoạt động</span></td>
+                                        <td>14/11/2025 02:29</td>
+                                        <td>
+                                            <div class="btn-group btn-group-sm">
+                                                <button class="btn btn-outline-primary" title="Chỉnh sửa">
+                                                    <i class="bi bi-pencil"></i>
+                                                </button>
+                                                <button class="btn btn-outline-secondary" title="Phân quyền">
+                                                    <i class="bi bi-key"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="d-flex align-items-center gap-2">
+                                                <div class="user-avatar-small">T</div>
+                                                <div>
+                                                    <strong>admin_manager</strong>
+                                                    <br>
+                                                    <small class="text-muted">Trần Văn B</small>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>manager@example.com</td>
+                                        <td><span class="badge bg-primary">Admin</span></td>
+                                        <td><span class="badge bg-success">Hoạt động</span></td>
+                                        <td>13/11/2025 18:45</td>
+                                        <td>
+                                            <div class="btn-group btn-group-sm">
+                                                <button class="btn btn-outline-primary" title="Chỉnh sửa">
+                                                    <i class="bi bi-pencil"></i>
+                                                </button>
+                                                <button class="btn btn-outline-secondary" title="Phân quyền">
+                                                    <i class="bi bi-key"></i>
+                                                </button>
+                                                <button class="btn btn-outline-danger" title="Xóa">
+                                                    <i class="bi bi-trash"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="d-flex align-items-center gap-2">
+                                                <div class="user-avatar-small">L</div>
+                                                <div>
+                                                    <strong>staff_01</strong>
+                                                    <br>
+                                                    <small class="text-muted">Lê Thị C</small>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>staff01@example.com</td>
+                                        <td><span class="badge bg-info">Staff</span></td>
+                                        <td><span class="badge bg-success">Hoạt động</span></td>
+                                        <td>14/11/2025 01:30</td>
+                                        <td>
+                                            <div class="btn-group btn-group-sm">
+                                                <button class="btn btn-outline-primary" title="Chỉnh sửa">
+                                                    <i class="bi bi-pencil"></i>
+                                                </button>
+                                                <button class="btn btn-outline-secondary" title="Phân quyền">
+                                                    <i class="bi bi-key"></i>
+                                                </button>
+                                                <button class="btn btn-outline-danger" title="Xóa">
+                                                    <i class="bi bi-trash"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="d-flex align-items-center gap-2">
+                                                <div class="user-avatar-small">P</div>
+                                                <div>
+                                                    <strong>editor_02</strong>
+                                                    <br>
+                                                    <small class="text-muted">Phạm Văn D</small>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>editor02@example.com</td>
+                                        <td><span class="badge bg-warning">Editor</span></td>
+                                        <td><span class="badge bg-secondary">Tạm ngừng</span></td>
+                                        <td>10/11/2025 14:20</td>
+                                        <td>
+                                            <div class="btn-group btn-group-sm">
+                                                <button class="btn btn-outline-primary" title="Chỉnh sửa">
+                                                    <i class="bi bi-pencil"></i>
+                                                </button>
+                                                <button class="btn btn-outline-secondary" title="Phân quyền">
+                                                    <i class="bi bi-key"></i>
+                                                </button>
+                                                <button class="btn btn-outline-danger" title="Xóa">
+                                                    <i class="bi bi-trash"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="settings-card">
+                        <div class="settings-card-header">
+                            <h5><i class="bi bi-shield-lock"></i> Vai trò & Quyền hạn</h5>
+                        </div>
+                        <div class="settings-card-body">
+                            <div class="roles-list">
+                                <div class="role-item">
+                                    <div class="role-info">
+                                        <div class="role-icon super-admin">
+                                            <i class="bi bi-star-fill"></i>
+                                        </div>
+                                        <div>
+                                            <h6>Super Admin</h6>
+                                            <p>Toàn quyền quản trị hệ thống</p>
+                                            <small class="text-muted">1 người dùng</small>
+                                        </div>
+                                    </div>
+                                    <button class="btn btn-sm btn-outline-primary" onclick="editRole('super-admin')">
+                                        <i class="bi bi-eye"></i> Xem quyền
+                                    </button>
+                                </div>
+
+                                <div class="role-item">
+                                    <div class="role-info">
+                                        <div class="role-icon admin">
+                                            <i class="bi bi-person-badge"></i>
+                                        </div>
+                                        <div>
+                                            <h6>Admin</h6>
+                                            <p>Quản lý sản phẩm, đơn hàng, khách hàng</p>
+                                            <small class="text-muted">1 người dùng</small>
+                                        </div>
+                                    </div>
+                                    <button class="btn btn-sm btn-outline-primary" onclick="editRole('admin')">
+                                        <i class="bi bi-pencil"></i> Chỉnh sửa
+                                    </button>
+                                </div>
+
+                                <div class="role-item">
+                                    <div class="role-info">
+                                        <div class="role-icon staff">
+                                            <i class="bi bi-person"></i>
+                                        </div>
+                                        <div>
+                                            <h6>Staff</h6>
+                                            <p>Xử lý đơn hàng và hỗ trợ khách hàng</p>
+                                            <small class="text-muted">1 người dùng</small>
+                                        </div>
+                                    </div>
+                                    <button class="btn btn-sm btn-outline-primary" onclick="editRole('staff')">
+                                        <i class="bi bi-pencil"></i> Chỉnh sửa
+                                    </button>
+                                </div>
+
+                                <div class="role-item">
+                                    <div class="role-info">
+                                        <div class="role-icon editor">
+                                            <i class="bi bi-pencil-square"></i>
+                                        </div>
+                                        <div>
+                                            <h6>Editor</h6>
+                                            <p>Quản lý nội dung và bài viết</p>
+                                            <small class="text-muted">1 người dùng</small>
+                                        </div>
+                                    </div>
+                                    <button class="btn btn-sm btn-outline-primary" onclick="editRole('editor')">
+                                        <i class="bi bi-pencil"></i> Chỉnh sửa
+                                    </button>
+                                </div>
+
+                                <button class="btn btn-outline-primary w-100 mt-3" onclick="addRole()">
+                                    <i class="bi bi-plus-circle"></i>
+                                    Thêm vai trò mới
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Audit Logs -->
+                <div class="settings-content fade-in-up" id="audit-logs-section" style="display: none;">
+                    <div class="settings-header">
+                        <div>
+                            <h3><i class="bi bi-journal-text"></i> Audit Logs</h3>
+                            <p>Nhật ký hoạt động của hệ thống</p>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <button class="btn btn-outline-primary" onclick="exportLogs()">
+                                <i class="bi bi-download"></i>
+                                Export
+                            </button>
+                            <button class="btn btn-outline-danger" onclick="clearLogs()">
+                                <i class="bi bi-trash"></i>
+                                Xóa log cũ
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="settings-card">
+                        <div class="settings-card-header">
+                            <h5><i class="bi bi-funnel"></i> Bộ lọc</h5>
+                        </div>
+                        <div class="settings-card-body">
+                            <div class="row g-3">
+                                <div class="col-md-3">
+                                    <label class="form-label">Người dùng</label>
+                                    <select class="form-select" id="filterUser">
+                                        <option value="">Tất cả</option>
+                                        <option value="nvkhoadev54">NvkhoaDev54</option>
+                                        <option value="admin_manager">admin_manager</option>
+                                        <option value="staff_01">staff_01</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label">Hành động</label>
+                                    <select class="form-select" id="filterAction">
+                                        <option value="">Tất cả</option>
+                                        <option value="create">Tạo mới</option>
+                                        <option value="update">Cập nhật</option>
+                                        <option value="delete">Xóa</option>
+                                        <option value="login">Đăng nhập</option>
+                                        <option value="logout">Đăng xuất</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label">Từ ngày</label>
+                                    <input type="date" class="form-control" id="filterDateFrom">
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label">Đến ngày</label>
+                                    <input type="date" class="form-control" id="filterDateTo">
+                                </div>
+                            </div>
+                            <button class="btn btn-primary mt-3" onclick="applyLogFilters()">
+                                <i class="bi bi-search"></i> Áp dụng bộ lọc
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="settings-card">
+                        <div class="settings-card-header">
+                            <h5><i class="bi bi-list-ul"></i> Nhật ký hoạt động</h5>
+                        </div>
+                        <div class="settings-card-body">
+                            <div class="audit-logs-list">
+                                <div class="audit-log-item">
+                                    <div class="audit-log-icon create">
+                                        <i class="bi bi-plus-circle"></i>
+                                    </div>
+                                    <div class="audit-log-details">
+                                        <div class="audit-log-header">
+                                            <h6>Tạo sản phẩm mới</h6>
+                                            <span class="audit-log-time">14/11/2025 02:24:10</span>
+                                        </div>
+                                        <p><strong>NvkhoaDev54</strong> đã tạo sản phẩm <strong>"iPhone 15 Pro Max"</strong></p>
+                                        <div class="audit-log-meta">
+                                            <span><i class="bi bi-pc-display"></i> Chrome 120.0 on Windows</span>
+                                            <span><i class="bi bi-geo-alt"></i> 123.45.67.89 (Hà Nội)</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="audit-log-item">
+                                    <div class="audit-log-icon update">
+                                        <i class="bi bi-pencil"></i>
+                                    </div>
+                                    <div class="audit-log-details">
+                                        <div class="audit-log-header">
+                                            <h6>Cập nhật đơn hàng</h6>
+                                            <span class="audit-log-time">14/11/2025 01:45:23</span>
+                                        </div>
+                                        <p><strong>staff_01</strong> đã cập nhật trạng thái đơn hàng <strong>#ORD-12345</strong> thành "Đang giao"</p>
+                                        <div class="audit-log-meta">
+                                            <span><i class="bi bi-pc-display"></i> Safari 17.0 on MacOS</span>
+                                            <span><i class="bi bi-geo-alt"></i> 98.76.54.32 (TP.HCM)</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="audit-log-item">
+                                    <div class="audit-log-icon login">
+                                        <i class="bi bi-box-arrow-in-right"></i>
+                                    </div>
+                                    <div class="audit-log-details">
+                                        <div class="audit-log-header">
+                                            <h6>Đăng nhập hệ thống</h6>
+                                            <span class="audit-log-time">14/11/2025 01:30:00</span>
+                                        </div>
+                                        <p><strong>staff_01</strong> đã đăng nhập vào hệ thống</p>
+                                        <div class="audit-log-meta">
+                                            <span><i class="bi bi-pc-display"></i> Safari 17.0 on MacOS</span>
+                                            <span><i class="bi bi-geo-alt"></i> 98.76.54.32 (TP.HCM)</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="audit-log-item">
+                                    <div class="audit-log-icon delete">
+                                        <i class="bi bi-trash"></i>
+                                    </div>
+                                    <div class="audit-log-details">
+                                        <div class="audit-log-header">
+                                            <h6>Xóa sản phẩm</h6>
+                                            <span class="audit-log-time">13/11/2025 18:20:15</span>
+                                        </div>
+                                        <p><strong>admin_manager</strong> đã xóa sản phẩm <strong>"Old Product Name"</strong></p>
+                                        <div class="audit-log-meta">
+                                            <span><i class="bi bi-pc-display"></i> Firefox 120.0 on Windows</span>
+                                            <span><i class="bi bi-geo-alt"></i> 111.22.33.44 (Đà Nẵng)</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="audit-log-item">
+                                    <div class="audit-log-icon update">
+                                        <i class="bi bi-gear"></i>
+                                    </div>
+                                    <div class="audit-log-details">
+                                        <div class="audit-log-header">
+                                            <h6>Thay đổi cài đặt</h6>
+                                            <span class="audit-log-time">13/11/2025 15:10:30</span>
+                                        </div>
+                                        <p><strong>NvkhoaDev54</strong> đã cập nhật cài đặt <strong>Email SMTP</strong></p>
+                                        <div class="audit-log-meta">
+                                            <span><i class="bi bi-pc-display"></i> Chrome 120.0 on Windows</span>
+                                            <span><i class="bi bi-geo-alt"></i> 123.45.67.89 (Hà Nội)</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Pagination -->
+                            <div class="pagination-wrapper mt-4">
+                                <div class="pagination-info">
+                                    Hiển thị <strong>1-5</strong> trong tổng số <strong>1,234</strong> bản ghi
+                                </div>
+                                <nav>
+                                    <ul class="pagination mb-0">
+                                        <li class="page-item disabled">
+                                            <a class="page-link" href="#"><i class="bi bi-chevron-left"></i></a>
+                                        </li>
+                                        <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                                        <li class="page-item"><a class="page-link" href="#">2</a></li>
+                                        <li class="page-item"><a class="page-link" href="#">3</a></li>
+                                        <li class="page-item"><a class="page-link" href="#">...</a></li>
+                                        <li class="page-item"><a class="page-link" href="#">247</a></li>
+                                        <li class="page-item">
+                                            <a class="page-link" href="#"><i class="bi bi-chevron-right"></i></a>
+                                        </li>
+                                    </ul>
+                                </nav>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<!-- Dashboard JS -->
+<script th:src="@{/javascript/Dashboard.js}"></script>
+<!-- Settings JS -->
+<script th:src="@{/javascript/Settings.js}"></script>
+
+</body>
+</html>
