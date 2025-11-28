@@ -1,828 +1,253 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="vi">
+<html xmlns:th="http://www.thymeleaf.org" lang="vi">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Thêm Sản phẩm - Admin Dashboard</title>
-
-    <!-- Bootstrap 5.3 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <!-- Select2 CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-    <link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" rel="stylesheet" />
-    <!-- Dashboard CSS (chung) -->
     <link rel="stylesheet" th:href="@{/css/Dashboard.css}" />
-    <!-- Add Product CSS (riêng) -->
     <link rel="stylesheet" th:href="@{/css/AddProduct.css}" />
 </head>
 <body>
 
-<!-- Sidebar -->
-<div class="sidebar" id="sidebar">
-    <div class="sidebar-brand">
-        <i class="bi bi-shop-window"></i>
-        <span class="sidebar-brand-text">E-Commerce</span>
-    </div>
-
-    <div class="sidebar-menu">
-        <div class="menu-section-title">Main</div>
-
-        <!-- Dashboard -->
-        <a href="/admin/dashboard" class="menu-item">
-            <i class="bi bi-grid-fill"></i>
-            <span>Dashboard</span>
-        </a>
-
-        <div class="menu-section-title">Quản lý</div>
-
-        <!-- Quản lý sản phẩm -->
-        <div>
-            <div class="menu-item open active" onclick="toggleSubmenu(this)">
-                <i class="bi bi-box-seam-fill"></i>
-                <span>Sản phẩm</span>
-                <i class="bi bi-chevron-down"></i>
-            </div>
-            <div class="submenu show">
-                <a href="/admin/products" class="submenu-item">Danh sách sản phẩm</a>
-                <a href="/admin/products/add" class="submenu-item active">Thêm sản phẩm</a>
-                <a href="/admin/categories" class="submenu-item">Danh mục</a>
-                <a href="/admin/brands" class="submenu-item">Thương hiệu</a>
-                <a href="/admin/attributes" class="submenu-item">Thuộc tính</a>
-                <a href="/admin/products/import" class="submenu-item">Import/Export</a>
-            </div>
-        </div>
-
-        <!-- Quản lý tồn kho -->
-        <div>
-            <div class="menu-item" onclick="toggleSubmenu(this)">
-                <i class="bi bi-boxes"></i>
-                <span>Tồn kho</span>
-                <span class="badge bg-warning">12</span>
-                <i class="bi bi-chevron-down"></i>
-            </div>
-            <div class="submenu">
-                <a href="/admin/inventory" class="submenu-item">Quản lý kho</a>
-                <a href="/admin/inventory/warehouses" class="submenu-item">Kho hàng</a>
-                <a href="/admin/inventory/stock-in" class="submenu-item">Nhập kho</a>
-                <a href="/admin/inventory/stock-out" class="submenu-item">Xuất kho</a>
-                <a href="/admin/inventory/transfer" class="submenu-item">Điều chuyển</a>
-                <a href="/admin/inventory/alerts" class="submenu-item">
-                    Cảnh báo tồn kho
-                    <span class="badge bg-danger ms-auto">12</span>
-                </a>
-            </div>
-        </div>
-
-        <!-- Quản lý đơn hàng -->
-        <div>
-            <div class="menu-item" onclick="toggleSubmenu(this)">
-                <i class="bi bi-cart-check-fill"></i>
-                <span>Đơn hàng</span>
-                <span class="badge bg-danger">5</span>
-                <i class="bi bi-chevron-down"></i>
-            </div>
-            <div class="submenu">
-                <a href="/admin/orders" class="submenu-item">Danh sách đơn hàng</a>
-                <a href="/admin/orders/pending" class="submenu-item">
-                    Chờ xử lý
-                    <span class="badge bg-warning text-dark ms-auto">5</span>
-                </a>
-                <a href="/admin/orders/processing" class="submenu-item">Đang xử lý</a>
-                <a href="/admin/orders/shipped" class="submenu-item">Đang giao</a>
-                <a href="/admin/orders/refunds" class="submenu-item">Hoàn trả</a>
-            </div>
-        </div>
-
-        <!-- Quản lý khách hàng -->
-        <div>
-            <div class="menu-item" onclick="toggleSubmenu(this)">
-                <i class="bi bi-people-fill"></i>
-                <span>Khách hàng</span>
-                <i class="bi bi-chevron-down"></i>
-            </div>
-            <div class="submenu">
-                <a href="/admin/customers" class="submenu-item">Danh sách khách hàng</a>
-                <a href="/admin/customers/groups" class="submenu-item">Nhóm khách hàng</a>
-                <a href="/admin/customers/reviews" class="submenu-item">Đánh giá</a>
-                <a href="/admin/users/roles" class="submenu-item">Phân quyền</a>
-            </div>
-        </div>
-
-        <div class="menu-section-title">Marketing & Content</div>
-
-        <!-- Marketing -->
-        <div>
-            <div class="menu-item" onclick="toggleSubmenu(this)">
-                <i class="bi bi-megaphone-fill"></i>
-                <span>Marketing</span>
-                <i class="bi bi-chevron-down"></i>
-            </div>
-            <div class="submenu">
-                <a href="/admin/promotions" class="submenu-item">Khuyến mãi</a>
-                <a href="/admin/coupons" class="submenu-item">Mã giảm giá</a>
-                <a href="/admin/campaigns" class="submenu-item">Chiến dịch</a>
-                <a href="/admin/emails" class="submenu-item">Email Marketing</a>
-            </div>
-        </div>
-
-        <!-- CMS -->
-        <div>
-            <div class="menu-item" onclick="toggleSubmenu(this)">
-                <i class="bi bi-file-earmark-text-fill"></i>
-                <span>Nội dung</span>
-                <i class="bi bi-chevron-down"></i>
-            </div>
-            <div class="submenu">
-                <a href="/admin/pages" class="submenu-item">Trang tĩnh</a>
-                <a href="/admin/blog" class="submenu-item">Blog/Tin tức</a>
-                <a href="/admin/banners" class="submenu-item">Banner & Slider</a>
-                <a href="/admin/seo" class="submenu-item">SEO</a>
-            </div>
-        </div>
-
-        <!-- Phản hồi & Đánh giá -->
-        <a href="/admin/reviews" class="menu-item">
-            <i class="bi bi-star-fill"></i>
-            <span>Phản hồi & Đánh giá</span>
-            <span class="badge bg-info">8</span>
-        </a>
-
-        <div class="menu-section-title">Analytics</div>
-
-        <!-- Báo cáo -->
-        <div>
-            <div class="menu-item" onclick="toggleSubmenu(this)">
-                <i class="bi bi-graph-up-arrow"></i>
-                <span>Báo cáo</span>
-                <i class="bi bi-chevron-down"></i>
-            </div>
-            <div class="submenu">
-                <a href="/admin/reports/sales" class="submenu-item">Doanh thu</a>
-                <a href="/admin/reports/products" class="submenu-item">Sản phẩm</a>
-                <a href="/admin/reports/customers" class="submenu-item">Khách hàng</a>
-                <a href="/admin/reports/inventory" class="submenu-item">Tồn kho</a>
-                <a href="/admin/reports/export" class="submenu-item">Export báo cáo</a>
-            </div>
-        </div>
-
-        <div class="menu-section-title">System</div>
-
-        <!-- Cài đặt -->
-        <div>
-            <div class="menu-item" onclick="toggleSubmenu(this)">
-                <i class="bi bi-gear-fill"></i>
-                <span>Cài đặt</span>
-                <i class="bi bi-chevron-down"></i>
-            </div>
-            <div class="submenu">
-                <a href="/admin/settings/general" class="submenu-item">Cài đặt chung</a>
-                <a href="/admin/settings/shipping" class="submenu-item">Vận chuyển</a>
-                <a href="/admin/settings/payment" class="submenu-item">Thanh toán</a>
-                <a href="/admin/settings/email" class="submenu-item">Email SMTP</a>
-                <a href="/admin/settings/users" class="submenu-item">Quản trị viên</a>
-                <a href="/admin/settings/audit-logs" class="submenu-item">Audit Logs</a>
-            </div>
-        </div>
-
-        <!-- 2FA Security -->
-        <a href="/admin/2fa" class="menu-item">
-            <i class="bi bi-shield-check"></i>
-            <span>Xác thực 2FA</span>
-        </a>
-    </div>
-</div>
+<!-- Include Sidebar -->
+<div th:replace="~{fragments/sidebar :: sidebar}"></div>
 
 <!-- Main Content -->
 <div class="main-content">
-    <!-- Topbar -->
-    <div class="topbar">
-        <div class="topbar-left">
-            <button class="mobile-menu-btn" onclick="toggleSidebar()">
-                <i class="bi bi-list"></i>
-            </button>
-            <div>
-                <h1 class="page-title">Thêm Sản phẩm mới</h1>
-                <nav aria-label="breadcrumb">
-                    <ol class="breadcrumb">
-                        <li class="breadcrumb-item"><a href="/admin">Trang chủ</a></li>
-                        <li class="breadcrumb-item"><a href="/admin/products">Sản phẩm</a></li>
-                        <li class="breadcrumb-item active" aria-current="page">Thêm sản phẩm</li>
-                    </ol>
-                </nav>
-            </div>
-        </div>
-
-        <div class="topbar-right">
-            <!-- Search -->
-            <div class="search-box">
-                <i class="bi bi-search"></i>
-                <input type="text" class="form-control" placeholder="Tìm kiếm...">
-            </div>
-
-            <!-- Notifications -->
-            <div class="dropdown">
-                <div class="topbar-icon" data-bs-toggle="dropdown" aria-expanded="false">
-                    <i class="bi bi-bell-fill"></i>
-                    <span class="badge bg-danger">5</span>
-                </div>
-                <ul class="dropdown-menu dropdown-menu-end">
-                    <li class="px-3 py-2"><strong>Thông báo</strong></li>
-                    <li><hr class="dropdown-divider"></li>
-                    <li>
-                        <a class="dropdown-item" href="#">
-                            <i class="bi bi-cart-check text-success"></i>
-                            <span>3 đơn hàng mới</span>
-                        </a>
-                    </li>
-                </ul>
-            </div>
-
-            <!-- Messages -->
-            <div class="dropdown">
-                <div class="topbar-icon" data-bs-toggle="dropdown" aria-expanded="false">
-                    <i class="bi bi-chat-dots-fill"></i>
-                    <span class="badge bg-success">2</span>
-                </div>
-                <ul class="dropdown-menu dropdown-menu-end">
-                    <li class="px-3 py-2"><strong>Tin nhắn</strong></li>
-                    <li><hr class="dropdown-divider"></li>
-                    <li>
-                        <a class="dropdown-item" href="#">
-                            <i class="bi bi-person-circle"></i>
-                            <span>Khách hàng yêu cầu hỗ trợ</span>
-                        </a>
-                    </li>
-                </ul>
-            </div>
-
-            <!-- User Menu -->
-            <div class="dropdown">
-                <div class="user-menu" data-bs-toggle="dropdown" aria-expanded="false">
-                    <div class="user-avatar">
-                        <span>N</span>
-                    </div>
-                    <div class="user-info">
-                        <div class="user-name">NvkhoaDev54</div>
-                    </div>
-                    <i class="bi bi-chevron-down"></i>
-                </div>
-                <ul class="dropdown-menu dropdown-menu-end">
-                    <li>
-                        <a class="dropdown-item" href="/admin/profile">
-                            <i class="bi bi-person"></i>
-                            <span>Hồ sơ của tôi</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a class="dropdown-item" href="/admin/settings">
-                            <i class="bi bi-gear"></i>
-                            <span>Cài đặt</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a class="dropdown-item" href="/admin/activity-log">
-                            <i class="bi bi-clock-history"></i>
-                            <span>Nhật ký hoạt động</span>
-                        </a>
-                    </li>
-                    <li><hr class="dropdown-divider"></li>
-                    <li>
-                        <form th:action="@{/logout}" method="post">
-                            <button type="submit" class="dropdown-item">
-                                <i class="bi bi-box-arrow-right"></i>
-                                <span>Đăng xuất</span>
-                            </button>
-                        </form>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </div>
+    <!-- Include Topbar -->
+    <div th:replace="~{fragments/topbar :: topbar}"></div>
 
     <!-- Content Area -->
-    <div class="content-area">
-        <form id="productForm" enctype="multipart/form-data">
-            <div class="row g-4">
-                <!-- Left Column - Main Info -->
-                <div class="col-lg-8">
-                    <!-- Basic Information -->
-                    <div class="form-section fade-in-up">
-                        <div class="section-header">
-                            <h5 class="section-title">
-                                <i class="bi bi-info-circle-fill"></i>
-                                Thông tin cơ bản
-                            </h5>
-                        </div>
-                        <div class="section-body">
-                            <div class="row g-3">
-                                <div class="col-12">
-                                    <label class="form-label required">Tên sản phẩm</label>
-                                    <input type="text" class="form-control" id="productName" name="name" required>
-                                    <div class="form-text">Tên sản phẩm nên rõ ràng, dễ hiểu và tối đa 200 ký tự</div>
-                                </div>
-
-                                <div class="col-12">
-                                    <label class="form-label">Slug (URL)</label>
-                                    <input type="text" class="form-control" id="productSlug" name="slug">
-                                    <div class="form-text">Để trống để tự động tạo từ tên sản phẩm</div>
-                                </div>
-
-                                <div class="col-12">
-                                    <label class="form-label">Mô tả ngắn</label>
-                                    <textarea class="form-control" id="shortDescription" name="shortDescription" rows="3"></textarea>
-                                    <div class="form-text">Mô tả ngắn gọn về sản phẩm (tối đa 500 ký tự)</div>
-                                </div>
-
-                                <div class="col-12">
-                                    <label class="form-label">Mô tả chi tiết</label>
-                                    <textarea class="form-control" id="fullDescription" name="fullDescription" rows="8"></textarea>
-                                    <div class="form-text">Mô tả đầy đủ về sản phẩm, tính năng, ưu điểm</div>
-                                </div>
-                            </div>
-                        </div>
+    <form id="productForm" th:action="@{/admin/products/add}" method="POST" th:object="${product}" enctype="multipart/form-data">
+        <div class="row g-4">
+            <!-- Left Column - Main Info -->
+            <div class="col-lg-8">
+                <!-- Basic Information -->
+                <div class="form-section">
+                    <div class="section-header">
+                        <h5 class="section-title">
+                            <i class="bi bi-info-circle-fill"></i>
+                            Thông tin cơ bản
+                        </h5>
                     </div>
-
-                    <!-- Product Images -->
-                    <div class="form-section fade-in-up" style="animation-delay: 0.1s;">
-                        <div class="section-header">
-                            <h5 class="section-title">
-                                <i class="bi bi-images"></i>
-                                Hình ảnh sản phẩm
-                            </h5>
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <label class="form-label required">Tên sản phẩm</label>
+                            <input type="text" class="form-control" id="productName" name="name" th:field="*{name}" required>
+                            <div class="form-text">Tên sản phẩm nên rõ ràng, dễ hiểu</div>
                         </div>
-                        <div class="section-body">
-                            <div class="image-upload-container">
-                                <div class="main-image-upload">
-                                    <label class="form-label required">Ảnh chính</label>
-                                    <div class="image-upload-box" id="mainImageBox">
-                                        <input type="file" id="mainImage" name="mainImage" accept="image/*" hidden>
-                                        <label for="mainImage" class="image-upload-label">
-                                            <i class="bi bi-cloud-upload"></i>
-                                            <p>Kéo thả hoặc click để chọn ảnh</p>
-                                            <span class="text-muted">PNG, JPG tối đa 5MB</span>
-                                        </label>
-                                        <div class="image-preview" id="mainImagePreview"></div>
-                                    </div>
-                                </div>
 
-                                <div class="gallery-images-upload">
-                                    <label class="form-label">Thư viện ảnh</label>
-                                    <div class="gallery-grid" id="galleryGrid">
-                                        <div class="gallery-upload-box">
-                                            <input type="file" id="galleryImages" name="galleryImages" accept="image/*" multiple hidden>
-                                            <label for="galleryImages" class="gallery-upload-label">
-                                                <i class="bi bi-plus-lg"></i>
-                                                <span>Thêm ảnh</span>
-                                            </label>
-                                        </div>
-                                    </div>
-                                    <div class="form-text">Bạn có thể chọn nhiều ảnh cùng lúc (tối đa 10 ảnh)</div>
-                                </div>
-                            </div>
+                        <div class="col-12">
+                            <label class="form-label required">Slug (URL)</label>
+                            <input type="text" class="form-control" id="productSlug" name="slug" th:field="*{slug}" required>
+                            <div class="form-text">URL thân thiện cho sản phẩm (tự động tạo từ tên)</div>
                         </div>
-                    </div>
 
-                    <!-- Pricing & Inventory -->
-                    <div class="form-section fade-in-up" style="animation-delay: 0.2s;">
-                        <div class="section-header">
-                            <h5 class="section-title">
-                                <i class="bi bi-cash-coin"></i>
-                                Giá & Tồn kho
-                            </h5>
-                        </div>
-                        <div class="section-body">
-                            <div class="row g-3">
-                                <div class="col-md-6">
-                                    <label class="form-label required">Giá gốc</label>
-                                    <div class="input-group">
-                                        <input type="number" class="form-control" id="regularPrice" name="regularPrice" min="0" required>
-                                        <span class="input-group-text">₫</span>
-                                    </div>
-                                </div>
-
-                                <div class="col-md-6">
-                                    <label class="form-label">Giá khuyến mãi</label>
-                                    <div class="input-group">
-                                        <input type="number" class="form-control" id="salePrice" name="salePrice" min="0">
-                                        <span class="input-group-text">₫</span>
-                                    </div>
-                                </div>
-
-                                <div class="col-md-4">
-                                    <label class="form-label">SKU</label>
-                                    <input type="text" class="form-control" id="sku" name="sku" placeholder="VD: IP15-256-BLK">
-                                </div>
-
-                                <div class="col-md-4">
-                                    <label class="form-label required">Số lượng tồn kho</label>
-                                    <input type="number" class="form-control" id="stockQuantity" name="stockQuantity" min="0" value="0" required>
-                                </div>
-
-                                <div class="col-md-4">
-                                    <label class="form-label">Ngưỡng cảnh báo</label>
-                                    <input type="number" class="form-control" id="lowStockThreshold" name="lowStockThreshold" min="0" value="10">
-                                </div>
-
-                                <div class="col-12">
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" id="trackInventory" name="trackInventory" checked>
-                                        <label class="form-check-label" for="trackInventory">
-                                            Theo dõi tồn kho
-                                        </label>
-                                    </div>
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" id="allowBackorder" name="allowBackorder">
-                                        <label class="form-check-label" for="allowBackorder">
-                                            Cho phép đặt hàng khi hết hàng
-                                        </label>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Product Variants -->
-                    <div class="form-section fade-in-up" style="animation-delay: 0.3s;">
-                        <div class="section-header">
-                            <h5 class="section-title">
-                                <i class="bi bi-grid-3x3-gap"></i>
-                                Biến thể sản phẩm
-                            </h5>
-                            <button type="button" class="btn btn-sm btn-primary" onclick="addVariant()">
-                                <i class="bi bi-plus-lg"></i> Thêm biến thể
-                            </button>
-                        </div>
-                        <div class="section-body">
-                            <div class="variants-container" id="variantsContainer">
-                                <div class="empty-state">
-                                    <i class="bi bi-inbox"></i>
-                                    <p>Chưa có biến thể nào</p>
-                                    <button type="button" class="btn btn-primary" onclick="addVariant()">
-                                        <i class="bi bi-plus-lg"></i> Thêm biến thể đầu tiên
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Shipping -->
-                    <div class="form-section fade-in-up" style="animation-delay: 0.4s;">
-                        <div class="section-header">
-                            <h5 class="section-title">
-                                <i class="bi bi-truck"></i>
-                                Vận chuyển
-                            </h5>
-                        </div>
-                        <div class="section-body">
-                            <div class="row g-3">
-                                <div class="col-md-3">
-                                    <label class="form-label">Cân nặng (gram)</label>
-                                    <input type="number" class="form-control" id="weight" name="weight" min="0">
-                                </div>
-
-                                <div class="col-md-3">
-                                    <label class="form-label">Dài (cm)</label>
-                                    <input type="number" class="form-control" id="length" name="length" min="0">
-                                </div>
-
-                                <div class="col-md-3">
-                                    <label class="form-label">Rộng (cm)</label>
-                                    <input type="number" class="form-control" id="width" name="width" min="0">
-                                </div>
-
-                                <div class="col-md-3">
-                                    <label class="form-label">Cao (cm)</label>
-                                    <input type="number" class="form-control" id="height" name="height" min="0">
-                                </div>
-
-                                <div class="col-12">
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" id="freeShipping" name="freeShipping">
-                                        <label class="form-check-label" for="freeShipping">
-                                            Miễn phí vận chuyển
-                                        </label>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- SEO -->
-                    <div class="form-section fade-in-up" style="animation-delay: 0.5s;">
-                        <div class="section-header">
-                            <h5 class="section-title">
-                                <i class="bi bi-search"></i>
-                                Tối ưu SEO
-                            </h5>
-                        </div>
-                        <div class="section-body">
-                            <div class="row g-3">
-                                <div class="col-12">
-                                    <label class="form-label">Meta Title</label>
-                                    <input type="text" class="form-control" id="metaTitle" name="metaTitle" maxlength="60">
-                                    <div class="form-text">
-                                        <span id="metaTitleCount">0</span>/60 ký tự
-                                    </div>
-                                </div>
-
-                                <div class="col-12">
-                                    <label class="form-label">Meta Description</label>
-                                    <textarea class="form-control" id="metaDescription" name="metaDescription" rows="3" maxlength="160"></textarea>
-                                    <div class="form-text">
-                                        <span id="metaDescCount">0</span>/160 ký tự
-                                    </div>
-                                </div>
-
-                                <div class="col-12">
-                                    <label class="form-label">Meta Keywords</label>
-                                    <input type="text" class="form-control" id="metaKeywords" name="metaKeywords" placeholder="Cách nhau bởi dấu phẩy">
-                                </div>
-
-                                <div class="col-12">
-                                    <label class="form-label">URL Preview</label>
-                                    <div class="seo-preview">
-                                        <div class="seo-url" id="seoUrlPreview">https://example.com/san-pham/</div>
-                                        <div class="seo-title" id="seoTitlePreview">Tiêu đề sản phẩm của bạn</div>
-                                        <div class="seo-description" id="seoDescPreview">Mô tả sản phẩm của bạn sẽ hiển thị ở đây...</div>
-                                    </div>
-                                </div>
-                            </div>
+                        <div class="col-12">
+                            <label class="form-label">Mô tả sản phẩm</label>
+                            <textarea class="form-control" id="description" name="description" th:field="*{description}" rows="6"></textarea>
+                            <div class="form-text">Mô tả chi tiết về sản phẩm</div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Right Column - Additional Info -->
-                <div class="col-lg-4">
-                    <!-- Publish -->
-                    <div class="form-section fade-in-up">
-                        <div class="section-header">
-                            <h5 class="section-title">
-                                <i class="bi bi-send-fill"></i>
-                                Xuất bản
-                            </h5>
-                        </div>
-                        <div class="section-body">
-                            <div class="mb-3">
-                                <label class="form-label">Trạng thái</label>
-                                <select class="form-select" id="status" name="status">
-                                    <option value="draft">Nháp</option>
-                                    <option value="published">Xuất bản</option>
-                                    <option value="scheduled">Lên lịch</option>
-                                </select>
-                            </div>
-
-                            <div class="mb-3">
-                                <label class="form-label">Hiển thị</label>
-                                <select class="form-select" id="visibility" name="visibility">
-                                    <option value="public">Công khai</option>
-                                    <option value="private">Riêng tư</option>
-                                    <option value="password">Bảo mật bằng mật khẩu</option>
-                                </select>
-                            </div>
-
-                            <div class="mb-3" id="scheduleGroup" style="display: none;">
-                                <label class="form-label">Lên lịch xuất bản</label>
-                                <input type="datetime-local" class="form-control" id="publishDate" name="publishDate">
-                            </div>
-
-                            <div class="d-grid gap-2">
-                                <button type="button" class="btn btn-primary" onclick="saveProduct('published')">
-                                    <i class="bi bi-check-circle"></i> Xuất bản
+                <!-- Product Image -->
+                <div class="form-section">
+                    <div class="section-header">
+                        <h5 class="section-title">
+                            <i class="bi bi-image-fill"></i>
+                            Hình ảnh sản phẩm
+                        </h5>
+                    </div>
+                    <div class="image-upload-box" id="imageUploadBox">
+                        <input type="file" id="productImage" name="defaultImage" accept="image/*" hidden>
+                        <label for="productImage" class="image-upload-label">
+                            <i class="bi bi-cloud-upload"></i>
+                            <p>Kéo thả hoặc click để chọn ảnh</p>
+                            <span class="text-muted">PNG, JPG tối đa 5MB</span>
+                        </label>
+                        <div class="image-preview" id="imagePreview">
+                            <img id="previewImg" src="" alt="Preview">
+                            <div class="preview-actions">
+                                <button type="button" class="btn btn-sm btn-danger" onclick="removeImage()">
+                                    <i class="bi bi-trash"></i> Xóa ảnh
                                 </button>
-                                <button type="button" class="btn btn-outline-secondary" onclick="saveProduct('draft')">
-                                    <i class="bi bi-file-earmark"></i> Lưu nháp
-                                </button>
-                                <button type="button" class="btn btn-outline-primary" onclick="previewProduct()">
-                                    <i class="bi bi-eye"></i> Xem trước
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Categories -->
-                    <div class="form-section fade-in-up" style="animation-delay: 0.1s;">
-                        <div class="section-header">
-                            <h5 class="section-title">
-                                <i class="bi bi-folder-fill"></i>
-                                Danh mục
-                            </h5>
-                        </div>
-                        <div class="section-body">
-                            <select class="form-select" id="categories" name="categories" multiple>
-                                <option value="1">Điện thoại & Phụ kiện</option>
-                                <option value="2">iPhone</option>
-                                <option value="3">Samsung</option>
-                                <option value="4">Laptop</option>
-                                <option value="5">Tablet</option>
-                                <option value="6">Phụ kiện</option>
-                            </select>
-                            <div class="form-text">Giữ Ctrl/Cmd để chọn nhiều danh mục</div>
-                        </div>
-                    </div>
-
-                    <!-- Brand -->
-                    <div class="form-section fade-in-up" style="animation-delay: 0.2s;">
-                        <div class="section-header">
-                            <h5 class="section-title">
-                                <i class="bi bi-award-fill"></i>
-                                Thương hiệu
-                            </h5>
-                        </div>
-                        <div class="section-body">
-                            <select class="form-select" id="brand" name="brand">
-                                <option value="">Chọn thương hiệu</option>
-                                <option value="1">Apple</option>
-                                <option value="2">Samsung</option>
-                                <option value="3">Xiaomi</option>
-                                <option value="4">Dell</option>
-                                <option value="5">HP</option>
-                                <option value="6">Asus</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <!-- Tags -->
-                    <div class="form-section fade-in-up" style="animation-delay: 0.3s;">
-                        <div class="section-header">
-                            <h5 class="section-title">
-                                <i class="bi bi-tags-fill"></i>
-                                Tags
-                            </h5>
-                        </div>
-                        <div class="section-body">
-                            <select class="form-select" id="tags" name="tags" multiple>
-                                <option value="hot">Hot</option>
-                                <option value="new">New</option>
-                                <option value="sale">Sale</option>
-                                <option value="best-seller">Best Seller</option>
-                                <option value="featured">Nổi bật</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <!-- Product Type -->
-                    <div class="form-section fade-in-up" style="animation-delay: 0.4s;">
-                        <div class="section-header">
-                            <h5 class="section-title">
-                                <i class="bi bi-box"></i>
-                                Loại sản phẩm
-                            </h5>
-                        </div>
-                        <div class="section-body">
-                            <div class="form-check">
-                                <input class="form-check-input" type="radio" name="productType" id="typeSimple" value="simple" checked>
-                                <label class="form-check-label" for="typeSimple">
-                                    Sản phẩm đơn giản
-                                </label>
-                            </div>
-                            <div class="form-check">
-                                <input class="form-check-input" type="radio" name="productType" id="typeVariable" value="variable">
-                                <label class="form-check-label" for="typeVariable">
-                                    Sản phẩm có biến thể
-                                </label>
-                            </div>
-                            <div class="form-check">
-                                <input class="form-check-input" type="radio" name="productType" id="typeDigital" value="digital">
-                                <label class="form-check-label" for="typeDigital">
-                                    Sản phẩm số
-                                </label>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Product Features -->
-                    <div class="form-section fade-in-up" style="animation-delay: 0.5s;">
-                        <div class="section-header">
-                            <h5 class="section-title">
-                                <i class="bi bi-star-fill"></i>
-                                Tính năng
-                            </h5>
-                        </div>
-                        <div class="section-body">
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" id="featured" name="featured">
-                                <label class="form-check-label" for="featured">
-                                    Sản phẩm nổi bật
-                                </label>
-                            </div>
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" id="bestSeller" name="bestSeller">
-                                <label class="form-check-label" for="bestSeller">
-                                    Bán chạy nhất
-                                </label>
-                            </div>
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" id="newArrival" name="newArrival">
-                                <label class="form-check-label" for="newArrival">
-                                    Hàng mới về
-                                </label>
-                            </div>
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" id="onSale" name="onSale">
-                                <label class="form-check-label" for="onSale">
-                                    Đang giảm giá
-                                </label>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Product Stats -->
-                    <div class="form-section fade-in-up" style="animation-delay: 0.6s;">
-                        <div class="section-header">
-                            <h5 class="section-title">
-                                <i class="bi bi-graph-up"></i>
-                                Thống kê
-                            </h5>
-                        </div>
-                        <div class="section-body">
-                            <div class="stat-item-small">
-                                <span class="stat-label-small">Lượt xem:</span>
-                                <span class="stat-value-small">0</span>
-                            </div>
-                            <div class="stat-item-small">
-                                <span class="stat-label-small">Đã bán:</span>
-                                <span class="stat-value-small">0</span>
-                            </div>
-                            <div class="stat-item-small">
-                                <span class="stat-label-small">Đánh giá:</span>
-                                <span class="stat-value-small">0 (0 ⭐)</span>
-                            </div>
-                            <div class="stat-item-small">
-                                <span class="stat-label-small">Tạo bởi:</span>
-                                <span class="stat-value-small">NvkhoaDev54</span>
-                            </div>
-                            <div class="stat-item-small">
-                                <span class="stat-label-small">Ngày tạo:</span>
-                                <span class="stat-value-small">13/11/2025</span>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </form>
-    </div>
-</div>
 
-<!-- Variant Modal -->
-<div class="modal fade" id="variantModal" tabindex="-1">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">
-                    <i class="bi bi-grid-3x3-gap"></i> Thêm biến thể
-                </h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <div class="row g-3">
-                    <div class="col-md-6">
-                        <label class="form-label">Tên biến thể</label>
-                        <input type="text" class="form-control" id="variantName" placeholder="VD: 256GB - Titan Tự Nhiên">
+            <!-- Right Column - Additional Info -->
+            <div class="col-lg-4">
+                <!-- Status -->
+                <div class="form-section">
+                    <div class="section-header">
+                        <h5 class="section-title">
+                            <i class="bi bi-toggle-on"></i>
+                            Trạng thái
+                        </h5>
                     </div>
-                    <div class="col-md-6">
-                        <label class="form-label">SKU</label>
-                        <input type="text" class="form-control" id="variantSku">
+                    <select class="form-select" id="status" name="status" th:field="*{status}" required>
+                        <option value="DRAFT">Nháp</option>
+                        <option value="PUBLISHED" selected>Xuất bản</option>
+                        <option value="ARCHIVED">Lưu trữ</option>
+                    </select>
+                </div>
+
+                <!-- Category -->
+                <div class="form-section">
+                    <div class="section-header">
+                        <h5 class="section-title">
+                            <i class="bi bi-folder-fill"></i>
+                            Danh mục
+                        </h5>
                     </div>
-                    <div class="col-md-4">
-                        <label class="form-label">Giá gốc</label>
-                        <input type="number" class="form-control" id="variantRegularPrice" min="0">
+                    <select class="form-select" id="categoryId" name="categoryId" th:field="*{categoryId}" required>
+                        <option value="">Chọn danh mục</option>
+                        <!-- Dynamically populate with Thymeleaf -->
+                        <option th:each="category : ${categories}"
+                                th:value="${category.categoryID}"
+                                th:text="${category.categoryName}">Category</option>
+                    </select>
+                </div>
+
+                <!-- Brand -->
+                <div class="form-section">
+                    <div class="section-header">
+                        <h5 class="section-title">
+                            <i class="bi bi-award-fill"></i>
+                            Thương hiệu
+                        </h5>
                     </div>
-                    <div class="col-md-4">
-                        <label class="form-label">Giá KM</label>
-                        <input type="number" class="form-control" id="variantSalePrice" min="0">
-                    </div>
-                    <div class="col-md-4">
-                        <label class="form-label">Tồn kho</label>
-                        <input type="number" class="form-control" id="variantStock" min="0" value="0">
-                    </div>
-                    <div class="col-12">
-                        <label class="form-label">Hình ảnh</label>
-                        <input type="file" class="form-control" id="variantImage" accept="image/*">
+                    <select class="form-select" id="brandId" name="brandId" th:field="*{brandId}" required>
+                        <option value="">Chọn thương hiệu</option>
+                        <!-- Dynamically populate with Thymeleaf -->
+                        <option th:each="brand : ${brands}"
+                                th:value="${brand.brandID}"
+                                th:text="${brand.brandName}">Brand</option>
+                    </select>
+                </div>
+
+                <!-- Actions -->
+                <div class="form-section">
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="bi bi-check-circle"></i> Lưu sản phẩm
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary" onclick="resetForm()">
+                            <i class="bi bi-arrow-counterclockwise"></i> Làm mới
+                        </button>
+                        <a th:href="@{/admin/products}" class="btn btn-outline-danger">
+                            <i class="bi bi-x-circle"></i> Hủy
+                        </a>
                     </div>
                 </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
-                <button type="button" class="btn btn-primary" onclick="saveVariant()">Lưu biến thể</button>
+
+                <!-- Info -->
+                <div class="form-section">
+                    <div class="section-header">
+                        <h5 class="section-title">
+                            <i class="bi bi-info-circle-fill"></i>
+                            Thông tin
+                        </h5>
+                    </div>
+                    <div class="stat-item-small">
+                        <span class="stat-label-small">Tạo bởi:</span>
+                        <span class="stat-value-small">Admin</span>
+                    </div>
+                    <div class="stat-item-small">
+                        <span class="stat-label-small">Ngày tạo:</span>
+                        <span class="stat-value-small" id="currentDate"></span>
+                    </div>
+                </div>
             </div>
         </div>
-    </div>
+    </form>
 </div>
 
-<!-- jQuery (required for Select2) -->
-<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-<!-- Bootstrap JS -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-<!-- Select2 JS -->
-<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-<!-- Dashboard JS -->
-<script th:src="@{/javascript/Dashboard.js}"></script>
-<!-- Add Product JS -->
+<script src="https://cdn. jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // Auto-generate slug from product name
+    document.getElementById('productName').addEventListener('input', function(e) {
+        const name = e.target.value;
+        const slug = name.toLowerCase()
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "")
+            .replace(/đ/g, 'd')
+            .replace(/Đ/g, 'D')
+            .replace(/[^a-z0-9\s-]/g, '')
+            .replace(/\s+/g, '-')
+            .replace(/-+/g, '-')
+            . trim();
+        document.getElementById('productSlug').value = slug;
+    });
+
+    // Image upload preview
+    document.getElementById('productImage').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            // Validate file size (5MB)
+            if (file.size > 5 * 1024 * 1024) {
+                alert('Kích thước ảnh không được vượt quá 5MB!');
+                this.value = '';
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('previewImg').src = e. target.result;
+                document.getElementById('imagePreview').classList. add('active');
+                document.querySelector('.image-upload-label'). style.display = 'none';
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+
+    function removeImage() {
+        document.getElementById('productImage').value = '';
+        document.getElementById('imagePreview').classList.remove('active');
+        document.querySelector('.image-upload-label').style.display = 'block';
+    }
+
+    // Set current date
+    document. getElementById('currentDate').textContent = new Date().toLocaleDateString('vi-VN');
+
+    // Form validation before submission
+    document.getElementById('productForm').addEventListener('submit', function(e) {
+        const categoryId = document.getElementById('categoryId').value;
+        const brandId = document.getElementById('brandId'). value;
+
+        if (! categoryId) {
+            e.preventDefault();
+            alert('Vui lòng chọn danh mục sản phẩm!');
+            return false;
+        }
+
+        if (!brandId) {
+            e.preventDefault();
+            alert('Vui lòng chọn thương hiệu! ');
+            return false;
+        }
+
+        // Show loading indicator
+        const submitBtn = this.querySelector('button[type="submit"]');
+        submitBtn.disabled = true;
+        submitBtn. innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Đang lưu... ';
+    });
+
+    function resetForm() {
+        if (confirm('Bạn có chắc muốn xóa tất cả dữ liệu đã nhập?')) {
+            document.getElementById('productForm').reset();
+            removeImage();
+        }
+    }
+</script>
 <script th:src="@{/javascript/AddProduct.js}"></script>
+<script th:src="@{/javascript/Dashboard.js}"></script>
 
 </body>
 </html>

@@ -27,10 +27,10 @@ public class DashboardController {
         return "Brands"; // KHÔNG cần /templates, chỉ tên file
     }
 
-    @GetMapping("/products/add")
-    public String addProduct() {
-        return "AddProducts"; // KHÔNG cần /templates, chỉ tên file
-    }
+//    @GetMapping("/products/add")
+//    public String addProduct() {
+//        return "AddProducts"; // KHÔNG cần /templates, chỉ tên file
+//    }
 
     @GetMapping("/login")
     public String login() {
@@ -55,5 +55,10 @@ public class DashboardController {
     @GetMapping("/settings")
     public String settings() {
         return "Settings"; // KHÔNG cần /templates, chỉ tên file
+    }
+
+    @GetMapping("/CTProduct")
+    public String ctProduct() {
+        return "CTProductAdmin"; // KHÔNG cần /templates, chỉ tên file
     }
 }

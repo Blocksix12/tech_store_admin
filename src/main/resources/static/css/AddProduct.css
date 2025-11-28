@@ -1,470 +1,321 @@
-/* Add Product Page Specific Styles */
+/* Scoped Add Product Page Styles for the provided HTML
+   - Targets only elements inside .main-content #productForm so sidebar/topbar are not affected
+   - Improves visual balance, tightens spacing, makes right column sticky on large screens
+   - Matches classes/ids used in your HTML (productForm, form-section, image-upload-box, image-preview, etc.)
+*/
 
-/* Form Sections */
-.form-section {
-    background: white;
-    border-radius: 15px;
-    margin-bottom: 25px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-    overflow: hidden;
+/* Page container: center and limit width so form doesn't stretch too wide */
+.main-content #productForm {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 12px;
 }
 
-.section-header {
-    padding: 20px 25px;
-    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-    border-bottom: 1px solid #e9ecef;
+/* Basic card/section styling */
+.main-content #productForm .form-section {
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 20px;
+    box-shadow: 0 6px 18px rgba(35,47,62,0.06);
+    overflow: visible;
+    position: relative;
+    z-index: 1;
+}
+
+/* Section header */
+. main-content #productForm .section-header {
+    padding: 12px 16px;
     display: flex;
-    justify-content: space-between;
     align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    background: linear-gradient(180deg, #fbfcfd 0%, #f5f7fb 100%);
+    border-bottom: 1px solid #eef0f3;
+    border-radius: 10px;
 }
-
-.section-title {
-    font-size: 18px;
+.main-content #productForm .section-title {
+    font-size: 1.05rem;
     font-weight: 700;
-    color: #2c3e50;
-    margin: 0;
+    color: #22303f;
     display: flex;
     align-items: center;
     gap: 10px;
 }
+.main-content #productForm .section-title i { color: #5663f2; }
 
-.section-title i {
-    color: #667eea;
+/* Form grid balance: left ~68%, right ~32% on large screens */
+@media (min-width: 992px) {
+    .main-content #productForm .row.g-4 {
+        align-items: flex-start;
+    }
+    .main-content #productForm .col-lg-8 {
+        flex: 0 0 68%;
+        max-width: 68%;
+    }
+    .main-content #productForm .col-lg-4 {
+        flex: 0 0 32%;
+        max-width: 32%;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    /* Remove sticky from all sections by default */
+    .main-content #productForm .col-lg-4 > .form-section {
+        position: static;
+        top: auto;
+    }
+
+    /* Make only the Actions section sticky (the one with buttons) */
+    .main-content #productForm .col-lg-4 > .form-section:has(. d-grid) {
+        position: sticky;
+        top: 96px;
+        z-index: 10;
+    }
 }
 
-.section-body {
-    padding: 25px;
+/* Inputs and selects: slightly taller and rounded for balance */
+. main-content #productForm .form-control,
+.main-content #productForm .form-select,
+.main-content #productForm textarea {
+    min-height: 44px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    border: 1px solid #e6e9ef;
+    transition: border-color 0.18s ease, box-shadow 0.18s ease;
+    background: #fff;
+}
+.main-content #productForm .form-control:focus,
+.main-content #productForm .form-select:focus,
+.main-content #productForm textarea:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 4px rgba(102,126,234,0.08);
+    outline: none;
 }
 
-/* Form Labels */
-.form-label {
+/* Increase z-index when select is focused to prevent overlapping */
+.main-content #productForm .form-select:focus {
+    position: relative;
+    z-index: 100;
+}
+
+/* Form label style */
+.main-content #productForm .form-label {
     font-weight: 600;
     color: #2c3e50;
-    font-size: 14px;
-    margin-bottom: 8px;
+    font-size: 0.95rem;
+    margin-bottom: 6px;
 }
-
-.form-label.required::after {
+.main-content #productForm .form-label.required::after {
     content: " *";
     color: #dc3545;
 }
 
-/* Form Controls */
-.form-control:focus,
-.form-select:focus {
-    border-color: #667eea;
-    box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
-}
-
-/* Image Upload */
-.image-upload-container {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-}
-
-.image-upload-box {
+/* Image upload box */
+.main-content #productForm .image-upload-box {
     position: relative;
-    border: 2px dashed #e0e0e0;
-    border-radius: 15px;
-    min-height: 300px;
+    border: 2px dashed #e6e9ef;
+    border-radius: 12px;
+    min-height: 240px;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: all 0.3s;
-    background: #f8f9fa;
+    padding: 18px;
+    background: #fafbfd;
+    transition: border-color 0.18s ease, background 0.18s ease;
 }
-
-.image-upload-box:hover {
+.main-content #productForm .image-upload-box:hover {
     border-color: #667eea;
-    background: #f0f2ff;
+    background: #f0f3ff;
+}
+.main-content #productForm .image-upload-box.dragover {
+    border-color: #4f46e5;
+    background: #e8ecff;
 }
 
-.image-upload-box.dragover {
-    border-color: #667eea;
-    background: #e6e9ff;
-}
-
-.image-upload-label {
-    text-align: center;
+/* Upload label and icons */
+.main-content #productForm . image-upload-label {
     cursor: pointer;
-    padding: 40px;
+    text-align: center;
+    color: #2c3e50;
     width: 100%;
 }
-
-.image-upload-label i {
-    font-size: 48px;
+.main-content #productForm .image-upload-label i {
+    font-size: 44px;
     color: #667eea;
-    margin-bottom: 15px;
+    margin-bottom: 8px;
     display: block;
 }
-
-.image-upload-label p {
-    font-size: 16px;
+.main-content #productForm .image-upload-label p {
     font-weight: 600;
-    color: #2c3e50;
-    margin-bottom: 8px;
+    margin-bottom: 6px;
 }
 
-.image-preview {
+/* Image preview (overlay) */
+.main-content #productForm .image-preview {
     display: none;
     position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    border-radius: 15px;
+    inset: 0;
+    border-radius: 12px;
     overflow: hidden;
-}
-
-.image-preview.active {
-    display: flex;
     align-items: center;
     justify-content: center;
+    background: #fff;
 }
-
-.image-preview img {
+.main-content #productForm .image-preview.active { display: flex; }
+.main-content #productForm #previewImg {
     max-width: 100%;
-    max-height: 100%;
+    max-height: 220px;
     object-fit: contain;
+    box-shadow: 0 6px 18px rgba(35,47,62,0. 06);
+    border-radius: 8px;
 }
 
-.image-preview .remove-image {
+/* Preview actions */
+.main-content #productForm .preview-actions {
     position: absolute;
-    top: 15px;
-    right: 15px;
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    background: rgba(220, 53, 69, 0.9);
-    color: white;
-    border: none;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: all 0.3s;
-}
-
-.image-preview .remove-image:hover {
-    background: #dc3545;
-    transform: scale(1.1);
-}
-
-/* Gallery Grid */
-.gallery-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-    gap: 15px;
-}
-
-.gallery-upload-box,
-.gallery-item {
-    aspect-ratio: 1;
-    border: 2px dashed #e0e0e0;
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: #f8f9fa;
-    transition: all 0.3s;
-    position: relative;
-    overflow: hidden;
-}
-
-.gallery-upload-box:hover {
-    border-color: #667eea;
-    background: #f0f2ff;
-}
-
-.gallery-upload-label {
-    text-align: center;
-    cursor: pointer;
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-    height: 100%;
-}
-
-.gallery-upload-label i {
-    font-size: 32px;
-    color: #667eea;
-    margin-bottom: 8px;
-}
-
-.gallery-upload-label span {
-    font-size: 13px;
-    font-weight: 600;
-    color: #6c757d;
-}
-
-.gallery-item {
-    border-style: solid;
-    padding: 0;
-}
-
-.gallery-item img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
-.gallery-item .remove-gallery-image {
-    position: absolute;
-    top: 8px;
-    right: 8px;
-    width: 28px;
-    height: 28px;
-    border-radius: 50%;
-    background: rgba(220, 53, 69, 0.9);
-    color: white;
-    border: none;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    font-size: 14px;
-    opacity: 0;
-    transition: all 0.3s;
-}
-
-.gallery-item:hover .remove-gallery-image {
-    opacity: 1;
-}
-
-/* Variants Container */
-.variants-container {
-    min-height: 200px;
-}
-
-.empty-state {
-    text-align: center;
-    padding: 60px 20px;
-}
-
-.empty-state i {
-    font-size: 64px;
-    color: #dee2e6;
-    margin-bottom: 20px;
-}
-
-.empty-state p {
-    color: #6c757d;
-    font-size: 16px;
-    margin-bottom: 20px;
-}
-
-.variant-item {
-    background: #f8f9fa;
-    border: 1px solid #e9ecef;
-    border-radius: 12px;
-    padding: 20px;
-    margin-bottom: 15px;
-    display: flex;
-    align-items: center;
-    gap: 20px;
-    transition: all 0.3s;
-}
-
-.variant-item:hover {
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-}
-
-.variant-image {
-    width: 80px;
-    height: 80px;
-    border-radius: 10px;
-    object-fit: cover;
-    background: white;
-    border: 1px solid #e9ecef;
-    flex-shrink: 0;
-}
-
-.variant-info {
-    flex: 1;
-}
-
-.variant-name {
-    font-weight: 600;
-    color: #2c3e50;
-    margin-bottom: 8px;
-}
-
-.variant-details {
-    display: flex;
-    gap: 15px;
-    flex-wrap: wrap;
-}
-
-.variant-detail-item {
-    font-size: 13px;
-    color: #6c757d;
-}
-
-.variant-detail-item strong {
-    color: #2c3e50;
-}
-
-.variant-actions {
+    bottom: 12px;
     display: flex;
     gap: 8px;
-    flex-shrink: 0;
+}
+. main-content #productForm .preview-actions .btn-sm {
+    padding: 6px 10px;
+    border-radius: 8px;
 }
 
-/* SEO Preview */
-.seo-preview {
-    background: #f8f9fa;
-    border: 1px solid #e9ecef;
-    border-radius: 12px;
-    padding: 20px;
+/* Right column buttons and actions */
+. main-content #productForm . d-grid .btn {
+    border-radius: 10px;
+    font-weight: 700;
+    padding: 10px 16px;
+}
+.main-content #productForm .btn-primary {
+    background: linear-gradient(135deg,#667eea,#4f46e5);
+    border: none;
+    box-shadow: 0 8px 20px rgba(79,70,229,0.12);
+}
+.main-content #productForm .btn-outline-secondary {
+    border-radius: 10px;
 }
 
-.seo-url {
-    font-size: 13px;
-    color: #1a0dab;
-    margin-bottom: 5px;
-}
-
-.seo-title {
-    font-size: 18px;
-    font-weight: 600;
-    color: #1a0dab;
-    margin-bottom: 5px;
-}
-
-.seo-description {
-    font-size: 13px;
-    color: #545454;
-    line-height: 1.5;
-}
-
-/* Stats Item Small */
-.stat-item-small {
+/* Small stat items in right column */
+.main-content #productForm . stat-item-small {
     display: flex;
     justify-content: space-between;
-    padding: 12px 0;
-    border-bottom: 1px solid #e9ecef;
+    padding: 10px 12px;
+    border-top: 1px solid #f1f3f5;
+    font-size: 0.95rem;
+}
+.main-content #productForm .stat-label-small { color: #6c757d; }
+.main-content #productForm .stat-value-small { font-weight: 700; color: #22303f; }
+
+/* Gallery grid */
+.main-content #productForm .gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 12px;
+}
+.main-content #productForm .gallery-upload-box,
+.main-content #productForm .gallery-item {
+    aspect-ratio: 1;
+    border: 2px dashed #e6e9ef;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    background: #fafbfd;
+}
+.main-content #productForm .gallery-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
 }
 
-.stat-item-small:last-child {
-    border-bottom: none;
+/* Variants list */
+.main-content #productForm .variant-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 12px;
+    border-radius: 10px;
+    background: #fbfcfd;
+    border: 1px solid #eef0f3;
+}
+.main-content #productForm .variant-image {
+    width: 80px;
+    height: 80px;
+    border-radius: 8px;
+    object-fit: cover;
+    border: 1px solid #e9eef8;
 }
 
-.stat-label-small {
-    font-size: 14px;
-    color: #6c757d;
+/* SEO preview */
+.main-content #productForm .seo-preview {
+    background: #fbfcfd;
+    border: 1px solid #eef0f3;
+    border-radius: 10px;
+    padding: 12px;
 }
-
-.stat-value-small {
-    font-size: 14px;
+.main-content #productForm .seo-url,
+.main-content #productForm .seo-title {
+    color: #0b63c9;
     font-weight: 600;
-    color: #2c3e50;
 }
 
-/* Select2 Customization */
-.select2-container--bootstrap-5 .select2-selection {
-    border-radius: 10px !important;
-    border-color: #e0e0e0 !important;
+/* Fix missing dropdown arrow for select elements */
+.main-content #productForm . form-select {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3. org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    background-size: 16px 12px;
+    padding-right: 2.5rem;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
 }
 
-.select2-container--bootstrap-5 .select2-selection--multiple .select2-selection__choice {
-    background: #667eea !important;
-    border-color: #667eea !important;
-    border-radius: 6px !important;
+.main-content #productForm .form-select:focus {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23667eea' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");
 }
 
-/* Animations */
-@keyframes fadeInUp {
-    from {
-        opacity: 0;
-        transform: translateY(20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+/* Ensure Select2 dropdowns (if used) have proper z-index */
+.select2-container--open {
+    z-index: 999 !important;
 }
 
-.fade-in-up {
-    animation: fadeInUp 0.6s ease-out;
+. select2-dropdown {
+    z-index: 1000 !important;
 }
 
-/* Responsive */
-@media (max-width: 992px) {
-    .section-header {
-        flex-direction: column;
-        gap: 15px;
-        align-items: stretch;
+/* Responsive adjustments */
+@media (max-width: 991px) {
+    .main-content #productForm {
+        padding: 0 18px;
+        max-width: 100%;
     }
-
-    .section-header .btn {
-        width: 100%;
+    .main-content #productForm .col-lg-8,
+    .main-content #productForm .col-lg-4 {
+        flex: 0 0 100%;
+        max-width: 100%;
     }
-
-    .variant-item {
-        flex-direction: column;
-        align-items: stretch;
-    }
-
-    .variant-actions {
-        justify-content: center;
+    /* Deactivate sticky behavior on smaller screens */
+    .main-content #productForm .col-lg-4 > .form-section {
+        position: static ! important;
+        top: auto ! important;
     }
 }
 
-@media (max-width: 768px) {
-    .section-body {
-        padding: 20px;
-    }
-
-    .gallery-grid {
-        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-    }
-
-    .image-upload-box {
-        min-height: 250px;
-    }
-}
-
-@media (max-width: 576px) {
-    .content-area {
-        padding: 15px;
-    }
-
-    .form-section {
-        margin-bottom: 15px;
-    }
-
-    .section-header {
-        padding: 15px;
-    }
-
-    .section-body {
-        padding: 15px;
-    }
-
-    .gallery-grid {
-        grid-template-columns: repeat(2, 1fr);
-    }
-}
-
-/* Print Styles */
+/* Print tweaks - only hide action buttons on print, not topbar/sidebar */
 @media print {
-    .sidebar,
-    .topbar,
-    .section-header .btn,
-    .variant-actions {
+    .main-content #productForm .d-grid .btn,
+    .main-content #productForm .preview-actions {
         display: none !important;
     }
-
-    .main-content {
-        margin-left: 0 !important;
-    }
-
-    .form-section {
-        break-inside: avoid;
-        page-break-inside: avoid;
+    .main-content #productForm {
+        max-width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
     }
 }

@@ -398,7 +398,7 @@
             <div class="table-header">
                 <h5 class="table-title">
                     <i class="bi bi-box-seam"></i>
-                    856 Sản phẩm
+                    <span th:text="${totalProducts != null ? totalProducts : 0} + ' Sản phẩm'">0 Sản phẩm</span>
                 </h5>
                 <div class="table-actions">
                     <button class="btn btn-sm btn-outline-primary">
@@ -437,7 +437,7 @@
                                 <img th:src="${product.imageUrl}" alt="Product" class="product-image">
                                 <div class="product-details">
                                     <h6 th:text="${product.name}">Product Name</h6>
-                                    <span class="product-sku" th:text="${product.variant}">Variant</span>
+                                    <span class="product-sku" th:text="${product.brands}">BrandsName</span>
                                 </div>
                             </div>
                         </td>
@@ -448,15 +448,15 @@
                             <div class="stock-info">
                                 <span class="stock-count" th:text="${product.stockCount} + ' sản phẩm'">Stock</span>
                                 <span class="status-badge"
-                                      th:classappend="${product.stockStatus == 'IN_STOCK' ? 'in-stock' :
-                                                       product.stockStatus == 'LOW_STOCK' ? 'low-stock' : 'out-of-stock'}"
+                                      th:classappend="${product.stockStatus == 'IN_STOCK'} ? 'in-stock' :
+                          (${product.stockStatus == 'LOW_STOCK'} ? 'low-stock' : 'out-of-stock')"
                                       th:text="${product.stockStatusText}">Stock Status</span>
                             </div>
                         </td>
                         <td>
                             <span class="status-badge"
-                                  th:classappend="${product.status == 'ACTIVE' ? 'active' :
-                                                   product.status == 'INACTIVE' ? 'inactive' : 'draft'}"
+                                  th:classappend="${product.status == 'ACTIVE' } ? 'active' :
+                                                   (${product.status == 'INACTIVE'} ? 'inactive' : 'draft')"
                                   th:text="${product.statusText}">Status</span>
                         </td>
                         <td>
@@ -477,193 +477,16 @@
                         </td>
                     </tr>
 
-                    <!-- Static sample data (if no dynamic data) -->
+                    <!-- Empty state when no products -->
                     <tr th:if="${#lists.isEmpty(products)}">
-                        <td>
-                            <input type="checkbox" class="form-check-input product-checkbox">
-                        </td>
-                        <td>
-                            <div class="product-info-cell">
-                                <img src="https://via.placeholder.com/60" alt="Product" class="product-image">
-                                <div class="product-details">
-                                    <h6>iPhone 15 Pro Max</h6>
-                                    <span class="product-sku">256GB - Titan Tự Nhiên</span>
-                                </div>
-                            </div>
-                        </td>
-                        <td><span class="text-muted">IP15PM-256-TN</span></td>
-                        <td>Điện thoại</td>
-                        <td><strong>29.990.000₫</strong></td>
-                        <td>
-                            <div class="stock-info">
-                                <span class="stock-count">156 sản phẩm</span>
-                                <span class="status-badge in-stock">Còn hàng</span>
-                            </div>
-                        </td>
-                        <td><span class="status-badge active">Đang bán</span></td>
-                        <td>
-                            <div class="btn-group btn-group-sm">
-                                <button class="btn btn-sm btn-outline-primary" title="Xem">
-                                    <i class="bi bi-eye"></i>
-                                </button>
-                                <button class="btn btn-sm btn-outline-success" title="Sửa">
-                                    <i class="bi bi-pencil"></i>
-                                </button>
-                                <button class="btn btn-sm btn-outline-danger action-btn-delete" title="Xóa">
-                                    <i class="bi bi-trash"></i>
-                                </button>
-                            </div>
-                        </td>
-                    </tr>
-
-                    <tr th:if="${#lists.isEmpty(products)}">
-                        <td>
-                            <input type="checkbox" class="form-check-input product-checkbox">
-                        </td>
-                        <td>
-                            <div class="product-info-cell">
-                                <img src="https://via.placeholder.com/60" alt="Product" class="product-image">
-                                <div class="product-details">
-                                    <h6>Samsung Galaxy S24 Ultra</h6>
-                                    <span class="product-sku">512GB - Titanium Gray</span>
-                                </div>
-                            </div>
-                        </td>
-                        <td><span class="text-muted">SS24U-512-TG</span></td>
-                        <td>Điện thoại</td>
-                        <td><strong>28.990.000₫</strong></td>
-                        <td>
-                            <div class="stock-info">
-                                <span class="stock-count">23 sản phẩm</span>
-                                <span class="status-badge low-stock">Sắp hết</span>
-                            </div>
-                        </td>
-                        <td><span class="status-badge active">Đang bán</span></td>
-                        <td>
-                            <div class="btn-group btn-group-sm">
-                                <button class="btn btn-sm btn-outline-primary" title="Xem">
-                                    <i class="bi bi-eye"></i>
-                                </button>
-                                <button class="btn btn-sm btn-outline-success" title="Sửa">
-                                    <i class="bi bi-pencil"></i>
-                                </button>
-                                <button class="btn btn-sm btn-outline-danger action-btn-delete" title="Xóa">
-                                    <i class="bi bi-trash"></i>
-                                </button>
-                            </div>
-                        </td>
-                    </tr>
-
-                    <tr th:if="${#lists.isEmpty(products)}">
-                        <td>
-                            <input type="checkbox" class="form-check-input product-checkbox">
-                        </td>
-                        <td>
-                            <div class="product-info-cell">
-                                <img src="https://via.placeholder.com/60" alt="Product" class="product-image">
-                                <div class="product-details">
-                                    <h6>MacBook Pro M3</h6>
-                                    <span class="product-sku">16GB RAM - 512GB SSD</span>
-                                </div>
-                            </div>
-                        </td>
-                        <td><span class="text-muted">MBP-M3-16-512</span></td>
-                        <td>Laptop</td>
-                        <td><strong>45.990.000₫</strong></td>
-                        <td>
-                            <div class="stock-info">
-                                <span class="stock-count">0 sản phẩm</span>
-                                <span class="status-badge out-of-stock">Hết hàng</span>
-                            </div>
-                        </td>
-                        <td><span class="status-badge inactive">Ngừng bán</span></td>
-                        <td>
-                            <div class="btn-group btn-group-sm">
-                                <button class="btn btn-sm btn-outline-primary" title="Xem">
-                                    <i class="bi bi-eye"></i>
-                                </button>
-                                <button class="btn btn-sm btn-outline-success" title="Sửa">
-                                    <i class="bi bi-pencil"></i>
-                                </button>
-                                <button class="btn btn-sm btn-outline-danger action-btn-delete" title="Xóa">
-                                    <i class="bi bi-trash"></i>
-                                </button>
-                            </div>
-                        </td>
-                    </tr>
-
-                    <tr th:if="${#lists.isEmpty(products)}">
-                        <td>
-                            <input type="checkbox" class="form-check-input product-checkbox">
-                        </td>
-                        <td>
-                            <div class="product-info-cell">
-                                <img src="https://via.placeholder.com/60" alt="Product" class="product-image">
-                                <div class="product-details">
-                                    <h6>iPad Pro M2 11 inch</h6>
-                                    <span class="product-sku">256GB - WiFi + Cellular</span>
-                                </div>
-                            </div>
-                        </td>
-                        <td><span class="text-muted">IPADPM2-11-256</span></td>
-                        <td>Tablet</td>
-                        <td><strong>24.990.000₫</strong></td>
-                        <td>
-                            <div class="stock-info">
-                                <span class="stock-count">89 sản phẩm</span>
-                                <span class="status-badge in-stock">Còn hàng</span>
-                            </div>
-                        </td>
-                        <td><span class="status-badge active">Đang bán</span></td>
-                        <td>
-                            <div class="btn-group btn-group-sm">
-                                <button class="btn btn-sm btn-outline-primary" title="Xem">
-                                    <i class="bi bi-eye"></i>
-                                </button>
-                                <button class="btn btn-sm btn-outline-success" title="Sửa">
-                                    <i class="bi bi-pencil"></i>
-                                </button>
-                                <button class="btn btn-sm btn-outline-danger action-btn-delete" title="Xóa">
-                                    <i class="bi bi-trash"></i>
-                                </button>
-                            </div>
-                        </td>
-                    </tr>
-
-                    <tr th:if="${#lists.isEmpty(products)}">
-                        <td>
-                            <input type="checkbox" class="form-check-input product-checkbox">
-                        </td>
-                        <td>
-                            <div class="product-info-cell">
-                                <img src="https://via.placeholder.com/60" alt="Product" class="product-image">
-                                <div class="product-details">
-                                    <h6>AirPods Pro (Gen 2)</h6>
-                                    <span class="product-sku">USB-C - Noise Cancelling</span>
-                                </div>
-                            </div>
-                        </td>
-                        <td><span class="text-muted">APP2-USBC</span></td>
-                        <td>Phụ kiện</td>
-                        <td><strong>6.490.000₫</strong></td>
-                        <td>
-                            <div class="stock-info">
-                                <span class="stock-count">234 sản phẩm</span>
-                                <span class="status-badge in-stock">Còn hàng</span>
-                            </div>
-                        </td>
-                        <td><span class="status-badge active">Đang bán</span></td>
-                        <td>
-                            <div class="btn-group btn-group-sm">
-                                <button class="btn btn-sm btn-outline-primary" title="Xem">
-                                    <i class="bi bi-eye"></i>
-                                </button>
-                                <button class="btn btn-sm btn-outline-success" title="Sửa">
-                                    <i class="bi bi-pencil"></i>
-                                </button>
-                                <button class="btn btn-sm btn-outline-danger action-btn-delete" title="Xóa">
-                                    <i class="bi bi-trash"></i>
-                                </button>
+                        <td colspan="8" class="text-center py-5">
+                            <div class="empty-state">
+                                <i class="bi bi-box-seam" style="font-size: 3rem; color: #ccc;"></i>
+                                <h5 class="mt-3 text-muted">Chưa có sản phẩm nào</h5>
+                                <p class="text-muted">Hãy thêm sản phẩm đầu tiên của bạn</p>
+                                <a href="/admin/products/add" class="btn btn-primary mt-2">
+                                    <i class="bi bi-plus-lg"></i> Thêm sản phẩm
+                                </a>
                             </div>
                         </td>
                     </tr>
@@ -672,26 +495,28 @@
             </div>
 
             <!-- Pagination -->
-            <div class="pagination-wrapper">
+            <div class="pagination-wrapper" th:if="${!#lists.isEmpty(products)}">
                 <div class="pagination-info">
-                    Hiển thị <strong>1-10</strong> trong tổng số <strong>856</strong> sản phẩm
+                    Hiển thị <strong th:text="${startIndex}">1</strong>-<strong th:text="${endIndex}">10</strong>
+                    trong tổng số <strong th:text="${totalProducts}">0</strong> sản phẩm
                 </div>
-                <nav>
+                <nav th:if="${totalPages > 1}">
                     <ul class="pagination mb-0">
-                        <li class="page-item disabled">
-                            <a class="page-link" href="#"><i class="bi bi-chevron-left"></i></a>
+                        <li class="page-item" th:classappend="${currentPage == 1 ? 'disabled' : ''}">
+                            <a class="page-link" th:href="@{/admin/products(page=${currentPage - 1})}">
+                                <i class="bi bi-chevron-left"></i>
+                            </a>
                         </li>
-                        <li class="page-item active"><a class="page-link" href="#">1</a></li>
-                        <li class="page-item"><a class="page-link" href="#">2</a></li>
-                        <li class="page-item"><a class="page-link" href="#">3</a></li>
-                        <li class="page-item"><a class="page-link" href="#">4</a></li>
-                        <li class="page-item"><a class="page-link" href="#">5</a></li>
-                        <li class="page-item">
-                            <a class="page-link" href="#">...</a>
+
+                        <li class="page-item" th:each="i : ${#numbers.sequence(1, totalPages)}"
+                            th:classappend="${i == currentPage ? 'active' : ''}">
+                            <a class="page-link" th:href="@{/admin/products(page=${i})}" th:text="${i}">1</a>
                         </li>
-                        <li class="page-item"><a class="page-link" href="#">86</a></li>
-                        <li class="page-item">
-                            <a class="page-link" href="#"><i class="bi bi-chevron-right"></i></a>
+
+                        <li class="page-item" th:classappend="${currentPage == totalPages ? 'disabled' : ''}">
+                            <a class="page-link" th:href="@{/admin/products(page=${currentPage + 1})}">
+                                <i class="bi bi-chevron-right"></i>
+                            </a>
                         </li>
                     </ul>
                 </nav>

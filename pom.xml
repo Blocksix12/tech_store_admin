@@ -46,6 +46,12 @@
             <groupId>com.vonage</groupId>
             <artifactId>client</artifactId>
             <version>7.9.0</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>commons-logging</groupId>
+                    <artifactId>commons-logging</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>

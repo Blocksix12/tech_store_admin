@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<body>
+
+<!-- Sidebar Fragment -->
+<div th:fragment="sidebar" class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+        <i class="bi bi-shop-window"></i>
+        <span class="sidebar-brand-text">E-Commerce</span>
+    </div>
+
+    <div class="sidebar-menu">
+        <div class="menu-section-title">Main</div>
+
+        <!-- Dashboard -->
+        <a href="/admin/dashboard" class="menu-item active">
+            <i class="bi bi-grid-fill"></i>
+            <span>Dashboard</span>
+        </a>
+
+        <div class="menu-section-title">Quản lý</div>
+
+        <!-- Quản lý sản phẩm -->
+        <div>
+            <div class="menu-item" onclick="toggleSubmenu(this)">
+                <i class="bi bi-box-seam-fill"></i>
+                <span>Sản phẩm</span>
+                <i class="bi bi-chevron-down"></i>
+            </div>
+            <div class="submenu">
+                <a href="/admin/danhsach" class="submenu-item">Danh sách sản phẩm</a>
+                <a href="/admin/products/add" class="submenu-item">Thêm sản phẩm</a>
+                <a href="/admin/categories" class="submenu-item">Danh mục</a>
+                <a href="/admin/brands" class="submenu-item">Thương hiệu</a>
+                <a href="/admin/attributes" class="submenu-item">Thuộc tính</a>
+                <a href="/admin/products/import" class="submenu-item">Import/Export</a>
+            </div>
+        </div>
+
+        <!-- Quản lý tồn kho -->
+        <div>
+            <div class="menu-item" onclick="toggleSubmenu(this)">
+                <i class="bi bi-boxes"></i>
+                <span>Tồn kho</span>
+                <span class="badge bg-warning">12</span>
+                <i class="bi bi-chevron-down"></i>
+            </div>
+            <div class="submenu">
+                <a href="/admin/inventory" class="submenu-item">Quản lý kho</a>
+                <a href="/admin/inventory/warehouses" class="submenu-item">Kho hàng</a>
+                <a href="/admin/inventory/stock-in" class="submenu-item">Nhập kho</a>
+                <a href="/admin/inventory/stock-out" class="submenu-item">Xuất kho</a>
+                <a href="/admin/inventory/transfer" class="submenu-item">Điều chuyển</a>
+                <a href="/admin/inventory/alerts" class="submenu-item">
+                    Cảnh báo tồn kho
+                    <span class="badge bg-danger ms-auto">12</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Quản lý đơn hàng -->
+        <div>
+            <div class="menu-item" onclick="toggleSubmenu(this)">
+                <i class="bi bi-cart-check-fill"></i>
+                <span>Đơn hàng</span>
+                <span class="badge bg-danger">5</span>
+                <i class="bi bi-chevron-down"></i>
+            </div>
+            <div class="submenu">
+                <a href="/admin/orders" class="submenu-item">Danh sách đơn hàng</a>
+                <a href="/admin/orders/pending" class="submenu-item">
+                    Chờ xử lý
+                    <span class="badge bg-warning text-dark ms-auto">5</span>
+                </a>
+                <a href="/admin/orders/processing" class="submenu-item">Đang xử lý</a>
+                <a href="/admin/orders/shipped" class="submenu-item">Đang giao</a>
+                <a href="/admin/orders/refunds" class="submenu-item">Hoàn trả</a>
+            </div>
+        </div>
+
+        <!-- Quản lý khách hàng -->
+        <div>
+            <div class="menu-item" onclick="toggleSubmenu(this)">
+                <i class="bi bi-people-fill"></i>
+                <span>Khách hàng</span>
+                <i class="bi bi-chevron-down"></i>
+            </div>
+            <div class="submenu">
+                <a href="/admin/customers" class="submenu-item">Danh sách khách hàng</a>
+                <a href="/admin/customers/groups" class="submenu-item">Nhóm khách hàng</a>
+                <a href="/admin/customers/reviews" class="submenu-item">Đánh giá</a>
+                <a href="/admin/users/roles" class="submenu-item">Phân quyền</a>
+            </div>
+        </div>
+
+        <div class="menu-section-title">Marketing & Content</div>
+
+        <!-- Marketing -->
+        <div>
+            <div class="menu-item" onclick="toggleSubmenu(this)">
+                <i class="bi bi-megaphone-fill"></i>
+                <span>Marketing</span>
+                <i class="bi bi-chevron-down"></i>
+            </div>
+            <div class="submenu">
+                <a href="/admin/promotions" class="submenu-item">Khuyến mãi</a>
+                <a href="/admin/coupons" class="submenu-item">Mã giảm giá</a>
+                <a href="/admin/campaigns" class="submenu-item">Chiến dịch</a>
+                <a href="/admin/emails" class="submenu-item">Email Marketing</a>
+            </div>
+        </div>
+
+        <!-- CMS -->
+        <div>
+            <div class="menu-item" onclick="toggleSubmenu(this)">
+                <i class="bi bi-file-earmark-text-fill"></i>
+                <span>Nội dung</span>
+                <i class="bi bi-chevron-down"></i>
+            </div>
+            <div class="submenu">
+                <a href="/admin/pages" class="submenu-item">Trang tĩnh</a>
+                <a href="/admin/blog" class="submenu-item">Blog/Tin tức</a>
+                <a href="/admin/banners" class="submenu-item">Banner & Slider</a>
+                <a href="/admin/seo" class="submenu-item">SEO</a>
+            </div>
+        </div>
+
+        <!-- Phản hồi & Đánh giá -->
+        <a href="/admin/reviews" class="menu-item">
+            <i class="bi bi-star-fill"></i>
+            <span>Phản hồi & Đánh giá</span>
+            <span class="badge bg-info">8</span>
+        </a>
+
+        <div class="menu-section-title">Analytics</div>
+
+        <!-- Báo cáo -->
+        <div>
+            <div class="menu-item" onclick="toggleSubmenu(this)">
+                <i class="bi bi-graph-up-arrow"></i>
+                <span>Báo cáo</span>
+                <i class="bi bi-chevron-down"></i>
+            </div>
+            <div class="submenu">
+                <a href="/admin/reports/sales" class="submenu-item">Doanh thu</a>
+                <a href="/admin/reports/products" class="submenu-item">Sản phẩm</a>
+                <a href="/admin/reports/customers" class="submenu-item">Khách hàng</a>
+                <a href="/admin/reports/inventory" class="submenu-item">Tồn kho</a>
+                <a href="/admin/reports/export" class="submenu-item">Export báo cáo</a>
+            </div>
+        </div>
+
+        <div class="menu-section-title">System</div>
+
+        <!-- Cài đặt -->
+        <div>
+            <div class="menu-item" onclick="toggleSubmenu(this)">
+                <i class="bi bi-gear-fill"></i>
+                <span>Cài đặt</span>
+                <i class="bi bi-chevron-down"></i>
+            </div>
+            <div class="submenu">
+                <a href="/admin/settings/general" class="submenu-item">Cài đặt chung</a>
+                <a href="/admin/settings/shipping" class="submenu-item">Vận chuyển</a>
+                <a href="/admin/settings/payment" class="submenu-item">Thanh toán</a>
+                <a href="/admin/settings/email" class="submenu-item">Email SMTP</a>
+                <a href="/admin/settings/users" class="submenu-item">Quản trị viên</a>
+                <a href="/admin/settings/audit-logs" class="submenu-item">Audit Logs</a>
+            </div>
+        </div>
+
+        <!-- 2FA Security -->
+        <a href="/admin/2fa" class="menu-item">
+            <i class="bi bi-shield-check"></i>
+            <span>Xác thực 2FA</span>
+        </a>
+    </div>
+</div>
+
+</body>
+</html>

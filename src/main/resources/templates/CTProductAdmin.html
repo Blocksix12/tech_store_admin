@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản lý Biến thể - Admin Dashboard</title>
+
+    <!-- Bootstrap & icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Project CSS (all layout & components should be in these files) -->
+    <link rel="stylesheet" th:href="@{/css/Dashboard.css}" />
+    <link rel="stylesheet" th:href="@{/css/CTProduct.css}" />
+</head>
+<body>
+
+<!-- Include Sidebar -->
+<div th:replace="~{fragments/sidebar :: sidebar}"></div>
+
+<!-- Main Content -->
+<div class="main-content">
+    <!-- Include Topbar -->
+    <div th:replace="~{fragments/topbar :: topbar}"></div>
+
+    <!-- "Thêm Biến thể" button (placed under topbar) -->
+    <div class="topbar-actions">
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addVariantModal">
+            <i class="bi bi-plus-circle"></i> Thêm Biến thể
+        </button>
+    </div>
+
+    <!-- Content Card -->
+    <div class="content-card">
+        <!-- Filters -->
+        <div class="filter-section">
+            <div class="row g-3">
+                <div class="col-md-3">
+                    <label class="form-label">Sản phẩm</label>
+                    <select class="form-select" id="filterProduct">
+                        <option value="">Tất cả sản phẩm</option>
+                        <option value="p1">iPhone 15 Pro Max</option>
+                        <option value="p2">Samsung Galaxy S24</option>
+                        <option value="p3">MacBook Pro M3</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">Màu sắc</label>
+                    <select class="form-select" id="filterColor">
+                        <option value="">Tất cả</option>
+                        <option value="c1">Đen</option>
+                        <option value="c2">Trắng</option>
+                        <option value="c3">Xanh</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">Dung lượng</label>
+                    <select class="form-select" id="filterStorage">
+                        <option value="">Tất cả</option>
+                        <option value="s1">128GB</option>
+                        <option value="s2">256GB</option>
+                        <option value="s3">512GB</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">Tình trạng kho</label>
+                    <select class="form-select" id="filterStock">
+                        <option value="">Tất cả</option>
+                        <option value="in">Còn hàng</option>
+                        <option value="low">Sắp hết</option>
+                        <option value="out">Hết hàng</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Tìm kiếm</label>
+                    <div class="input-group">
+                        <input type="text" class="form-control" placeholder="Tìm kiếm..." id="searchInput">
+                        <button class="btn btn-outline-secondary" id="btnSearch">
+                            <i class="bi bi-search"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Table -->
+        <div class="table-responsive">
+            <table class="table table-custom table-hover">
+                <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Sản phẩm</th>
+                    <th>Màu sắc</th>
+                    <th>Dung lượng</th>
+                    <th>Kích thước</th>
+                    <th>Giá gốc</th>
+                    <th>Giá sale</th>
+                    <th>Số lượng</th>
+                    <th>Trạng thái</th>
+                    <th>Thao tác</th>
+                </tr>
+                </thead>
+                <tbody id="variantTableBody">
+                <!-- Sample Data -->
+                <tr>
+                    <td>1</td>
+                    <td><strong>iPhone 15 Pro Max</strong></td>
+                    <td><span class="badge bg-dark">Đen Titan</span></td>
+                    <td>256GB</td>
+                    <td>6.7"</td>
+                    <td>34,990,000₫</td>
+                    <td><strong class="text-danger">32,990,000₫</strong></td>
+                    <td><strong>50</strong></td>
+                    <td><span class="badge-stock in-stock">Còn hàng</span></td>
+                    <td>
+                        <button class="btn btn-sm btn-info btn-action" data-id="1" onclick="editVariant(1)">
+                            <i class="bi bi-pencil"></i>
+                        </button>
+                        <button class="btn btn-sm btn-danger btn-action" data-id="1" onclick="deleteVariant(1)">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+                <tr>
+                    <td>2</td>
+                    <td><strong>iPhone 15 Pro Max</strong></td>
+                    <td><span class="badge bg-primary">Xanh Titan</span></td>
+                    <td>512GB</td>
+                    <td>6.7"</td>
+                    <td>40,990,000₫</td>
+                    <td><strong class="text-danger">38,990,000₫</strong></td>
+                    <td><strong class="text-warning">8</strong></td>
+                    <td><span class="badge-stock low-stock">Sắp hết</span></td>
+                    <td>
+                        <button class="btn btn-sm btn-info btn-action" data-id="2" onclick="editVariant(2)">
+                            <i class="bi bi-pencil"></i>
+                        </button>
+                        <button class="btn btn-sm btn-danger btn-action" data-id="2" onclick="deleteVariant(2)">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+                <tr>
+                    <td>3</td>
+                    <td><strong>Samsung Galaxy S24 Ultra</strong></td>
+                    <td><span class="badge bg-secondary">Xám Titan</span></td>
+                    <td>256GB</td>
+                    <td>6.8"</td>
+                    <td>29,990,000₫</td>
+                    <td>-</td>
+                    <td><strong class="text-danger">0</strong></td>
+                    <td><span class="badge-stock out-stock">Hết hàng</span></td>
+                    <td>
+                        <button class="btn btn-sm btn-info btn-action" data-id="3" onclick="editVariant(3)">
+                            <i class="bi bi-pencil"></i>
+                        </button>
+                        <button class="btn btn-sm btn-danger btn-action" data-id="3" onclick="deleteVariant(3)">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        <div class="pagination-custom">
+            <div>Hiển thị 1-3 trong tổng số 3 biến thể</div>
+            <nav>
+                <ul class="pagination mb-0">
+                    <li class="page-item disabled"><a class="page-link" href="#">Trước</a></li>
+                    <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                    <li class="page-item disabled"><a class="page-link" href="#">Sau</a></li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+<!-- Add/Edit Variant Modal -->
+<div class="modal fade" id="addVariantModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header modal-header-custom">
+                <h5 class="modal-title">
+                    <i class="bi bi-plus-circle"></i> Thêm Biến thể Sản phẩm
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="variantForm">
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <label class="form-label required">Sản phẩm</label>
+                            <select class="form-select" name="productId" required>
+                                <option value="">Chọn sản phẩm</option>
+                                <option value="p1">iPhone 15 Pro Max</option>
+                                <option value="p2">Samsung Galaxy S24</option>
+                                <option value="p3">MacBook Pro M3</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label required">Màu sắc</label>
+                            <select class="form-select" name="colorId" required>
+                                <option value="">Chọn màu</option>
+                                <option value="c1">Đen Titan</option>
+                                <option value="c2">Trắng Titan</option>
+                                <option value="c3">Xanh Titan</option>
+                                <option value="c4">Tự nhiên Titan</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label required">Dung lượng</label>
+                            <select class="form-select" name="storageId" required>
+                                <option value="">Chọn dung lượng</option>
+                                <option value="s1">128GB</option>
+                                <option value="s2">256GB</option>
+                                <option value="s3">512GB</option>
+                                <option value="s4">1TB</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-12">
+                            <label class="form-label required">Kích thước màn hình</label>
+                            <select class="form-select" name="sizeId" required>
+                                <option value="">Chọn kích thước</option>
+                                <option value="sz1">6.1"</option>
+                                <option value="sz2">6.7"</option>
+                                <option value="sz3">6.8"</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label required">Giá gốc (₫)</label>
+                            <input type="number" class="form-control" name="price" min="0" required>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Giá khuyến mãi (₫)</label>
+                            <input type="number" class="form-control" name="salePrice" min="0">
+                        </div>
+
+                        <div class="col-md-12">
+                            <label class="form-label required">Số lượng tồn kho</label>
+                            <input type="number" class="form-control" name="quantity" min="0" value="0" required>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-primary" onclick="saveVariant()">
+                    <i class="bi bi-check-circle"></i> Lưu biến thể
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Dashboard JS (contains CSS/logic for sidebar & topbar per your setup) -->
+<script th:src="@{/javascript/Dashboard.js}"></script>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- Page behaviour JS (kept inline JS for behaviour only) -->
+<script>
+    // keep only JS behaviour here; all styling must be in Dashboard.css / Dashboard.js as requested
+    function filterVariants() {
+        const product = document.getElementById('filterProduct').value;
+        const color = document.getElementById('filterColor').value;
+        const storage = document.getElementById('filterStorage').value;
+        const stock = document.getElementById('filterStock').value;
+        const search = document.getElementById('searchInput').value;
+        console.log('Filtering:', { product, color, storage, stock, search });
+        // TODO: implement filtering logic (call backend or filter DOM)
+    }
+
+    function editVariant(id) {
+        const modal = new bootstrap.Modal(document.getElementById('addVariantModal'));
+        modal.show();
+        // TODO: load variant data into form if editing
+    }
+
+    function deleteVariant(id) {
+        if (confirm('Bạn có chắc chắn muốn xóa biến thể này?')) {
+            console.log('Delete variant:', id);
+            // TODO: call API to delete, then refresh list
+        }
+    }
+
+    function saveVariant() {
+        const form = document.getElementById('variantForm');
+        if (!form.checkValidity()) {
+            form.reportValidity();
+            return;
+        }
+        const formData = new FormData(form);
+        const data = Object.fromEntries(formData);
+        console.log('Saving variant:', data);
+        // TODO: call API to save then refresh list
+        const modal = bootstrap.Modal.getInstance(document.getElementById('addVariantModal'));
+        if (modal) modal.hide();
+        form.reset();
+    }
+
+    document.getElementById('btnSearch').addEventListener('click', filterVariants);
+    document.getElementById('searchInput').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') filterVariants();
+    });
+</script>
+</body>
+</html>
