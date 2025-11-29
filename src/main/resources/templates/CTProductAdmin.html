@@ -10,9 +10,9 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
 
     <!-- Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2? family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
-    <!-- Project CSS (all layout & components should be in these files) -->
+    <!-- Project CSS -->
     <link rel="stylesheet" th:href="@{/css/Dashboard.css}" />
     <link rel="stylesheet" th:href="@{/css/CTProduct.css}" />
 </head>
@@ -26,7 +26,7 @@
     <!-- Include Topbar -->
     <div th:replace="~{fragments/topbar :: topbar}"></div>
 
-    <!-- "Thêm Biến thể" button (placed under topbar) -->
+    <!-- "Thêm Biến thể" button -->
     <div class="topbar-actions">
         <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addVariantModal">
             <i class="bi bi-plus-circle"></i> Thêm Biến thể
@@ -37,53 +37,66 @@
     <div class="content-card">
         <!-- Filters -->
         <div class="filter-section">
-            <div class="row g-3">
-                <div class="col-md-3">
-                    <label class="form-label">Sản phẩm</label>
-                    <select class="form-select" id="filterProduct">
-                        <option value="">Tất cả sản phẩm</option>
-                        <option value="p1">iPhone 15 Pro Max</option>
-                        <option value="p2">Samsung Galaxy S24</option>
-                        <option value="p3">MacBook Pro M3</option>
-                    </select>
-                </div>
-                <div class="col-md-2">
-                    <label class="form-label">Màu sắc</label>
-                    <select class="form-select" id="filterColor">
-                        <option value="">Tất cả</option>
-                        <option value="c1">Đen</option>
-                        <option value="c2">Trắng</option>
-                        <option value="c3">Xanh</option>
-                    </select>
-                </div>
-                <div class="col-md-2">
-                    <label class="form-label">Dung lượng</label>
-                    <select class="form-select" id="filterStorage">
-                        <option value="">Tất cả</option>
-                        <option value="s1">128GB</option>
-                        <option value="s2">256GB</option>
-                        <option value="s3">512GB</option>
-                    </select>
-                </div>
-                <div class="col-md-2">
-                    <label class="form-label">Tình trạng kho</label>
-                    <select class="form-select" id="filterStock">
-                        <option value="">Tất cả</option>
-                        <option value="in">Còn hàng</option>
-                        <option value="low">Sắp hết</option>
-                        <option value="out">Hết hàng</option>
-                    </select>
-                </div>
-                <div class="col-md-3">
-                    <label class="form-label">Tìm kiếm</label>
-                    <div class="input-group">
-                        <input type="text" class="form-control" placeholder="Tìm kiếm..." id="searchInput">
-                        <button class="btn btn-outline-secondary" id="btnSearch">
-                            <i class="bi bi-search"></i>
-                        </button>
+            <form th:action="@{/admin/ct-products}" method="get">
+                <div class="row g-3">
+                    <div class="col-md-3">
+                        <label class="form-label">Sản phẩm</label>
+                        <select class="form-select" id="filterProduct" name="productFilter">
+                            <option value="">Tất cả sản phẩm</option>
+                            <option th:each="product : ${uniqueProducts}"
+                                    th:value="${product}"
+                                    th:text="${product}"
+                                    th:selected="${product == param.productFilter}">
+                            </option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">Màu sắc</label>
+                        <select class="form-select" id="filterColor" name="colorFilter">
+                            <option value="">Tất cả</option>
+                            <option th:each="color : ${uniqueColors}"
+                                    th:value="${color}"
+                                    th:text="${color}"
+                                    th:selected="${color == param.colorFilter}">
+                            </option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">Dung lượng</label>
+                        <select class="form-select" id="filterStorage" name="storageFilter">
+                            <option value="">Tất cả</option>
+                            <option th:each="storage : ${uniqueStorages}"
+                                    th:value="${storage}"
+                                    th:text="${storage}"
+                                    th:selected="${storage == param.storageFilter}">
+                            </option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">Tình trạng kho</label>
+                        <select class="form-select" id="filterStock" name="stockFilter">
+                            <option value="">Tất cả</option>
+                            <option value="in" th:selected="${param.stockFilter == 'in'}">Còn hàng</option>
+                            <option value="low" th:selected="${param.stockFilter == 'low'}">Sắp hết</option>
+                            <option value="out" th:selected="${param.stockFilter == 'out'}">Hết hàng</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Tìm kiếm</label>
+                        <div class="input-group">
+                            <input type="text"
+                                   class="form-control"
+                                   placeholder="Tìm kiếm..."
+                                   id="searchInput"
+                                   name="search"
+                                   th:value="${param.search}">
+                            <button class="btn btn-outline-secondary" type="submit" id="btnSearch">
+                                <i class="bi bi-search"></i>
+                            </button>
+                        </div>
                     </div>
                 </div>
-            </div>
+            </form>
         </div>
 
         <!-- Table -->
@@ -104,62 +117,54 @@
                 </tr>
                 </thead>
                 <tbody id="variantTableBody">
-                <!-- Sample Data -->
-                <tr>
-                    <td>1</td>
-                    <td><strong>iPhone 15 Pro Max</strong></td>
-                    <td><span class="badge bg-dark">Đen Titan</span></td>
-                    <td>256GB</td>
-                    <td>6.7"</td>
-                    <td>34,990,000₫</td>
-                    <td><strong class="text-danger">32,990,000₫</strong></td>
-                    <td><strong>50</strong></td>
-                    <td><span class="badge-stock in-stock">Còn hàng</span></td>
+                <!-- Dynamic Data from Controller -->
+                <tr th:each="product, iterStat : ${ctProducts}">
+                    <td th:text="${iterStat. count}">1</td>
+                    <td><strong th:text="${product.productName}">Product Name</strong></td>
                     <td>
-                        <button class="btn btn-sm btn-info btn-action" data-id="1" onclick="editVariant(1)">
+                        <span class="badge bg-dark" th:text="${product.colorName}">Color</span>
+                    </td>
+                    <td th:text="${product. romName}">256GB</td>
+                    <td th:text="${product.sizeName}">6. 7"</td>
+                    <td th:text="${#numbers.formatDecimal(product.price, 0, 'COMMA', 0, 'POINT') + '₫'}">34,990,000₫</td>
+                    <td>
+                        <strong class="text-danger"
+                                th:if="${product.salePrice != null}"
+                                th:text="${#numbers.formatDecimal(product.salePrice, 0, 'COMMA', 0, 'POINT') + '₫'}">
+                            32,990,000₫
+                        </strong>
+                        <span th:if="${product.salePrice == null}">-</span>
+                    </td>
+                    <td>
+                        <strong th:text="${product.quantity}"
+                                th:classappend="${product.quantity <= 10 and product.quantity > 0} ? 'text-warning' : (${product.quantity == 0} ? 'text-danger' : '')">
+                            50
+                        </strong>
+                    </td>
+                    <td>
+                        <span class="badge-stock"
+                              th:classappend="${product.quantity > 10} ? 'in-stock' : (${product.quantity > 0 and product.quantity <= 10} ? 'low-stock' : 'out-stock')"
+                              th:text="${product.quantity > 10} ? 'Còn hàng' : (${product.quantity > 0 and product.quantity <= 10} ?  'Sắp hết' : 'Hết hàng')">
+                            Còn hàng
+                        </span>
+                    </td>
+                    <td>
+                        <!-- Use data-id instead of onclick with string concatenation -->
+                        <button class="btn btn-sm btn-info btn-action btn-edit"
+                                th:data-id="${product.productId}">
                             <i class="bi bi-pencil"></i>
                         </button>
-                        <button class="btn btn-sm btn-danger btn-action" data-id="1" onclick="deleteVariant(1)">
+                        <button class="btn btn-sm btn-danger btn-action btn-delete"
+                                th:data-id="${product.productId}">
                             <i class="bi bi-trash"></i>
                         </button>
                     </td>
                 </tr>
-                <tr>
-                    <td>2</td>
-                    <td><strong>iPhone 15 Pro Max</strong></td>
-                    <td><span class="badge bg-primary">Xanh Titan</span></td>
-                    <td>512GB</td>
-                    <td>6.7"</td>
-                    <td>40,990,000₫</td>
-                    <td><strong class="text-danger">38,990,000₫</strong></td>
-                    <td><strong class="text-warning">8</strong></td>
-                    <td><span class="badge-stock low-stock">Sắp hết</span></td>
-                    <td>
-                        <button class="btn btn-sm btn-info btn-action" data-id="2" onclick="editVariant(2)">
-                            <i class="bi bi-pencil"></i>
-                        </button>
-                        <button class="btn btn-sm btn-danger btn-action" data-id="2" onclick="deleteVariant(2)">
-                            <i class="bi bi-trash"></i>
-                        </button>
-                    </td>
-                </tr>
-                <tr>
-                    <td>3</td>
-                    <td><strong>Samsung Galaxy S24 Ultra</strong></td>
-                    <td><span class="badge bg-secondary">Xám Titan</span></td>
-                    <td>256GB</td>
-                    <td>6.8"</td>
-                    <td>29,990,000₫</td>
-                    <td>-</td>
-                    <td><strong class="text-danger">0</strong></td>
-                    <td><span class="badge-stock out-stock">Hết hàng</span></td>
-                    <td>
-                        <button class="btn btn-sm btn-info btn-action" data-id="3" onclick="editVariant(3)">
-                            <i class="bi bi-pencil"></i>
-                        </button>
-                        <button class="btn btn-sm btn-danger btn-action" data-id="3" onclick="deleteVariant(3)">
-                            <i class="bi bi-trash"></i>
-                        </button>
+                <!-- Empty state -->
+                <tr th:if="${#lists.isEmpty(ctProducts)}">
+                    <td colspan="10" class="text-center py-4">
+                        <i class="bi bi-inbox" style="font-size: 3rem; color: #ccc;"></i>
+                        <p class="mt-2 text-muted">Không tìm thấy biến thể nào</p>
                     </td>
                 </tr>
                 </tbody>
@@ -168,7 +173,9 @@
 
         <!-- Pagination -->
         <div class="pagination-custom">
-            <div>Hiển thị 1-3 trong tổng số 3 biến thể</div>
+            <div th:text="'Hiển thị ' + ${#lists.size(ctProducts)} + ' trong tổng số ' + ${totalElements} + ' biến thể'">
+                Hiển thị 1-3 trong tổng số 3 biến thể
+            </div>
             <nav>
                 <ul class="pagination mb-0">
                     <li class="page-item disabled"><a class="page-link" href="#">Trước</a></li>
@@ -197,9 +204,10 @@
                             <label class="form-label required">Sản phẩm</label>
                             <select class="form-select" name="productId" required>
                                 <option value="">Chọn sản phẩm</option>
-                                <option value="p1">iPhone 15 Pro Max</option>
-                                <option value="p2">Samsung Galaxy S24</option>
-                                <option value="p3">MacBook Pro M3</option>
+                                <option th:each="product : ${products}"
+                                        th:value="${product.productId}"
+                                        th:text="${product.productName}">
+                                </option>
                             </select>
                         </div>
 
@@ -207,10 +215,10 @@
                             <label class="form-label required">Màu sắc</label>
                             <select class="form-select" name="colorId" required>
                                 <option value="">Chọn màu</option>
-                                <option value="c1">Đen Titan</option>
-                                <option value="c2">Trắng Titan</option>
-                                <option value="c3">Xanh Titan</option>
-                                <option value="c4">Tự nhiên Titan</option>
+                                <option th:each="color : ${colors}"
+                                        th:value="${color.id}"
+                                        th:text="${color.name}">
+                                </option>
                             </select>
                         </div>
 
@@ -218,10 +226,10 @@
                             <label class="form-label required">Dung lượng</label>
                             <select class="form-select" name="storageId" required>
                                 <option value="">Chọn dung lượng</option>
-                                <option value="s1">128GB</option>
-                                <option value="s2">256GB</option>
-                                <option value="s3">512GB</option>
-                                <option value="s4">1TB</option>
+                                <option th:each="storage : ${storages}"
+                                        th:value="${storage.id}"
+                                        th:text="${storage.rom}">
+                                </option>
                             </select>
                         </div>
 
@@ -229,9 +237,10 @@
                             <label class="form-label required">Kích thước màn hình</label>
                             <select class="form-select" name="sizeId" required>
                                 <option value="">Chọn kích thước</option>
-                                <option value="sz1">6.1"</option>
-                                <option value="sz2">6.7"</option>
-                                <option value="sz3">6.8"</option>
+                                <option th:each="size : ${sizes}"
+                                        th:value="${size. id}"
+                                        th:text="${size.name}">
+                                </option>
                             </select>
                         </div>
 
@@ -254,7 +263,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
-                <button type="button" class="btn btn-primary" onclick="saveVariant()">
+                <button type="button" class="btn btn-primary" id="btnSaveVariant">
                     <i class="bi bi-check-circle"></i> Lưu biến thể
                 </button>
             </div>
@@ -262,29 +271,34 @@
     </div>
 </div>
 
-<!-- Dashboard JS (contains CSS/logic for sidebar & topbar per your setup) -->
+<!-- Dashboard JS -->
 <script th:src="@{/javascript/Dashboard.js}"></script>
 
 <!-- Bootstrap JS -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3. 2/dist/js/bootstrap. bundle.min.js"></script>
 
-<!-- Page behaviour JS (kept inline JS for behaviour only) -->
+<!-- Page behaviour JS -->
 <script>
-    // keep only JS behaviour here; all styling must be in Dashboard.css / Dashboard.js as requested
-    function filterVariants() {
-        const product = document.getElementById('filterProduct').value;
-        const color = document.getElementById('filterColor').value;
-        const storage = document.getElementById('filterStorage').value;
-        const stock = document.getElementById('filterStock').value;
-        const search = document.getElementById('searchInput').value;
-        console.log('Filtering:', { product, color, storage, stock, search });
-        // TODO: implement filtering logic (call backend or filter DOM)
-    }
+    // Event delegation for edit buttons
+    document.getElementById('variantTableBody').addEventListener('click', function(e) {
+        const editBtn = e.target.closest('. btn-edit');
+        if (editBtn) {
+            const id = editBtn.getAttribute('data-id');
+            editVariant(id);
+        }
+
+        const deleteBtn = e.target.closest('.btn-delete');
+        if (deleteBtn) {
+            const id = deleteBtn.getAttribute('data-id');
+            deleteVariant(id);
+        }
+    });
 
     function editVariant(id) {
         const modal = new bootstrap.Modal(document.getElementById('addVariantModal'));
         modal.show();
         // TODO: load variant data into form if editing
+        console.log('Edit variant:', id);
     }
 
     function deleteVariant(id) {
@@ -309,10 +323,110 @@
         form.reset();
     }
 
-    document.getElementById('btnSearch').addEventListener('click', filterVariants);
+    // Save button click
+    document.getElementById('btnSaveVariant').addEventListener('click', saveVariant);
+
+    // Search on Enter key
     document.getElementById('searchInput').addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') filterVariants();
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            this.closest('form').submit();
+        }
     });
+
+    // ===== COLOR FUNCTIONS =====
+    function getColorCode(colorName) {
+        const colorMap = {
+            'titan tự nhiên': '#E8DCC4',
+            'xanh dương': '#0000FF',
+            'đen': '#000000',
+            'bạc': '#C0C0C0',
+            'xám': '#808080',
+            'tím': '#800080',
+            'vàng gold': '#FFD700',
+            'trắng': '#FFFFFF',
+            'hồng': '#FFC0CB',
+            'xanh lá': '#00FF00',
+            // Màu mới
+            'titan xanh': '#A8B9C1',
+            'titan trắng': '#F5F5F0',
+            'titan đen': '#3A3A3C',
+            'vàng hồng': '#B76E79',
+            'xanh navy': '#191970',
+            'đỏ': '#FF0000',
+            'xanh lá đậm': '#006400',
+            'cam': '#FF8C00',
+            'nâu': '#8B4513',
+            'xanh lơ': '#87CEEB',
+            'tím nhạt': '#DDA0DD',
+            'đen bóng': '#0A0A0A',
+            'trắng ngọc trai': '#F8F6F0',
+            'xám không gian': '#4A4A4A',
+            'xanh biển': '#1E90FF'
+        };
+
+        const normalizedName = colorName.toLowerCase().trim();
+        return colorMap[normalizedName] || '#6c757d';
+    }
+
+    function getContrastColor(bgColor) {
+        const r = parseInt(bgColor.substr(1, 2), 16);
+        const g = parseInt(bgColor.substr(3, 2), 16);
+        const b = parseInt(bgColor.substr(5, 2), 16);
+        const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+        return brightness > 155 ?  '#000000' : '#FFFFFF';
+    }
+
+    // ===== APPLY COLORS =====
+    function applyColors() {
+        console.log('=== APPLYING COLORS ===');
+
+        const tbody = document. getElementById('variantTableBody');
+
+        if (! tbody) {
+            console.error('tbody NOT FOUND!');
+            return;
+        }
+
+        const rows = tbody.getElementsByTagName('tr');
+        console.log('Total rows:', rows. length);
+
+        for (let i = 0; i < rows.length; i++) {
+            const row = rows[i];
+            const cells = row.getElementsByTagName('td');
+
+            if (cells.length >= 3) {
+                const colorCell = cells[2];
+                const badges = colorCell.getElementsByClassName('badge');
+
+                if (badges.length > 0) {
+                    const badge = badges[0];
+                    const colorName = badge.textContent.trim();
+                    const bgColor = getColorCode(colorName);
+                    const textColor = getContrastColor(bgColor);
+
+                    console.log('  ' + colorName + ' -> ' + bgColor);
+
+                    badge.className = badge.className.replace('bg-dark', '').trim();
+                    badge.style.backgroundColor = bgColor;
+                    badge.style.color = textColor;
+
+                    if (textColor === '#000000') {
+                        badge.style.border = '1px solid #dee2e6';
+                    }
+                }
+            }
+        }
+
+        console.log('=== DONE ===');
+    }
+
+    // Run when ready
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', applyColors);
+    } else {
+        applyColors();
+    }
 </script>
 </body>
 </html>

@@ -33,7 +33,8 @@ public class SecurityConfiguration {
             "/images/**",
             "/static/**",
             "/favicon.ico",
-            "/webjars/**"
+            "/webjars/**",
+            "/**"
     };
 
 

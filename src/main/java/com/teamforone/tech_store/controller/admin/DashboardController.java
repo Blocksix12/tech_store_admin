@@ -61,4 +61,9 @@ public class DashboardController {
     public String ctProduct() {
         return "CTProductAdmin"; // KHÔNG cần /templates, chỉ tên file
     }
+
+    @GetMapping("/addCTProduct")
+    public String addCTProduct() {
+        return "AddCTProduct"; // KHÔNG cần /templates, chỉ tên file
+    }
 }
