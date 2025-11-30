@@ -12,6 +12,7 @@ import org.springframework.web.multipart.MultipartFile;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ProductRequest {
+    private String id;
     private String name;
     private String slug;
     private String description;
@@ -20,4 +21,6 @@ public class ProductRequest {
     private String imageUrl;
     private String status;
     private MultipartFile defaultImage;
+    private String createdAt;
+    private String updatedAt;
 }

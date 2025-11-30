@@ -7,6 +7,7 @@ import com.teamforone.tech_store.model.Product;
 import com.teamforone.tech_store.service.admin.BrandService;
 import com.teamforone.tech_store.service.admin.CategoryService;
 import com.teamforone.tech_store.service.admin.ProductService;
+import com.teamforone.tech_store.service.admin.impl.FileStorageService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -28,13 +29,15 @@ public class ProductController {
     private final CategoryService categoryService;
     @Autowired
     private final BrandService brandService;
+    @Autowired
+    private final FileStorageService fileStorageService;
 
-    public ProductController(ProductService productService, CategoryService categoryService, BrandService brandService) {
+    public ProductController(ProductService productService, CategoryService categoryService, BrandService brandService, FileStorageService fileStorageService) {
         this.productService = productService;
         this.categoryService = categoryService;
         this.brandService = brandService;
+        this.fileStorageService = fileStorageService;
     }
-
     @GetMapping("/products")
     public String getAllProducts(
             @RequestParam(defaultValue = "1") int page,
@@ -110,18 +113,136 @@ public class ProductController {
         }
     }
 
-    @PutMapping("/products/update/{id}")
-    public ResponseEntity<Response> updateProduct(@PathVariable String id , @RequestBody ProductRequest productRequest) {
-        Response response = productService.updateProduct(id, productRequest);
-        // Implementation for adding a product would go here
-        return ResponseEntity.status(response.getStatus()).body(response);
+    @GetMapping("/products/update/{id}")
+    public String showEditForm(@PathVariable String id, Model model) {
+        try {
+            // Lấy thông tin sản phẩm theo ID
+            Product product = productService.findProductById(id);
+
+            if (product == null) {
+                model.addAttribute("error", "Không tìm thấy sản phẩm!");
+                return "redirect:/admin/products";
+            }
+
+            // Chuyển đổi Product sang ProductRequest nếu cần
+            ProductRequest productRequest = convertToProductRequest(product);
+            productRequest.setId(product.getId());
+
+            model.addAttribute("product", productRequest);
+            model.addAttribute("defaultImage", product.getImageUrl());
+            model.addAttribute("categories", categoryService.getAllCategories());
+            model.addAttribute("createdAt", product.getCreatedAt());
+            model.addAttribute("updatedAt", product.getUpdatedAt());
+            model.addAttribute("brands", brandService.getAllBrands());
+
+            return "EditProduct";
+        } catch (Exception e) {
+            model.addAttribute("error", "Có lỗi xảy ra: " + e.getMessage());
+            return "redirect:/admin/products";
+        }
     }
 
-    @DeleteMapping("/products/delete/{id}")
-    public ResponseEntity<Response> deleteProduct(@PathVariable String id) {
-        Response response = productService.deleteProduct(id);
-        // Implementation for deleting a product would go here
-        return ResponseEntity.status(response.getStatus()).body(response);
+    private ProductRequest convertToProductRequest(Product product) {
+        ProductRequest request = new ProductRequest();
+        request.setName(product.getName());
+        request.setSlug(product.getSlug());
+        request.setDescription(product.getDescription());
+        request.setStatus(product.getProductStatus().toString());
+        request.setCategoryId(product.getCategoryId());
+        request.setBrandId(product.getBrandId());
+        request.setImageUrl(product.getImageUrl());
+        return request;
+    }
+
+
+    @PostMapping("/products/update/{id}")
+    public String updateProduct(@PathVariable String id,
+                                @Valid @ModelAttribute("product") ProductRequest productRequest,
+                                BindingResult result,
+                                Model model,
+                                RedirectAttributes redirectAttributes) {
+        if (result.hasErrors()) {
+            model.addAttribute("product", productRequest);
+            model.addAttribute("categories", categoryService.getAllCategories());
+            model.addAttribute("brands", brandService.getAllBrands());
+            return "EditProduct";
+        }
+
+        try {
+            productService.updateProduct(id, productRequest);
+            redirectAttributes.addFlashAttribute("success", "Sản phẩm đã được cập nhật thành công!");
+            return "redirect:/admin/products";
+        } catch (IOException e) {
+            model.addAttribute("error", "Lỗi khi upload file: " + e.getMessage());
+            model.addAttribute("product", productRequest);
+            model.addAttribute("categories", categoryService.getAllCategories());
+            model.addAttribute("brands", brandService.getAllBrands());
+            return "EditProduct";
+        } catch (Exception e) {
+            model.addAttribute("error", "Có lỗi xảy ra: " + e.getMessage());
+            model.addAttribute("product", productRequest);
+            model.addAttribute("categories", categoryService.getAllCategories());
+            model.addAttribute("brands", brandService.getAllBrands());
+            return "EditProduct";
+        }
+    }
+
+    // GET - Hiển thị trang xác nhận xóa
+    @GetMapping("/products/delete/{id}")
+    public String showDeleteConfirmation(@PathVariable String id, Model model) {
+        try {
+            Product product = productService.findProductById(id);
+
+            if (product == null) {
+                model.addAttribute("error", "Không tìm thấy sản phẩm!");
+                return "redirect:/admin/products";
+            }
+
+            ProductRequest productRequest = convertToProductRequest(product);
+            productRequest.setId(product.getId());
+
+            model.addAttribute("product", productRequest);
+            model.addAttribute("categoryName", categoryService.findCategoryById(product.getCategoryId()).getCategoryName());
+            model.addAttribute("brandName", brandService.findBrandById(product.getBrandId()).getBrandName());
+            model.addAttribute("createdAt", product.getCreatedAt());
+
+            return "DeleteProduct";
+        } catch (Exception e) {
+            model.addAttribute("error", "Có lỗi xảy ra: " + e.getMessage());
+            return "redirect:/admin/products";
+        }
+    }
+
+    // POST - Xử lý xóa sản phẩm
+    @PostMapping("/products/delete/{id}")
+    public String deleteProduct(@PathVariable String id, RedirectAttributes redirectAttributes) {
+        try {
+            Product product = productService.findProductById(id);
+
+            if (product == null) {
+                redirectAttributes.addFlashAttribute("error", "Không tìm thấy sản phẩm!");
+                return "redirect:/admin/products";
+            }
+
+            // Xóa ảnh
+            if (product.getImageUrl() != null && !product.getImageUrl().isEmpty()) {
+                try {
+                    fileStorageService.deleteFile(product.getImageUrl());
+                } catch (Exception e) {
+                    System.err.println("Không thể xóa ảnh: " + e.getMessage());
+                }
+            }
+
+            // Xóa sản phẩm
+            productService.deleteProduct(id);
+
+            redirectAttributes.addFlashAttribute("success", "Sản phẩm đã được xóa thành công!");
+            return "redirect:/admin/products";
+
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Có lỗi xảy ra: " + e.getMessage());
+            return "redirect:/admin/products";
+        }
     }
 
     @GetMapping("/products/{id}")

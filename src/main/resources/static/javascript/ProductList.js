@@ -43,32 +43,32 @@ function clearSelection() {
     updateBulkActions();
 }
 
-// Delete Product
-function deleteProduct(productId) {
-    if (confirm('Bạn có chắc chắn muốn xóa sản phẩm này?')) {
-        // Add your delete logic here
-        console.log('Deleting product:', productId);
-        // Example: Call API to delete product
-        // fetch(`/admin/products/delete/${productId}`, { method: 'DELETE' })
-        //     .then(response => response.json())
-        //     .then(data => {
-        //         if (data.success) {
-        //             location.reload();
-        //         }
-        //     });
-    }
-}
-
-// Bulk Delete
-function bulkDelete() {
-    const checkedBoxes = document.querySelectorAll('.product-checkbox:checked');
-    const productIds = Array.from(checkedBoxes).map(cb => cb.closest('tr').dataset.productId);
-
-    if (confirm(`Bạn có chắc chắn muốn xóa ${productIds.length} sản phẩm đã chọn?`)) {
-        // Add your bulk delete logic here
-        console.log('Deleting products:', productIds);
-    }
-}
+// // Delete Product
+// function deleteProduct(productId) {
+//     if (confirm('Bạn có chắc chắn muốn xóa sản phẩm này?')) {
+//         // Add your delete logic here
+//         console.log('Deleting product:', productId);
+//         // Example: Call API to delete product
+//         // fetch(`/admin/products/delete/${productId}`, { method: 'DELETE' })
+//         //     .then(response => response.json())
+//         //     .then(data => {
+//         //         if (data.success) {
+//         //             location.reload();
+//         //         }
+//         //     });
+//     }
+// }
+//
+// // Bulk Delete
+// function bulkDelete() {
+//     const checkedBoxes = document.querySelectorAll('.product-checkbox:checked');
+//     const productIds = Array.from(checkedBoxes).map(cb => cb.closest('tr').dataset.productId);
+//
+//     if (confirm(`Bạn có chắc chắn muốn xóa ${productIds.length} sản phẩm đã chọn?`)) {
+//         // Add your bulk delete logic here
+//         console.log('Deleting products:', productIds);
+//     }
+// }
 
 // Bulk Update Status
 function bulkUpdateStatus(status) {
@@ -168,4 +168,4 @@ if (searchInput) {
 // Export functions for use in HTML
 window.toggleSelectAll = toggleSelectAll;
 window.clearSelection = clearSelection;
-window.deleteProduct = deleteProduct;
+// window.deleteProduct = deleteProduct;

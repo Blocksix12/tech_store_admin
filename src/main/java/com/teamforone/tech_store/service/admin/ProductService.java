@@ -11,8 +11,8 @@ import java.util.List;
 public interface ProductService {
     List<ProductListDTO> getAllProducts();
     Product addProduct(ProductRequest product) throws IOException;
-    Response updateProduct(String id, ProductRequest product);
-    Response deleteProduct(String id);
+    Product updateProduct(String id, ProductRequest product) throws IOException;
+    Product deleteProduct(String id);
     Product findProductById(String id);
 
 }

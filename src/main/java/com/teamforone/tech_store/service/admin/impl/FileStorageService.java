@@ -35,4 +35,44 @@ public class FileStorageService {
 
         return "/images/" + fileName; // Trả về đường dẫn tương đối
     }
+    public void deleteFile(String fileUrl) throws IOException {
+        if (fileUrl == null || fileUrl.isEmpty()) {
+            return;
+        }
+
+        try {
+            // Lấy tên file từ URL (bỏ phần /images/)
+            String fileName = fileUrl.replace("/images/", "");
+
+            // Tạo đường dẫn đầy đủ
+            Path filePath = Paths.get(uploadDir).resolve(fileName);
+
+            // Xóa file nếu tồn tại
+            if (Files.exists(filePath)) {
+                Files.delete(filePath);
+                System.out.println("Đã xóa file: " + fileName);
+            } else {
+                System.out.println("File không tồn tại: " + fileName);
+            }
+        } catch (IOException e) {
+            System.err.println("Lỗi khi xóa file: " + e.getMessage());
+            throw e;
+        }
+    }
+
+    // ✅ THÊM METHOD KIỂM TRA FILE TỒN TẠI
+    public boolean fileExists(String fileUrl) {
+        if (fileUrl == null || fileUrl.isEmpty()) {
+            return false;
+        }
+
+        try {
+            String fileName = fileUrl.replace("/images/", "");
+            Path filePath = Paths.get(uploadDir).resolve(fileName);
+            return Files.exists(filePath);
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
 }
