@@ -28,7 +28,8 @@ public class Reply {
     private Comment comment;
 
     @JoinColumn(name = "user_id", nullable = false, columnDefinition = "CHAR(36)")
-    private String user;
+    @ManyToOne(fetch = FetchType.LAZY)
+    private User user;
 
     @Column(name = "noidung", columnDefinition = "TEXT", nullable = false)
     private String commentText;

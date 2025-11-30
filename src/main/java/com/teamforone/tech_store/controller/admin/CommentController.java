@@ -53,12 +53,12 @@ public class CommentController {
     }
 
     // ====== ADMIN TRẢ LỜI BÌNH LUẬN ======
-    @PostMapping("/{id}/reply")
-    public String replyToComment(
-            @PathVariable("id") String commentId,
-            @RequestParam("adminId") String adminId,
-            @RequestParam("content") String content) {
-        commentService.replyToComment(commentId, adminId, content);
-        return "redirect:/admin/comments";
-    }
+        @PostMapping("/{id}/reply")
+        public String replyToComment(
+                @PathVariable("id") String commentId,
+                @RequestParam("adminId") String adminId,
+                @RequestParam("content") String content) {
+            commentService.replyToComment(commentId, adminId, content);
+            return "redirect:/admin/comments";
+        }
 }

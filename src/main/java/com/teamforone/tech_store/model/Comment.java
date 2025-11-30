@@ -6,6 +6,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UuidGenerator;
 
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -46,6 +47,9 @@ public class Comment {
 
     @Column(name = "luotthich", columnDefinition = "INT DEFAULT 0")
     private Integer likeCount;
+
+    @OneToMany(mappedBy = "comment", cascade = CascadeType.ALL)
+    private List<Reply> replies;
 
     // Tự động set ID và default status trước khi persist
     @PrePersist

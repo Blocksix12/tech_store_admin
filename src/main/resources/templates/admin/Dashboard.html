@@ -15,352 +15,333 @@
 <div th:replace="fragments/sidebar :: sidebar"></div>
 
 <!-- Main Content -->
-<div class="main-content">
-
-    <div th:replace="fragments/topbar :: topbar"></div>
+    <div class="main-content">
+        <div th:replace="fragments/topbar :: topbar"></div>
 <!--            &lt;!&ndash; Messages &ndash;&gt;-->
-<!--            <div class="dropdown">-->
-<!--                <div class="topbar-icon" data-bs-toggle="dropdown" aria-expanded="false">-->
-<!--                    <i class="bi bi-chat-dots-fill"></i>-->
-<!--                    <span class="badge bg-success">2</span>-->
-<!--                </div>-->
-<!--                <ul class="dropdown-menu dropdown-menu-end">-->
-<!--                    <li class="px-3 py-2"><strong>Tin nhắn</strong></li>-->
-<!--                    <li><hr class="dropdown-divider"></li>-->
-<!--                    <li>-->
-<!--                        <a class="dropdown-item" href="#">-->
-<!--                            <i class="bi bi-person-circle"></i>-->
-<!--                            <span>Khách hàng yêu cầu hỗ trợ</span>-->
-<!--                        </a>-->
-<!--                    </li>-->
-<!--                    <li><hr class="dropdown-divider"></li>-->
-<!--                    <li><a class="dropdown-item text-center" href="#">Xem tất cả</a></li>-->
-<!--                </ul>-->
-<!--            </div>-->
 
-
-        </div>
-    </div>
-
-    <!-- Content Area -->
-    <div class="content-area">
-        <!-- Stats Cards -->
-        <div class="row g-4 mb-4 fade-in-up">
-            <div class="col-xl-3 col-md-6">
-                <div class="stat-card">
-                    <div class="stat-card-header">
-                        <div>
-                            <div class="stat-label">Doanh thu tháng này</div>
-                            <div class="stat-value" th:text="${totalRevenue} ?: '156.000.000₫'">156.000.000₫</div>
-                            <div class="stat-change positive">
-                                <i class="bi bi-arrow-up"></i>
-                                <span>12.5% vs tháng trước</span>
+        <div class="content-area">
+            <!-- Stats Cards -->
+            <div class="row g-4 mb-4 fade-in-up">
+                <div class="col-xl-3 col-md-6">
+                    <div class="stat-card">
+                        <div class="stat-card-header">
+                            <div>
+                                <div class="stat-label">Doanh thu tháng này</div>
+                                <div class="stat-value" th:text="${totalRevenue} ?: '156.000.000₫'">156.000.000₫</div>
+                                <div class="stat-change positive">
+                                    <i class="bi bi-arrow-up"></i>
+                                    <span>12.5% vs tháng trước</span>
+                                </div>
+                            </div>
+                            <div class="stat-icon primary">
+                                <i class="bi bi-currency-dollar"></i>
                             </div>
                         </div>
-                        <div class="stat-icon primary">
-                            <i class="bi bi-currency-dollar"></i>
+                    </div>
+                </div>
+
+                <div class="col-xl-3 col-md-6">
+                    <div class="stat-card">
+                        <div class="stat-card-header">
+                            <div>
+                                <div class="stat-label">Đơn hàng hôm nay</div>
+                                <div class="stat-value" th:text="${totalOrders} ?: '1.245'">1.245</div>
+                                <div class="stat-change positive">
+                                    <i class="bi bi-arrow-up"></i>
+                                    <span>8.2% vs hôm qua</span>
+                                </div>
+                            </div>
+                            <div class="stat-icon success">
+                                <i class="bi bi-cart-check"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-xl-3 col-md-6">
+                    <div class="stat-card">
+                        <div class="stat-card-header">
+                            <div>
+                                <div class="stat-label">Khách hàng</div>
+                                <div class="stat-value" th:text="${totalCustomers} ?: '3.782'">3.782</div>
+                                <div class="stat-change positive">
+                                    <i class="bi bi-arrow-up"></i>
+                                    <span>152 khách hàng mới</span>
+                                </div>
+                            </div>
+                            <div class="stat-icon warning">
+                                <i class="bi bi-people"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-xl-3 col-md-6">
+                    <div class="stat-card">
+                        <div class="stat-card-header">
+                            <div>
+                                <div class="stat-label">Sản phẩm</div>
+                                <div class="stat-value" th:text="${totalProducts} ?: '856'">856</div>
+                                <div class="stat-change neutral">
+                                    <i class="bi bi-exclamation-triangle"></i>
+                                    <span>23 sản phẩm cần nhập</span>
+                                </div>
+                            </div>
+                            <div class="stat-icon danger">
+                                <i class="bi bi-box-seam"></i>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div class="col-xl-3 col-md-6">
-                <div class="stat-card">
-                    <div class="stat-card-header">
-                        <div>
-                            <div class="stat-label">Đơn hàng hôm nay</div>
-                            <div class="stat-value" th:text="${totalOrders} ?: '1.245'">1.245</div>
-                            <div class="stat-change positive">
-                                <i class="bi bi-arrow-up"></i>
-                                <span>8.2% vs hôm qua</span>
+            <!-- Main Content Grid -->
+            <div class="row g-4">
+                <!-- Recent Orders -->
+                <div class="col-lg-8">
+                    <div class="custom-table fade-in-up" style="animation-delay: 0.1s;">
+                        <div class="table-header">
+                            <h5 class="table-title">
+                                <i class="bi bi-receipt"></i>
+                                Đơn hàng gần đây
+                            </h5>
+                            <div class="table-actions">
+                                <button class="btn btn-sm btn-outline-primary">
+                                    <i class="bi bi-funnel"></i>
+                                    Lọc
+                                </button>
+                                <a href="/admin/orders" class="btn btn-sm btn-primary">
+                                    Xem tất cả
+                                    <i class="bi bi-arrow-right"></i>
+                                </a>
                             </div>
                         </div>
-                        <div class="stat-icon success">
-                            <i class="bi bi-cart-check"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-xl-3 col-md-6">
-                <div class="stat-card">
-                    <div class="stat-card-header">
-                        <div>
-                            <div class="stat-label">Khách hàng</div>
-                            <div class="stat-value" th:text="${totalCustomers} ?: '3.782'">3.782</div>
-                            <div class="stat-change positive">
-                                <i class="bi bi-arrow-up"></i>
-                                <span>152 khách hàng mới</span>
-                            </div>
-                        </div>
-                        <div class="stat-icon warning">
-                            <i class="bi bi-people"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-xl-3 col-md-6">
-                <div class="stat-card">
-                    <div class="stat-card-header">
-                        <div>
-                            <div class="stat-label">Sản phẩm</div>
-                            <div class="stat-value" th:text="${totalProducts} ?: '856'">856</div>
-                            <div class="stat-change neutral">
-                                <i class="bi bi-exclamation-triangle"></i>
-                                <span>23 sản phẩm cần nhập</span>
-                            </div>
-                        </div>
-                        <div class="stat-icon danger">
-                            <i class="bi bi-box-seam"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Main Content Grid -->
-        <div class="row g-4">
-            <!-- Recent Orders -->
-            <div class="col-lg-8">
-                <div class="custom-table fade-in-up" style="animation-delay: 0.1s;">
-                    <div class="table-header">
-                        <h5 class="table-title">
-                            <i class="bi bi-receipt"></i>
-                            Đơn hàng gần đây
-                        </h5>
-                        <div class="table-actions">
-                            <button class="btn btn-sm btn-outline-primary">
-                                <i class="bi bi-funnel"></i>
-                                Lọc
-                            </button>
-                            <a href="/admin/orders" class="btn btn-sm btn-primary">
-                                Xem tất cả
-                                <i class="bi bi-arrow-right"></i>
-                            </a>
-                        </div>
-                    </div>
-                    <div class="table-responsive">
-                        <table class="table table-hover mb-0">
-                            <thead>
-                            <tr>
-                                <th>Mã đơn</th>
-                                <th>Khách hàng</th>
-                                <th>Sản phẩm</th>
-                                <th>Tổng tiền</th>
-                                <th>Trạng thái</th>
-                                <th>Ngày</th>
-                                <th>Thao tác</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            <tr th:each="order : ${recentOrders}">
-                                <td>
-                                    <span class="order-number" th:text="${order.orderNumber}">#ORD-12345</span>
-                                </td>
-                                <td>
-                                    <div>
-                                        <div class="fw-bold" th:text="${order.customerName}">Nguyễn Văn A</div>
-                                        <small class="text-muted" th:text="${order.customerEmail}">email@example.com</small>
-                                    </div>
-                                </td>
-                                <td>
-                                    <small th:text="${order.itemCount} + ' sản phẩm'">3 sản phẩm</small>
-                                </td>
-                                <td>
-                                    <strong th:text="${order.total}">1.250.000₫</strong>
-                                </td>
-                                <td>
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead>
+                                <tr>
+                                    <th>Mã đơn</th>
+                                    <th>Khách hàng</th>
+                                    <th>Sản phẩm</th>
+                                    <th>Tổng tiền</th>
+                                    <th>Trạng thái</th>
+                                    <th>Ngày</th>
+                                    <th>Thao tác</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr th:each="order : ${recentOrders}">
+                                    <td>
+                                        <span class="order-number" th:text="${order.orderNumber}">#ORD-12345</span>
+                                    </td>
+                                    <td>
+                                        <div>
+                                            <div class="fw-bold" th:text="${order.customerName}">Nguyễn Văn A</div>
+                                            <small class="text-muted" th:text="${order.customerEmail}">email@example.com</small>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <small th:text="${order.itemCount} + ' sản phẩm'">3 sản phẩm</small>
+                                    </td>
+                                    <td>
+                                        <strong th:text="${order.total}">1.250.000₫</strong>
+                                    </td>
+                                    <td>
                                         <span class="status-badge"
                                               th:classappend="${order.status == 'COMPLETED' ? 'completed' :
                                                               order.status == 'PENDING' ? 'pending' :
                                                               order.status == 'PROCESSING' ? 'processing' : 'cancelled'}"
                                               th:text="${order.statusText}">Đang xử lý</span>
-                                </td>
-                                <td th:text="${#temporals.format(order.createdAt, 'dd/MM/yyyy')}">01/11/2025</td>
-                                <td>
-                                    <div class="btn-group btn-group-sm">
-                                        <a th:href="@{/admin/orders/{id}(id=${order.id})}"
-                                           class="btn btn-sm btn-outline-primary">
-                                            <i class="bi bi-eye"></i>
-                                        </a>
-                                        <button class="btn btn-sm btn-outline-success" title="In hóa đơn">
-                                            <i class="bi bi-printer"></i>
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-                            <!-- Sample static data -->
-                            <tr th:if="${#lists.isEmpty(recentOrders)}">
-                                <td><span class="order-number">#ORD-12345</span></td>
-                                <td>
-                                    <div>
-                                        <div class="fw-bold">Nguyễn Văn A</div>
-                                        <small class="text-muted">nguyen.a@email.com</small>
-                                    </div>
-                                </td>
-                                <td><small>3 sản phẩm</small></td>
-                                <td><strong>1.250.000₫</strong></td>
-                                <td><span class="status-badge processing">Đang xử lý</span></td>
-                                <td>03/11/2025</td>
-                                <td>
-                                    <div class="btn-group btn-group-sm">
-                                        <button class="btn btn-sm btn-outline-primary"><i class="bi bi-eye"></i></button>
-                                        <button class="btn btn-sm btn-outline-success"><i class="bi bi-printer"></i></button>
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr th:if="${#lists.isEmpty(recentOrders)}">
-                                <td><span class="order-number">#ORD-12344</span></td>
-                                <td>
-                                    <div>
-                                        <div class="fw-bold">Trần Thị B</div>
-                                        <small class="text-muted">tran.b@email.com</small>
-                                    </div>
-                                </td>
-                                <td><small>5 sản phẩm</small></td>
-                                <td><strong>2.890.000₫</strong></td>
-                                <td><span class="status-badge completed">Hoàn thành</span></td>
-                                <td>02/11/2025</td>
-                                <td>
-                                    <div class="btn-group btn-group-sm">
-                                        <button class="btn btn-sm btn-outline-primary"><i class="bi bi-eye"></i></button>
-                                        <button class="btn btn-sm btn-outline-success"><i class="bi bi-printer"></i></button>
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr th:if="${#lists.isEmpty(recentOrders)}">
-                                <td><span class="order-number">#ORD-12343</span></td>
-                                <td>
-                                    <div>
-                                        <div class="fw-bold">Lê Văn C</div>
-                                        <small class="text-muted">le.c@email.com</small>
-                                    </div>
-                                </td>
-                                <td><small>2 sản phẩm</small></td>
-                                <td><strong>890.000₫</strong></td>
-                                <td><span class="status-badge pending">Chờ xử lý</span></td>
-                                <td>01/11/2025</td>
-                                <td>
-                                    <div class="btn-group btn-group-sm">
-                                        <button class="btn btn-sm btn-outline-primary"><i class="bi bi-eye"></i></button>
-                                        <button class="btn btn-sm btn-outline-success"><i class="bi bi-printer"></i></button>
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr th:if="${#lists.isEmpty(recentOrders)}">
-                                <td><span class="order-number">#ORD-12342</span></td>
-                                <td>
-                                    <div>
-                                        <div class="fw-bold">Phạm Thị D</div>
-                                        <small class="text-muted">pham.d@email.com</small>
-                                    </div>
-                                </td>
-                                <td><small>1 sản phẩm</small></td>
-                                <td><strong>450.000₫</strong></td>
-                                <td><span class="status-badge completed">Hoàn thành</span></td>
-                                <td>31/10/2025</td>
-                                <td>
-                                    <div class="btn-group btn-group-sm">
-                                        <button class="btn btn-sm btn-outline-primary"><i class="bi bi-eye"></i></button>
-                                        <button class="btn btn-sm btn-outline-success"><i class="bi bi-printer"></i></button>
-                                    </div>
-                                </td>
-                            </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Sidebar Widgets -->
-            <div class="col-lg-4">
-                <!-- Top Products -->
-                <div class="chart-container mb-4 fade-in-up" style="animation-delay: 0.2s;">
-                    <h5 class="widget-title">
-                        <i class="bi bi-trophy-fill"></i>
-                        Sản phẩm bán chạy
-                    </h5>
-                    <div>
-                        <div class="product-item" th:each="product, stat : ${topProducts}">
-                            <div class="product-info">
-                                <div>
-                                    <div class="product-name" th:text="${product.name}">iPhone 15 Pro Max</div>
-                                    <div class="product-meta" th:text="${product.variant}">256GB - Titan Tự Nhiên</div>
-                                </div>
-                                <div class="product-badge" th:text="${product.soldCount} + ' đã bán'">
-                                    245 đã bán
-                                </div>
-                            </div>
+                                    </td>
+                                    <td th:text="${#temporals.format(order.createdAt, 'dd/MM/yyyy')}">01/11/2025</td>
+                                    <td>
+                                        <div class="btn-group btn-group-sm">
+                                            <a th:href="@{/admin/orders/{id}(id=${order.id})}"
+                                               class="btn btn-sm btn-outline-primary">
+                                                <i class="bi bi-eye"></i>
+                                            </a>
+                                            <button class="btn btn-sm btn-outline-success" title="In hóa đơn">
+                                                <i class="bi bi-printer"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <!-- Sample static data -->
+                                <tr th:if="${#lists.isEmpty(recentOrders)}">
+                                    <td><span class="order-number">#ORD-12345</span></td>
+                                    <td>
+                                        <div>
+                                            <div class="fw-bold">Nguyễn Văn A</div>
+                                            <small class="text-muted">nguyen.a@email.com</small>
+                                        </div>
+                                    </td>
+                                    <td><small>3 sản phẩm</small></td>
+                                    <td><strong>1.250.000₫</strong></td>
+                                    <td><span class="status-badge processing">Đang xử lý</span></td>
+                                    <td>03/11/2025</td>
+                                    <td>
+                                        <div class="btn-group btn-group-sm">
+                                            <button class="btn btn-sm btn-outline-primary"><i class="bi bi-eye"></i></button>
+                                            <button class="btn btn-sm btn-outline-success"><i class="bi bi-printer"></i></button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr th:if="${#lists.isEmpty(recentOrders)}">
+                                    <td><span class="order-number">#ORD-12344</span></td>
+                                    <td>
+                                        <div>
+                                            <div class="fw-bold">Trần Thị B</div>
+                                            <small class="text-muted">tran.b@email.com</small>
+                                        </div>
+                                    </td>
+                                    <td><small>5 sản phẩm</small></td>
+                                    <td><strong>2.890.000₫</strong></td>
+                                    <td><span class="status-badge completed">Hoàn thành</span></td>
+                                    <td>02/11/2025</td>
+                                    <td>
+                                        <div class="btn-group btn-group-sm">
+                                            <button class="btn btn-sm btn-outline-primary"><i class="bi bi-eye"></i></button>
+                                            <button class="btn btn-sm btn-outline-success"><i class="bi bi-printer"></i></button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr th:if="${#lists.isEmpty(recentOrders)}">
+                                    <td><span class="order-number">#ORD-12343</span></td>
+                                    <td>
+                                        <div>
+                                            <div class="fw-bold">Lê Văn C</div>
+                                            <small class="text-muted">le.c@email.com</small>
+                                        </div>
+                                    </td>
+                                    <td><small>2 sản phẩm</small></td>
+                                    <td><strong>890.000₫</strong></td>
+                                    <td><span class="status-badge pending">Chờ xử lý</span></td>
+                                    <td>01/11/2025</td>
+                                    <td>
+                                        <div class="btn-group btn-group-sm">
+                                            <button class="btn btn-sm btn-outline-primary"><i class="bi bi-eye"></i></button>
+                                            <button class="btn btn-sm btn-outline-success"><i class="bi bi-printer"></i></button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr th:if="${#lists.isEmpty(recentOrders)}">
+                                    <td><span class="order-number">#ORD-12342</span></td>
+                                    <td>
+                                        <div>
+                                            <div class="fw-bold">Phạm Thị D</div>
+                                            <small class="text-muted">pham.d@email.com</small>
+                                        </div>
+                                    </td>
+                                    <td><small>1 sản phẩm</small></td>
+                                    <td><strong>450.000₫</strong></td>
+                                    <td><span class="status-badge completed">Hoàn thành</span></td>
+                                    <td>31/10/2025</td>
+                                    <td>
+                                        <div class="btn-group btn-group-sm">
+                                            <button class="btn btn-sm btn-outline-primary"><i class="bi bi-eye"></i></button>
+                                            <button class="btn btn-sm btn-outline-success"><i class="bi bi-printer"></i></button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
                         </div>
-                        <!-- Static sample data -->
-                        <div class="product-item" th:if="${#lists.isEmpty(topProducts)}">
-                            <div class="product-info">
-                                <div>
-                                    <div class="product-name">iPhone 15 Pro Max</div>
-                                    <div class="product-meta">256GB - Titan Tự Nhiên</div>
-                                </div>
-                                <div class="product-badge">245 đã bán</div>
-                            </div>
-                        </div>
-                        <div class="product-item" th:if="${#lists.isEmpty(topProducts)}">
-                            <div class="product-info">
-                                <div>
-                                    <div class="product-name">Samsung Galaxy S24 Ultra</div>
-                                    <div class="product-meta">512GB - Titanium Gray</div>
-                                </div>
-                                <div class="product-badge">198 đã bán</div>
-                            </div>
-                        </div>
-                        <div class="product-item" th:if="${#lists.isEmpty(topProducts)}">
-                            <div class="product-info">
-                                <div>
-                                    <div class="product-name">MacBook Pro M3</div>
-                                    <div class="product-meta">16GB RAM - 512GB SSD</div>
-                                </div>
-                                <div class="product-badge">152 đã bán</div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="d-grid mt-3">
-                        <a href="/admin/reports/products" class="btn btn-outline-primary">
-                            Xem báo cáo chi tiết
-                            <i class="bi bi-arrow-right"></i>
-                        </a>
                     </div>
                 </div>
 
-                <!-- Inventory Alerts -->
-                <div class="chart-container fade-in-up" style="animation-delay: 0.3s;">
-                    <h5 class="widget-title">
-                        <i class="bi bi-exclamation-triangle-fill"></i>
-                        Cảnh báo tồn kho
-                    </h5>
-                    <div class="alert alert-warning">
-                        <i class="bi bi-exclamation-triangle-fill"></i>
+                <!-- Sidebar Widgets -->
+                <div class="col-lg-4">
+                    <!-- Top Products -->
+                    <div class="chart-container mb-4 fade-in-up" style="animation-delay: 0.2s;">
+                        <h5 class="widget-title">
+                            <i class="bi bi-trophy-fill"></i>
+                            Sản phẩm bán chạy
+                        </h5>
                         <div>
-                            <strong>23 sản phẩm</strong>
-                            <div class="small">Sắp hết hàng</div>
+                            <div class="product-item" th:each="product, stat : ${topProducts}">
+                                <div class="product-info">
+                                    <div>
+                                        <div class="product-name" th:text="${product.name}">iPhone 15 Pro Max</div>
+                                        <div class="product-meta" th:text="${product.variant}">256GB - Titan Tự Nhiên</div>
+                                    </div>
+                                    <div class="product-badge" th:text="${product.soldCount} + ' đã bán'">
+                                        245 đã bán
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Static sample data -->
+                            <div class="product-item" th:if="${#lists.isEmpty(topProducts)}">
+                                <div class="product-info">
+                                    <div>
+                                        <div class="product-name">iPhone 15 Pro Max</div>
+                                        <div class="product-meta">256GB - Titan Tự Nhiên</div>
+                                    </div>
+                                    <div class="product-badge">245 đã bán</div>
+                                </div>
+                            </div>
+                            <div class="product-item" th:if="${#lists.isEmpty(topProducts)}">
+                                <div class="product-info">
+                                    <div>
+                                        <div class="product-name">Samsung Galaxy S24 Ultra</div>
+                                        <div class="product-meta">512GB - Titanium Gray</div>
+                                    </div>
+                                    <div class="product-badge">198 đã bán</div>
+                                </div>
+                            </div>
+                            <div class="product-item" th:if="${#lists.isEmpty(topProducts)}">
+                                <div class="product-info">
+                                    <div>
+                                        <div class="product-name">MacBook Pro M3</div>
+                                        <div class="product-meta">16GB RAM - 512GB SSD</div>
+                                    </div>
+                                    <div class="product-badge">152 đã bán</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="d-grid mt-3">
+                            <a href="/admin/reports/products" class="btn btn-outline-primary">
+                                Xem báo cáo chi tiết
+                                <i class="bi bi-arrow-right"></i>
+                            </a>
                         </div>
                     </div>
-                    <div class="alert alert-danger">
-                        <i class="bi bi-x-circle-fill"></i>
-                        <div>
-                            <strong>5 sản phẩm</strong>
-                            <div class="small">Đã hết hàng</div>
+
+                    <!-- Inventory Alerts -->
+                    <div class="chart-container fade-in-up" style="animation-delay: 0.3s;">
+                        <h5 class="widget-title">
+                            <i class="bi bi-exclamation-triangle-fill"></i>
+                            Cảnh báo tồn kho
+                        </h5>
+                        <div class="alert alert-warning">
+                            <i class="bi bi-exclamation-triangle-fill"></i>
+                            <div>
+                                <strong>23 sản phẩm</strong>
+                                <div class="small">Sắp hết hàng</div>
+                            </div>
                         </div>
-                    </div>
-                    <div class="d-grid">
-                        <a href="/admin/inventory/alerts" class="btn btn-outline-primary">
-                            Quản lý tồn kho
-                            <i class="bi bi-arrow-right"></i>
-                        </a>
+                        <div class="alert alert-danger">
+                            <i class="bi bi-x-circle-fill"></i>
+                            <div>
+                                <strong>5 sản phẩm</strong>
+                                <div class="small">Đã hết hàng</div>
+                            </div>
+                        </div>
+                        <div class="d-grid">
+                            <a href="/admin/inventory/alerts" class="btn btn-outline-primary">
+                                Quản lý tồn kho
+                                <i class="bi bi-arrow-right"></i>
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
+        </div>
+
     </div>
-</div>
+
+    <!-- Content Area -->
+
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <!-- Custom JS -->

@@ -73,7 +73,7 @@ public class CommentService {
 
         Reply reply = new Reply();
         reply.setComment(comment);
-        reply.setUser(admin.getId());
+        reply.setUser(admin);
         reply.setCommentText(content);
         reply.setStatus(Comment.Status.APPROVED); // admin trả lời thì auto duyệt
         reply.setLikeCount(0);
