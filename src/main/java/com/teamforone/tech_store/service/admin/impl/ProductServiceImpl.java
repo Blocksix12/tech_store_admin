@@ -1,8 +1,10 @@
 package com.teamforone.tech_store.service.admin.impl;
 
+import com.teamforone.tech_store.dto.request.CTProductRequest;
 import com.teamforone.tech_store.dto.request.ProductListDTO;
 import com.teamforone.tech_store.dto.request.ProductRequest;
 import com.teamforone.tech_store.dto.response.Response;
+import com.teamforone.tech_store.model.CTProducts;
 import com.teamforone.tech_store.model.Product;
 import com.teamforone.tech_store.repository.admin.crud.CTProductRepository;
 import com.teamforone.tech_store.repository.admin.crud.ProductRepository;
@@ -60,6 +62,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    @Transactional
     public Product addProduct(ProductRequest product) throws IOException {
         String name = product.getName();
         String slug = product.getSlug();
@@ -67,11 +70,13 @@ public class ProductServiceImpl implements ProductService {
         String brand = product.getBrandId();
         String category = product.getCategoryId();
         String imageUrl = null;
-        if (product.getDefaultImage() != null && !product.getDefaultImage().isEmpty()) {
+
+        if (product.getDefaultImage() != null && ! product.getDefaultImage().isEmpty()) {
             imageUrl = fileStorageService.saveFile(product.getDefaultImage());
         }
         String status = product.getStatus();
 
+        // ✅ Bước 1: Tạo và lưu Product trước
         Product newProduct = Product.builder()
                 .name(name)
                 .slug(slug)
@@ -81,7 +86,49 @@ public class ProductServiceImpl implements ProductService {
                 .imageUrl(imageUrl)
                 .productStatus(Product.Status.toEnum(status))
                 .build();
-        return productRepository.save(newProduct);
+
+        Product savedProduct = productRepository.save(newProduct);
+
+        // ✅ Bước 2: Nếu có danh sách biến thể, lưu từng biến thể
+        if (product.getCtProducts() != null && !product.getCtProducts().isEmpty()) {
+            for (CTProductRequest variantRequest : product.getCtProducts()) {
+                // Validate biến thể
+                if (variantRequest.getColorId() == null || variantRequest.getColorId().isEmpty()) {
+                    throw new IllegalArgumentException("Màu sắc không được để trống!");
+                }
+
+                if (variantRequest.getPrice() == null || variantRequest. getPrice() <= 0) {
+                    throw new IllegalArgumentException("Giá phải lớn hơn 0!");
+                }
+
+                if (variantRequest.getQuantity() == null || variantRequest.getQuantity() < 0) {
+                    throw new IllegalArgumentException("Số lượng không được âm!");
+                }
+
+                // Validate giá khuyến mãi
+                if (variantRequest.getSalePrice() != null &&
+                        variantRequest.getSalePrice() > 0 &&
+                        variantRequest.getSalePrice() >= variantRequest.getPrice()) {
+                    throw new IllegalArgumentException(
+                            "Giá khuyến mãi phải nhỏ hơn giá gốc!");
+                }
+
+                // Tạo CTProduct entity
+                CTProducts ctProduct = new CTProducts();
+                ctProduct. setProductId(savedProduct.getId());  // ✅ Sử dụng ID từ product đã lưu
+                ctProduct.setColorId(variantRequest.getColorId());
+                ctProduct.setStorageId(variantRequest.getStorageId());
+                ctProduct.setSizeId(variantRequest.getSizeId());
+                ctProduct.setPrice(variantRequest.getPrice());
+                ctProduct.setSalePrice(variantRequest.getSalePrice());
+                ctProduct.setQuantity(variantRequest. getQuantity());
+
+                // Lưu biến thể
+                ctProductRepository.save(ctProduct);
+            }
+        }
+
+        return savedProduct;
     }
 
     @Override

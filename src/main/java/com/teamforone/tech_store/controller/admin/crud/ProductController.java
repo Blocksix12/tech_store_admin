@@ -1,10 +1,12 @@
 package com.teamforone.tech_store.controller.admin.crud;
 
+import com.teamforone.tech_store.dto.request.CTProductRequest;
 import com.teamforone.tech_store.dto.request.ProductListDTO;
 import com.teamforone.tech_store.dto.request.ProductRequest;
 import com.teamforone.tech_store.dto.response.Response;
 import com.teamforone.tech_store.model.Product;
 import com.teamforone.tech_store.service.admin.BrandService;
+import com.teamforone.tech_store.service.admin.CTProductService;
 import com.teamforone.tech_store.service.admin.CategoryService;
 import com.teamforone.tech_store.service.admin.ProductService;
 import com.teamforone.tech_store.service.admin.impl.FileStorageService;
@@ -19,6 +21,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/admin")
@@ -31,6 +34,8 @@ public class ProductController {
     private final BrandService brandService;
     @Autowired
     private final FileStorageService fileStorageService;
+    @Autowired
+    private CTProductService ctProductService;
 
     public ProductController(ProductService productService, CategoryService categoryService, BrandService brandService, FileStorageService fileStorageService) {
         this.productService = productService;
@@ -82,6 +87,10 @@ public class ProductController {
         model.addAttribute("product", new ProductRequest());
         model.addAttribute("categories", categoryService.getAllCategories());
         model.addAttribute("brands", brandService.getAllBrands());
+
+        model. addAttribute("colors", ctProductService.getAllColors());
+        model. addAttribute("storages", ctProductService.getAllStorages());
+        model.addAttribute("sizes", ctProductService.getAllSizes());
         return "AddProducts";
     }
 
@@ -91,24 +100,51 @@ public class ProductController {
                              Model model,
                              RedirectAttributes redirectAttributes) {
         if (result.hasErrors()) {
+            // ✅ Repopulate tất cả dữ liệu khi có lỗi
             model.addAttribute("categories", categoryService.getAllCategories());
             model.addAttribute("brands", brandService.getAllBrands());
+            model.addAttribute("colors", ctProductService.getAllColors());
+            model.addAttribute("storages", ctProductService.getAllStorages());
+            model.addAttribute("sizes", ctProductService.getAllSizes());
             return "AddProducts";
         }
 
         try {
-            productService.addProduct(productRequest);
-            redirectAttributes.addFlashAttribute("success", "Sản phẩm đã được thêm thành công!");
+            Product savedProduct = productService.addProduct(productRequest);
+
+            redirectAttributes.addFlashAttribute("success",
+                    "Sản phẩm và " +
+                            (productRequest.getCtProducts() != null ?  productRequest.getCtProducts().size() : 0) +
+                            " biến thể đã được thêm thành công!");
+
             return "redirect:/admin/products";
+
+        } catch (IllegalArgumentException e) {
+            // ✅ Lỗi validation nghiệp vụ
+            model.addAttribute("error", e.getMessage());
+            model. addAttribute("categories", categoryService. getAllCategories());
+            model. addAttribute("brands", brandService. getAllBrands());
+            model.addAttribute("colors", ctProductService.getAllColors());
+            model.addAttribute("storages", ctProductService.getAllStorages());
+            model.addAttribute("sizes", ctProductService.getAllSizes());
+            return "AddProducts";
+
         } catch (IOException e) {
             model.addAttribute("error", "Lỗi khi upload file: " + e.getMessage());
             model.addAttribute("categories", categoryService.getAllCategories());
             model.addAttribute("brands", brandService.getAllBrands());
+            model.addAttribute("colors", ctProductService.getAllColors());
+            model.addAttribute("storages", ctProductService.getAllStorages());
+            model.addAttribute("sizes", ctProductService.getAllSizes());
             return "AddProducts";
+
         } catch (Exception e) {
             model.addAttribute("error", "Có lỗi xảy ra: " + e.getMessage());
-            model.addAttribute("categories", categoryService.getAllCategories());
-            model.addAttribute("brands", brandService.getAllBrands());
+            model. addAttribute("categories", categoryService. getAllCategories());
+            model. addAttribute("brands", brandService. getAllBrands());
+            model.addAttribute("colors", ctProductService.getAllColors());
+            model.addAttribute("storages", ctProductService.getAllStorages());
+            model.addAttribute("sizes", ctProductService.getAllSizes());
             return "AddProducts";
         }
     }
@@ -248,6 +284,58 @@ public class ProductController {
     @GetMapping("/products/{id}")
     public Product findProductById(@PathVariable String id){
         return productService.findProductById(id);
+    }
+
+    @GetMapping("/products/detail/{id}")
+    public String showProductDetail(@PathVariable String id, Model model, RedirectAttributes redirectAttributes) {
+        try {
+            Product product = productService.findProductById(id);
+
+            if (product == null) {
+                redirectAttributes.addFlashAttribute("error", "Không tìm thấy sản phẩm!");
+                return "redirect:/admin/products";
+            }
+
+            // Load category and brand separately
+            String categoryName = "Chưa có";
+            String brandName = "Chưa có";
+
+            if (product.getCategoryId() != null) {
+                var category = categoryService.findCategoryById(product.getCategoryId());
+                if (category != null) {
+                    categoryName = category.getCategoryName();
+                }
+            }
+
+            if (product.getBrandId() != null) {
+                var brand = brandService.findBrandById(product.getBrandId());
+                if (brand != null) {
+                    brandName = brand.getBrandName();
+                }
+            }
+
+            // Load biến thể của sản phẩm này
+            List<CTProductRequest> allVariants = ctProductService.getAllProduct();
+            List<CTProductRequest> productVariants = allVariants.stream()
+                    .filter(v -> v.getProductId() != null && v.getProductId().equals(id))
+                    .collect(Collectors.toList());
+
+            // ✅ Tính tổng tồn kho trong controller
+            int totalStock = productVariants.stream()
+                    .mapToInt(v -> v.getQuantity() != null ? v.getQuantity() : 0)
+                    .sum();
+
+            model.addAttribute("product", product);
+            model.addAttribute("categoryName", categoryName);
+            model.addAttribute("brandName", brandName);
+            model.addAttribute("ctProducts", productVariants);
+            model.addAttribute("totalStock", totalStock); // ✅ Thêm totalStock
+
+            return "CTProductList";
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Có lỗi xảy ra: " + e.getMessage());
+            return "redirect:/admin/products";
+        }
     }
 
 }

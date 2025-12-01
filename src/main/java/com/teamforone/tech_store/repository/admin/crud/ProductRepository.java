@@ -15,8 +15,8 @@ public interface ProductRepository extends JpaRepository<Product, String> {
             "p.name, " +
             "p.slug, " +
             "c.category_name, " +
-            "MIN(ct.sale_price) as min_price, " +
-            "MAX(ct.sale_price) as max_price, " +
+            "MIN(ct.price) as min_price, " +
+            "MAX(ct.price) as max_price, " +
             "COALESCE(SUM(ct.quantity), 0) as total_quantity, " +
             "p.status, " +
             "p.default_image, " +

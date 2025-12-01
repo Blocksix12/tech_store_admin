@@ -54,6 +54,101 @@
                     </div>
                 </div>
 
+                <div class="form-section">
+                    <div class="section-header">
+                        <h5 class="section-title">
+                            <i class="bi bi-grid-3x3-gap-fill"></i>
+                            Biến thể sản phẩm (Tùy chọn)
+                        </h5>
+                    </div>
+
+                    <div class="alert alert-info mb-3">
+                        <i class="bi bi-info-circle"></i>
+                        Thêm biến thể ngay hoặc bỏ qua để thêm sau trong mục
+                        <a href="/admin/product-variants">Quản lý biến thể</a>
+                    </div>
+
+                    <!-- Variant Container - Server-side rendered -->
+                    <div id="variantsContainer">
+                        <!-- Initial variant (index 0) -->
+                        <div class="variant-card mb-3">
+                            <div class="card">
+                                <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                                    <h6 class="mb-0">Biến thể #1</h6>
+                                    <span class="text-muted small">Tùy chọn</span>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row g-3">
+                                        <!-- Màu sắc -->
+                                        <div class="col-md-3">
+                                            <label class="form-label">Màu sắc <span class="text-danger">*</span></label>
+                                            <select class="form-select" name="ctProducts[0].colorId">
+                                                <option value="">-- Chọn màu --</option>
+                                                <option th:each="color : ${colors}"
+                                                        th:value="${color.id}"
+                                                        th:text="${color.name}"></option>
+                                            </select>
+                                        </div>
+
+                                        <!-- Dung lượng -->
+                                        <div class="col-md-3">
+                                            <label class="form-label">Dung lượng</label>
+                                            <select class="form-select" name="ctProducts[0].storageId">
+                                                <option value="">-- Không có --</option>
+                                                <option th:each="storage : ${storages}"
+                                                        th:value="${storage.id}"
+                                                        th:text="${storage.name}"></option>
+                                            </select>
+                                        </div>
+
+                                        <!-- Kích thước -->
+                                        <div class="col-md-3">
+                                            <label class="form-label">Kích thước</label>
+                                            <select class="form-select" name="ctProducts[0].sizeId">
+                                                <option value="">-- Không có --</option>
+                                                <option th:each="size : ${sizes}"
+                                                        th:value="${size.id}"
+                                                        th:text="${size.name}"></option>
+                                            </select>
+                                        </div>
+
+                                        <!-- Số lượng -->
+                                        <div class="col-md-3">
+                                            <label class="form-label">Số lượng <span class="text-danger">*</span></label>
+                                            <input type="number" class="form-control"
+                                                   name="ctProducts[0].quantity"
+                                                   min="0" placeholder="0">
+                                        </div>
+
+                                        <!-- Giá gốc -->
+                                        <div class="col-md-6">
+                                            <label class="form-label">Giá gốc (VNĐ) <span class="text-danger">*</span></label>
+                                            <input type="number" class="form-control"
+                                                   name="ctProducts[0].price"
+                                                   min="0" step="1000" placeholder="15. 000. 000">
+                                        </div>
+
+                                        <!-- Giá khuyến mãi -->
+                                        <div class="col-md-6">
+                                            <label class="form-label">Giá khuyến mãi (VNĐ)</label>
+                                            <input type="number" class="form-control"
+                                                   name="ctProducts[0].salePrice"
+                                                   min="0" step="1000" placeholder="13.000.000">
+                                            <div class="form-text">Để trống nếu không có KM</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <p class="text-muted small">
+                        <i class="bi bi-lightbulb"></i>
+                        <strong>Lưu ý:</strong> Nếu không thêm biến thể ngay, bạn có thể thêm sau trong mục
+                        <a href="/admin/product-variants/add">Quản lý biến thể</a>
+                    </p>
+                </div>
+
                 <!-- Product Image -->
                 <div class="form-section">
                     <div class="section-header">
