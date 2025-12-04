@@ -60,11 +60,17 @@ public class Product {
     @Column(name = "updated_at")
     private Date updatedAt;
 
+    @Getter
     public enum Status {
-        DRAFT,
-        PUBLISHED,
-        ARCHIVED;
+        DRAFT("Nháp"),
+        PUBLISHED("Xuất bản"),
+        ARCHIVED("Lưu trữ");
 
+        private final String displayName;
+
+        Status(String displayName) {
+            this.displayName = displayName;
+        }
         public static Status toEnum(String type) {
             for (Status item : values()) {
                 if (item.toString().equalsIgnoreCase(type)) return item;

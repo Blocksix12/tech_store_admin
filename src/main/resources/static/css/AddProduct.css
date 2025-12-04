@@ -264,20 +264,59 @@
     font-weight: 600;
 }
 
-/* Fix missing dropdown arrow for select elements */
-.main-content #productForm .form-select {
-    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3. org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");
-    background-repeat: no-repeat;
-    background-position: right 0.75rem center;
-    background-size: 16px 12px;
-    padding-right: 2.5rem;
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    appearance: none;
+/* Inputs and selects: slightly taller and rounded for balance */
+.main-content #productForm .form-control,
+.main-content #productForm .form-select,
+.main-content #productForm textarea {
+    min-height: 44px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    border: 1px solid #e6e9ef;
+    transition: border-color 0.18s ease, box-shadow 0.18s ease;
+    background: #fff;
 }
 
+/* Add dropdown arrow to select - ALWAYS visible */
+.main-content #productForm .form-select {
+    background-color: #fff ! important;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e") !important;
+    background-repeat: no-repeat !important;
+    background-position: right 0.75rem center !important;
+    background-size: 16px 12px !important;
+    padding-right: 2.5rem !important;
+    -webkit-appearance: none !important;
+    -moz-appearance: none ! important;
+    appearance: none ! important;
+    position: relative;
+}
+
+.main-content #productForm .form-control:focus,
+.main-content #productForm .form-select:focus,
+.main-content #productForm textarea:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 4px rgba(102,126,234,0.08);
+    outline: none;
+}
+
+/* Change arrow color when focused */
 .main-content #productForm .form-select:focus {
-    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23667eea' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23667eea' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e") !important;
+}
+
+/* Increase z-index when select is focused to prevent overlapping */
+.main-content #productForm .form-select:focus {
+    position: relative;
+    z-index: 100;
+}
+
+/* Force dropdown options to appear BELOW the select */
+.main-content #productForm .form-select {
+    overflow: visible ! important;
+}
+
+/* If using a wrapper, ensure it doesn't clip the dropdown */
+.main-content #productForm .form-section {
+    overflow: visible !important;
 }
 
 /* Ensure Select2 dropdowns (if used) have proper z-index */
@@ -285,7 +324,7 @@
     z-index: 999 !important;
 }
 
-. select2-dropdown {
+.select2-dropdown {
     z-index: 1000 !important;
 }
 
@@ -324,7 +363,7 @@
     animation: fadeIn 0.3s ease;
 }
 
-. variant-card . card {
+.variant-card . card {
     border: 1px solid #e0e0e0;
     border-radius: 8px;
     transition: all 0.3s ease;
@@ -335,7 +374,7 @@
     border-color: #0d6efd;
 }
 
-. variant-card .card-header {
+.variant-card .card-header {
     border-bottom: 1px solid #e0e0e0;
     padding: 0.75rem 1rem;
 }

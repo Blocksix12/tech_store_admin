@@ -187,9 +187,10 @@
                         </h5>
                     </div>
                     <select class="form-select" id="status" name="status" th:field="*{status}" required>
-                        <option value="DRAFT">Nháp</option>
-                        <option value="PUBLISHED" selected>Xuất bản</option>
-                        <option value="ARCHIVED">Lưu trữ</option>
+                        <option th:each="status : ${statusOptions}"
+                                th:value="${status}"
+                                th:text="${status.displayName}">
+                        </option>
                     </select>
                 </div>
 
@@ -205,7 +206,7 @@
                         <option value="">Chọn danh mục</option>
                         <!-- Dynamically populate with Thymeleaf -->
                         <option th:each="category : ${categories}"
-                                th:value="${category.categoryID}"
+                                th:value="${category.categoryId}"
                                 th:text="${category.categoryName}">Category</option>
                     </select>
                 </div>

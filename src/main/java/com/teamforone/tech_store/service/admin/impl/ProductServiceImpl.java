@@ -208,4 +208,9 @@ public class ProductServiceImpl implements ProductService {
     }
 
 
+    @Override
+    public List<Product.Status> getAllProductStatuses() {
+        return List.of(Product.Status.values());
+    }
+
 }

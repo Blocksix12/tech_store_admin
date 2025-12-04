@@ -71,6 +71,7 @@ public class ProductController {
                 endIndex
         );
 
+
         // Thêm attributes vào model
         model.addAttribute("products", products);
         model.addAttribute("totalProducts", totalProducts);
@@ -86,6 +87,7 @@ public class ProductController {
     @GetMapping("/products/add")
     public String showAddProductForm(Model model) {
         // Populate categories and brands for dropdown
+        model.addAttribute("statusOptions", productService.getAllProductStatuses());
         model.addAttribute("product", new ProductRequest());
         model.addAttribute("categories", categoryService.getAllCategories());
         model.addAttribute("brands", brandService.getAllBrands());

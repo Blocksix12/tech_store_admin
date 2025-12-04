@@ -26,7 +26,7 @@ public class FileStorageService {
         // Tạo thư mục nếu chưa tồn tại
         Path uploadPath = Paths.get(uploadDir);
         if (!Files.exists(uploadPath)) {
-            Files. createDirectories(uploadPath);
+            Files.createDirectories(uploadPath);
         }
 
         // Save file

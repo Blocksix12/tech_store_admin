@@ -15,4 +15,6 @@ public interface ProductService {
     Product deleteProduct(String id);
     Product findProductById(String id);
 
+    List<Product.Status> getAllProductStatuses();
+
 }
