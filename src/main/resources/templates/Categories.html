@@ -1,326 +1,45 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="vi">
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      lang="vi">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quản lý Danh mục - Admin Dashboard</title>
 
-    <!-- Bootstrap 5.3 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <!-- Dashboard CSS (chung) -->
     <link rel="stylesheet" th:href="@{/css/Dashboard.css}" />
-    <!-- Categories CSS (riêng) -->
     <link rel="stylesheet" th:href="@{/css/Categories.css}" />
+
+
 </head>
 <body>
 
-<!-- Sidebar -->
-<div class="sidebar" id="sidebar">
-    <div class="sidebar-brand">
-        <i class="bi bi-shop-window"></i>
-        <span class="sidebar-brand-text">E-Commerce</span>
-    </div>
-
-    <div class="sidebar-menu">
-        <div class="menu-section-title">Main</div>
-
-        <!-- Dashboard -->
-        <a href="/admin/dashboard" class="menu-item">
-            <i class="bi bi-grid-fill"></i>
-            <span>Dashboard</span>
-        </a>
-
-        <div class="menu-section-title">Quản lý</div>
-
-        <!-- Quản lý sản phẩm -->
-        <div>
-            <div class="menu-item open active" onclick="toggleSubmenu(this)">
-                <i class="bi bi-box-seam-fill"></i>
-                <span>Sản phẩm</span>
-                <i class="bi bi-chevron-down"></i>
-            </div>
-            <div class="submenu show">
-                <a href="/admin/products" class="submenu-item">Danh sách sản phẩm</a>
-                <a href="/admin/products/add" class="submenu-item">Thêm sản phẩm</a>
-                <a href="/admin/categories" class="submenu-item active">Danh mục</a>
-                <a href="/admin/brands" class="submenu-item">Thương hiệu</a>
-                <a href="/admin/attributes" class="submenu-item">Thuộc tính</a>
-                <a href="/admin/products/import" class="submenu-item">Import/Export</a>
-            </div>
-        </div>
-
-        <!-- Quản lý tồn kho -->
-        <div>
-            <div class="menu-item" onclick="toggleSubmenu(this)">
-                <i class="bi bi-boxes"></i>
-                <span>Tồn kho</span>
-                <span class="badge bg-warning">12</span>
-                <i class="bi bi-chevron-down"></i>
-            </div>
-            <div class="submenu">
-                <a href="/admin/inventory" class="submenu-item">Quản lý kho</a>
-                <a href="/admin/inventory/warehouses" class="submenu-item">Kho hàng</a>
-                <a href="/admin/inventory/stock-in" class="submenu-item">Nhập kho</a>
-                <a href="/admin/inventory/stock-out" class="submenu-item">Xuất kho</a>
-                <a href="/admin/inventory/transfer" class="submenu-item">Điều chuyển</a>
-                <a href="/admin/inventory/alerts" class="submenu-item">
-                    Cảnh báo tồn kho
-                    <span class="badge bg-danger ms-auto">12</span>
-                </a>
-            </div>
-        </div>
-
-        <!-- Quản lý đơn hàng -->
-        <div>
-            <div class="menu-item" onclick="toggleSubmenu(this)">
-                <i class="bi bi-cart-check-fill"></i>
-                <span>Đơn hàng</span>
-                <span class="badge bg-danger">5</span>
-                <i class="bi bi-chevron-down"></i>
-            </div>
-            <div class="submenu">
-                <a href="/admin/orders" class="submenu-item">Danh sách đơn hàng</a>
-                <a href="/admin/orders/pending" class="submenu-item">
-                    Chờ xử lý
-                    <span class="badge bg-warning text-dark ms-auto">5</span>
-                </a>
-                <a href="/admin/orders/processing" class="submenu-item">Đang xử lý</a>
-                <a href="/admin/orders/shipped" class="submenu-item">Đang giao</a>
-                <a href="/admin/orders/refunds" class="submenu-item">Hoàn trả</a>
-            </div>
-        </div>
-
-        <!-- Quản lý khách hàng -->
-        <div>
-            <div class="menu-item" onclick="toggleSubmenu(this)">
-                <i class="bi bi-people-fill"></i>
-                <span>Khách hàng</span>
-                <i class="bi bi-chevron-down"></i>
-            </div>
-            <div class="submenu">
-                <a href="/admin/customers" class="submenu-item">Danh sách khách hàng</a>
-                <a href="/admin/customers/groups" class="submenu-item">Nhóm khách hàng</a>
-                <a href="/admin/customers/reviews" class="submenu-item">Đánh giá</a>
-                <a href="/admin/users/roles" class="submenu-item">Phân quyền</a>
-            </div>
-        </div>
-
-        <div class="menu-section-title">Marketing & Content</div>
-
-        <!-- Marketing -->
-        <div>
-            <div class="menu-item" onclick="toggleSubmenu(this)">
-                <i class="bi bi-megaphone-fill"></i>
-                <span>Marketing</span>
-                <i class="bi bi-chevron-down"></i>
-            </div>
-            <div class="submenu">
-                <a href="/admin/promotions" class="submenu-item">Khuyến mãi</a>
-                <a href="/admin/coupons" class="submenu-item">Mã giảm giá</a>
-                <a href="/admin/campaigns" class="submenu-item">Chiến dịch</a>
-                <a href="/admin/emails" class="submenu-item">Email Marketing</a>
-            </div>
-        </div>
-
-        <!-- CMS -->
-        <div>
-            <div class="menu-item" onclick="toggleSubmenu(this)">
-                <i class="bi bi-file-earmark-text-fill"></i>
-                <span>Nội dung</span>
-                <i class="bi bi-chevron-down"></i>
-            </div>
-            <div class="submenu">
-                <a href="/admin/pages" class="submenu-item">Trang tĩnh</a>
-                <a href="/admin/blog" class="submenu-item">Blog/Tin tức</a>
-                <a href="/admin/banners" class="submenu-item">Banner & Slider</a>
-                <a href="/admin/seo" class="submenu-item">SEO</a>
-            </div>
-        </div>
-
-        <!-- Phản hồi & Đánh giá -->
-        <a href="/admin/reviews" class="menu-item">
-            <i class="bi bi-star-fill"></i>
-            <span>Phản hồi & Đánh giá</span>
-            <span class="badge bg-info">8</span>
-        </a>
-
-        <div class="menu-section-title">Analytics</div>
-
-        <!-- Báo cáo -->
-        <div>
-            <div class="menu-item" onclick="toggleSubmenu(this)">
-                <i class="bi bi-graph-up-arrow"></i>
-                <span>Báo cáo</span>
-                <i class="bi bi-chevron-down"></i>
-            </div>
-            <div class="submenu">
-                <a href="/admin/reports/sales" class="submenu-item">Doanh thu</a>
-                <a href="/admin/reports/products" class="submenu-item">Sản phẩm</a>
-                <a href="/admin/reports/customers" class="submenu-item">Khách hàng</a>
-                <a href="/admin/reports/inventory" class="submenu-item">Tồn kho</a>
-                <a href="/admin/reports/export" class="submenu-item">Export báo cáo</a>
-            </div>
-        </div>
-
-        <div class="menu-section-title">System</div>
-
-        <!-- Cài đặt -->
-        <div>
-            <div class="menu-item" onclick="toggleSubmenu(this)">
-                <i class="bi bi-gear-fill"></i>
-                <span>Cài đặt</span>
-                <i class="bi bi-chevron-down"></i>
-            </div>
-            <div class="submenu">
-                <a href="/admin/settings/general" class="submenu-item">Cài đặt chung</a>
-                <a href="/admin/settings/shipping" class="submenu-item">Vận chuyển</a>
-                <a href="/admin/settings/payment" class="submenu-item">Thanh toán</a>
-                <a href="/admin/settings/email" class="submenu-item">Email SMTP</a>
-                <a href="/admin/settings/users" class="submenu-item">Quản trị viên</a>
-                <a href="/admin/settings/audit-logs" class="submenu-item">Audit Logs</a>
-            </div>
-        </div>
-
-        <!-- 2FA Security -->
-        <a href="/admin/2fa" class="menu-item">
-            <i class="bi bi-shield-check"></i>
-            <span>Xác thực 2FA</span>
-        </a>
-    </div>
-</div>
+<!-- Include Sidebar -->
+<div th:replace="~{fragments/sidebar :: sidebar}"></div>
 
 <!-- Main Content -->
 <div class="main-content">
-    <!-- Topbar -->
-    <div class="topbar">
-        <div class="topbar-left">
-            <button class="mobile-menu-btn" onclick="toggleSidebar()">
-                <i class="bi bi-list"></i>
-            </button>
-            <div>
-                <h1 class="page-title">Quản lý Danh mục</h1>
-                <nav aria-label="breadcrumb">
-                    <ol class="breadcrumb">
-                        <li class="breadcrumb-item"><a href="/admin">Trang chủ</a></li>
-                        <li class="breadcrumb-item"><a href="/admin/products">Sản phẩm</a></li>
-                        <li class="breadcrumb-item active" aria-current="page">Danh mục</li>
-                    </ol>
-                </nav>
-            </div>
-        </div>
-
-        <div class="topbar-right">
-            <!-- Search -->
-            <div class="search-box">
-                <i class="bi bi-search"></i>
-                <input type="text" class="form-control" placeholder="Tìm kiếm danh mục...">
-            </div>
-
-            <!-- Notifications -->
-            <div class="dropdown">
-                <div class="topbar-icon" data-bs-toggle="dropdown" aria-expanded="false">
-                    <i class="bi bi-bell-fill"></i>
-                    <span class="badge bg-danger">5</span>
-                </div>
-                <ul class="dropdown-menu dropdown-menu-end">
-                    <li class="px-3 py-2"><strong>Thông báo</strong></li>
-                    <li><hr class="dropdown-divider"></li>
-                    <li>
-                        <a class="dropdown-item" href="#">
-                            <i class="bi bi-cart-check text-success"></i>
-                            <span>3 đơn hàng mới</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a class="dropdown-item" href="#">
-                            <i class="bi bi-exclamation-triangle text-warning"></i>
-                            <span>12 sản phẩm sắp hết</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a class="dropdown-item" href="#">
-                            <i class="bi bi-star text-info"></i>
-                            <span>8 đánh giá mới</span>
-                        </a>
-                    </li>
-                    <li><hr class="dropdown-divider"></li>
-                    <li><a class="dropdown-item text-center" href="#">Xem tất cả</a></li>
-                </ul>
-            </div>
-
-            <!-- Messages -->
-            <div class="dropdown">
-                <div class="topbar-icon" data-bs-toggle="dropdown" aria-expanded="false">
-                    <i class="bi bi-chat-dots-fill"></i>
-                    <span class="badge bg-success">2</span>
-                </div>
-                <ul class="dropdown-menu dropdown-menu-end">
-                    <li class="px-3 py-2"><strong>Tin nhắn</strong></li>
-                    <li><hr class="dropdown-divider"></li>
-                    <li>
-                        <a class="dropdown-item" href="#">
-                            <i class="bi bi-person-circle"></i>
-                            <span>Khách hàng yêu cầu hỗ trợ</span>
-                        </a>
-                    </li>
-                    <li><hr class="dropdown-divider"></li>
-                    <li><a class="dropdown-item text-center" href="#">Xem tất cả</a></li>
-                </ul>
-            </div>
-
-            <!-- User Menu -->
-            <div class="dropdown">
-                <div class="user-menu" data-bs-toggle="dropdown" aria-expanded="false">
-                    <div class="user-avatar">
-                        <span th:text="${#authentication.name?.substring(0,1)?.toUpperCase()}">N</span>
-                    </div>
-                    <div class="user-info">
-                        <div class="user-name" th:text="${#authentication.name}">NvkhoaDev54</div>
-                        <div sec:authorize="isAuthenticated()">
-                            <span sec:authentication="authorities"></span>
-                        </div>
-                    </div>
-                    <i class="bi bi-chevron-down"></i>
-                </div>
-                <ul class="dropdown-menu dropdown-menu-end">
-                    <li>
-                        <a class="dropdown-item" href="/admin/profile">
-                            <i class="bi bi-person"></i>
-                            <span>Hồ sơ của tôi</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a class="dropdown-item" href="/admin/settings">
-                            <i class="bi bi-gear"></i>
-                            <span>Cài đặt</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a class="dropdown-item" href="/admin/activity-log">
-                            <i class="bi bi-clock-history"></i>
-                            <span>Nhật ký hoạt động</span>
-                        </a>
-                    </li>
-                    <li><hr class="dropdown-divider"></li>
-                    <li>
-                        <form th:action="@{/logout}" method="post">
-                            <button type="submit" class="dropdown-item">
-                                <i class="bi bi-box-arrow-right"></i>
-                                <span>Đăng xuất</span>
-                            </button>
-                        </form>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </div>
+    <!-- Include Topbar -->
+    <div th:replace="~{fragments/topbar :: topbar}"></div>
 
     <!-- Content Area -->
     <div class="content-area">
+        <!-- Success/Error Messages -->
+        <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="bi bi-check-circle-fill me-2"></i>
+            <span th:text="${successMessage}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+
+        <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+            <span th:text="${errorMessage}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+
         <div class="row g-4">
             <!-- Left Column - Category Tree -->
             <div class="col-lg-8">
@@ -328,286 +47,207 @@
                     <div class="table-header">
                         <h5 class="table-title">
                             <i class="bi bi-folder-fill"></i>
-                            Cây danh mục
+                            <span th:text="${totalCategories != null ? totalCategories : 0} + ' Danh mục'">0 Danh mục</span>
                         </h5>
                         <div class="table-actions">
                             <button class="btn btn-sm btn-outline-primary" onclick="expandAll()">
-                                <i class="bi bi-arrows-expand"></i> Mở rộng tất cả
+                                <i class="bi bi-arrows-expand"></i> Mở rộng
                             </button>
                             <button class="btn btn-sm btn-outline-secondary" onclick="collapseAll()">
                                 <i class="bi bi-arrows-collapse"></i> Thu gọn
                             </button>
-                            <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#categoryModal">
+                            <a th:href="@{/admin/categories/add}" class="btn btn-sm btn-primary">
                                 <i class="bi bi-plus-lg"></i> Thêm danh mục
-                            </button>
+                            </a>
                         </div>
                     </div>
 
                     <div class="category-tree">
-                        <!-- Category Item Template -->
-                        <div class="category-item" data-category-id="1">
-                            <div class="category-content">
-                                <button class="category-toggle" onclick="toggleCategory(this)">
-                                    <i class="bi bi-chevron-right"></i>
-                                </button>
-                                <div class="category-icon">
-                                    <i class="bi bi-phone-fill"></i>
-                                </div>
-                                <div class="category-info">
-                                    <div class="category-name">Điện thoại & Phụ kiện</div>
-                                    <div class="category-meta">
-                                        <span class="badge bg-primary">245 sản phẩm</span>
-                                        <span class="badge bg-success">Hiển thị</span>
-                                    </div>
-                                </div>
-                                <div class="category-actions">
-                                    <button class="btn btn-sm btn-outline-primary" onclick="addSubCategory(1)" title="Thêm danh mục con">
-                                        <i class="bi bi-plus-circle"></i>
-                                    </button>
-                                    <button class="btn btn-sm btn-outline-success" onclick="editCategory(1)" title="Sửa">
-                                        <i class="bi bi-pencil"></i>
-                                    </button>
-                                    <button class="btn btn-sm btn-outline-danger" onclick="deleteCategory(1)" title="Xóa">
-                                        <i class="bi bi-trash"></i>
-                                    </button>
-                                </div>
-                            </div>
+                        <!-- Empty State -->
+                        <div th:if="${categories == null or #lists.isEmpty(categories)}"
+                             class="text-center py-5">
+                            <i class="bi bi-folder-x" style="font-size: 4rem; color: #dee2e6;"></i>
+                            <h5 class="mt-3 text-muted">Chưa có danh mục nào</h5>
+                            <p class="text-muted">Hãy thêm danh mục đầu tiên của bạn</p>
+                            <a th:href="@{/admin/categories/add}" class="btn btn-primary mt-2">
+                                <i class="bi bi-plus-lg"></i> Thêm danh mục
+                            </a>
+                        </div>
 
-                            <!-- Sub Categories -->
-                            <div class="category-children">
-                                <div class="category-item" data-category-id="2">
-                                    <div class="category-content">
-                                        <button class="category-toggle" onclick="toggleCategory(this)">
-                                            <i class="bi bi-chevron-right"></i>
-                                        </button>
-                                        <div class="category-icon">
-                                            <i class="bi bi-apple"></i>
-                                        </div>
-                                        <div class="category-info">
-                                            <div class="category-name">iPhone</div>
-                                            <div class="category-meta">
-                                                <span class="badge bg-primary">89 sản phẩm</span>
-                                                <span class="badge bg-success">Hiển thị</span>
-                                            </div>
-                                        </div>
-                                        <div class="category-actions">
-                                            <button class="btn btn-sm btn-outline-primary" onclick="addSubCategory(2)" title="Thêm danh mục con">
-                                                <i class="bi bi-plus-circle"></i>
-                                            </button>
-                                            <button class="btn btn-sm btn-outline-success" onclick="editCategory(2)" title="Sửa">
-                                                <i class="bi bi-pencil"></i>
-                                            </button>
-                                            <button class="btn btn-sm btn-outline-danger" onclick="deleteCategory(2)" title="Xóa">
-                                                <i class="bi bi-trash"></i>
-                                            </button>
+                        <!-- ROOT CATEGORIES LOOP -->
+                        <th:block th:each="category : ${categories}">
+                            <div th:if="${category.parentCategory == null}"
+                                 class="category-item"
+                                 th:attr="data-category-id=${category.categoryId}">
+
+                                <div class="category-content">
+                                    <!-- Toggle Button -->
+                                    <button class="category-toggle"
+                                            th:classappend="${category.subCategories == null or #lists.isEmpty(category.subCategories)} ? 'invisible' : ''"
+                                            onclick="toggleCategory(this)">
+                                        <i class="bi bi-chevron-right"></i>
+                                    </button>
+
+                                    <!-- Category Icon/Image -->
+                                    <div class="category-icon"
+                                         th:classappend="${category.imageUrl != null and !category.imageUrl.isEmpty()} ? 'has-image' : ''">
+                                        <!-- Hiển thị ảnh nếu có -->
+                                        <img th:if="${category. imageUrl != null and !category. imageUrl.isEmpty()}"
+                                             th:src="${category. imageUrl}"
+                                             th:alt="${category.categoryName}"
+                                             class="category-image"
+                                             onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+
+                                        <!-- Hiển thị icon mặc định nếu không có ảnh hoặc ảnh lỗi -->
+                                        <i class="bi bi-folder-fill"
+                                           th:style="${category.imageUrl != null and !category.imageUrl. isEmpty()} ? 'display: none;' : ''"></i>
+                                    </div>
+
+                                    <!-- Category Info -->
+                                    <div class="category-info">
+                                        <div class="category-name" th:text="${category. categoryName}">Category Name</div>
+                                        <div class="category-meta">
+                                            <span class="badge bg-primary" th:text="'0 sản phẩm'">0 sản phẩm</span>
+                                            <span class="badge"
+                                                  th:classappend="${category.status?.name() == 'ACTIVE'} ? 'bg-success' : 'bg-warning'"
+                                                  th:text="${category.status?.displayName}">
+                                                Hiển thị
+                                            </span>
                                         </div>
                                     </div>
 
-                                    <div class="category-children">
-                                        <div class="category-item" data-category-id="3">
+                                    <!-- Category Actions -->
+                                    <div class="category-actions">
+                                        <a th:href="@{/admin/categories/edit/{id}(id=${category. categoryId})}"
+                                           class="btn btn-sm btn-outline-success"
+                                           title="Sửa">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                        <a th:href="@{/admin/categories/delete/{id}(id=${category. categoryId})}"
+                                           class="btn btn-sm btn-outline-danger"
+                                           title="Xóa">
+                                            <i class="bi bi-trash"></i>
+                                        </a>
+                                    </div>
+                                </div>
+
+                                <!-- SUB CATEGORIES (Level 2) -->
+                                <div class="category-children"
+                                     th:if="${category.subCategories != null and !#lists.isEmpty(category.subCategories)}">
+
+                                    <th:block th:each="subCategory : ${category.subCategories}">
+                                        <div class="category-item"
+                                             th:attr="data-category-id=${subCategory.categoryId}">
+
                                             <div class="category-content">
-                                                <span class="category-toggle invisible"></span>
-                                                <div class="category-icon">
-                                                    <i class="bi bi-tag"></i>
+                                                <!-- Toggle for sub-sub categories -->
+                                                <button class="category-toggle"
+                                                        th:classappend="${subCategory.subCategories == null or #lists.isEmpty(subCategory.subCategories)} ? 'invisible' : ''"
+                                                        onclick="toggleCategory(this)">
+                                                    <i class="bi bi-chevron-right"></i>
+                                                </button>
+
+                                                <!-- Sub Category Icon/Image -->
+                                                <div class="category-icon"
+                                                     th:classappend="${subCategory.imageUrl != null and !subCategory.imageUrl.isEmpty()} ? 'has-image' : ''">
+                                                    <img th:if="${subCategory. imageUrl != null and !subCategory.imageUrl.isEmpty()}"
+                                                         th:src="${subCategory.imageUrl}"
+                                                         th:alt="${subCategory.categoryName}"
+                                                         class="category-image"
+                                                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+
+                                                    <i class="bi bi-tag-fill"
+                                                       th:style="${subCategory.imageUrl != null and !subCategory.imageUrl. isEmpty()} ? 'display: none;' : ''"></i>
                                                 </div>
+
                                                 <div class="category-info">
-                                                    <div class="category-name">iPhone 15 Series</div>
+                                                    <div class="category-name" th:text="${subCategory.categoryName}">Sub Category</div>
                                                     <div class="category-meta">
-                                                        <span class="badge bg-primary">42 sản phẩm</span>
-                                                        <span class="badge bg-success">Hiển thị</span>
+                                                        <span class="badge bg-primary" th:text="'0 sản phẩm'">0 sản phẩm</span>
+                                                        <span class="badge"
+                                                              th:classappend="${subCategory. status?.name() == 'ACTIVE'} ? 'bg-success' : 'bg-warning'"
+                                                              th:text="${subCategory.status?.displayName}">
+                                                            Hiển thị
+                                                        </span>
                                                     </div>
                                                 </div>
+
                                                 <div class="category-actions">
-                                                    <button class="btn btn-sm btn-outline-primary" onclick="addSubCategory(3)" title="Thêm danh mục con">
-                                                        <i class="bi bi-plus-circle"></i>
-                                                    </button>
-                                                    <button class="btn btn-sm btn-outline-success" onclick="editCategory(3)" title="Sửa">
+                                                    <a th:href="@{/admin/categories/edit/{id}(id=${subCategory.categoryId})}"
+                                                       class="btn btn-sm btn-outline-success"
+                                                       title="Sửa">
                                                         <i class="bi bi-pencil"></i>
-                                                    </button>
-                                                    <button class="btn btn-sm btn-outline-danger" onclick="deleteCategory(3)" title="Xóa">
+                                                    </a>
+                                                    <a th:href="@{/admin/categories/delete/{id}(id=${subCategory.categoryId})}"
+                                                       class="btn btn-sm btn-outline-danger"
+                                                       title="Xóa">
                                                         <i class="bi bi-trash"></i>
-                                                    </button>
+                                                    </a>
                                                 </div>
                                             </div>
-                                        </div>
 
-                                        <div class="category-item" data-category-id="4">
-                                            <div class="category-content">
-                                                <span class="category-toggle invisible"></span>
-                                                <div class="category-icon">
-                                                    <i class="bi bi-tag"></i>
-                                                </div>
-                                                <div class="category-info">
-                                                    <div class="category-name">iPhone 14 Series</div>
-                                                    <div class="category-meta">
-                                                        <span class="badge bg-primary">28 sản phẩm</span>
-                                                        <span class="badge bg-success">Hiển thị</span>
+                                            <!-- SUB-SUB CATEGORIES (Level 3) -->
+                                            <div class="category-children"
+                                                 th:if="${subCategory.subCategories != null and !#lists.isEmpty(subCategory.subCategories)}">
+
+                                                <th:block th:each="subSubCategory : ${subCategory.subCategories}">
+                                                    <div class="category-item"
+                                                         th:attr="data-category-id=${subSubCategory. categoryId}">
+
+                                                        <div class="category-content">
+                                                            <span class="category-toggle invisible"></span>
+
+                                                            <!-- Sub-Sub Category Icon/Image -->
+                                                            <div class="category-icon"
+                                                                 th:classappend="${subSubCategory.imageUrl != null and ! subSubCategory.imageUrl.isEmpty()} ? 'has-image' : ''">
+                                                                <img th:if="${subSubCategory.imageUrl != null and !subSubCategory.imageUrl. isEmpty()}"
+                                                                     th:src="${subSubCategory.imageUrl}"
+                                                                     th:alt="${subSubCategory.categoryName}"
+                                                                     class="category-image"
+                                                                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+
+                                                                <i class="bi bi-tags-fill"
+                                                                   th:style="${subSubCategory.imageUrl != null and !subSubCategory.imageUrl.isEmpty()} ? 'display: none;' : ''"></i>
+                                                            </div>
+
+                                                            <div class="category-info">
+                                                                <div class="category-name" th:text="${subSubCategory. categoryName}">Sub Sub Category</div>
+                                                                <div class="category-meta">
+                                                                    <span class="badge bg-primary" th:text="'0 sản phẩm'">0 sản phẩm</span>
+                                                                    <span class="badge"
+                                                                          th:classappend="${subSubCategory.status?. name() == 'ACTIVE'} ? 'bg-success' : 'bg-warning'"
+                                                                          th:text="${subSubCategory.status?.displayName}">
+                                                                        Hiển thị
+                                                                    </span>
+                                                                </div>
+                                                            </div>
+
+                                                            <div class="category-actions">
+                                                                <a th:href="@{/admin/categories/edit/{id}(id=${subSubCategory.categoryId})}"
+                                                                   class="btn btn-sm btn-outline-success"
+                                                                   title="Sửa">
+                                                                    <i class="bi bi-pencil"></i>
+                                                                </a>
+                                                                <a th:href="@{/admin/categories/delete/{id}(id=${subSubCategory.categoryId})}"
+                                                                   class="btn btn-sm btn-outline-danger"
+                                                                   title="Xóa">
+                                                                    <i class="bi bi-trash"></i>
+                                                                </a>
+                                                            </div>
+                                                        </div>
                                                     </div>
-                                                </div>
-                                                <div class="category-actions">
-                                                    <button class="btn btn-sm btn-outline-primary" onclick="addSubCategory(4)" title="Thêm danh mục con">
-                                                        <i class="bi bi-plus-circle"></i>
-                                                    </button>
-                                                    <button class="btn btn-sm btn-outline-success" onclick="editCategory(4)" title="Sửa">
-                                                        <i class="bi bi-pencil"></i>
-                                                    </button>
-                                                    <button class="btn btn-sm btn-outline-danger" onclick="deleteCategory(4)" title="Xóa">
-                                                        <i class="bi bi-trash"></i>
-                                                    </button>
-                                                </div>
+                                                </th:block>
                                             </div>
                                         </div>
-                                    </div>
-                                </div>
-
-                                <div class="category-item" data-category-id="5">
-                                    <div class="category-content">
-                                        <button class="category-toggle" onclick="toggleCategory(this)">
-                                            <i class="bi bi-chevron-right"></i>
-                                        </button>
-                                        <div class="category-icon">
-                                            <i class="bi bi-phone"></i>
-                                        </div>
-                                        <div class="category-info">
-                                            <div class="category-name">Samsung</div>
-                                            <div class="category-meta">
-                                                <span class="badge bg-primary">67 sản phẩm</span>
-                                                <span class="badge bg-success">Hiển thị</span>
-                                            </div>
-                                        </div>
-                                        <div class="category-actions">
-                                            <button class="btn btn-sm btn-outline-primary" onclick="addSubCategory(5)" title="Thêm danh mục con">
-                                                <i class="bi bi-plus-circle"></i>
-                                            </button>
-                                            <button class="btn btn-sm btn-outline-success" onclick="editCategory(5)" title="Sửa">
-                                                <i class="bi bi-pencil"></i>
-                                            </button>
-                                            <button class="btn btn-sm btn-outline-danger" onclick="deleteCategory(5)" title="Xóa">
-                                                <i class="bi bi-trash"></i>
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="category-item" data-category-id="6">
-                                    <div class="category-content">
-                                        <span class="category-toggle invisible"></span>
-                                        <div class="category-icon">
-                                            <i class="bi bi-headphones"></i>
-                                        </div>
-                                        <div class="category-info">
-                                            <div class="category-name">Phụ kiện điện thoại</div>
-                                            <div class="category-meta">
-                                                <span class="badge bg-primary">89 sản phẩm</span>
-                                                <span class="badge bg-success">Hiển thị</span>
-                                            </div>
-                                        </div>
-                                        <div class="category-actions">
-                                            <button class="btn btn-sm btn-outline-primary" onclick="addSubCategory(6)" title="Thêm danh mục con">
-                                                <i class="bi bi-plus-circle"></i>
-                                            </button>
-                                            <button class="btn btn-sm btn-outline-success" onclick="editCategory(6)" title="Sửa">
-                                                <i class="bi bi-pencil"></i>
-                                            </button>
-                                            <button class="btn btn-sm btn-outline-danger" onclick="deleteCategory(6)" title="Xóa">
-                                                <i class="bi bi-trash"></i>
-                                            </button>
-                                        </div>
-                                    </div>
+                                    </th:block>
                                 </div>
                             </div>
-                        </div>
-
-                        <!-- More Categories -->
-                        <div class="category-item" data-category-id="7">
-                            <div class="category-content">
-                                <button class="category-toggle" onclick="toggleCategory(this)">
-                                    <i class="bi bi-chevron-right"></i>
-                                </button>
-                                <div class="category-icon">
-                                    <i class="bi bi-laptop-fill"></i>
-                                </div>
-                                <div class="category-info">
-                                    <div class="category-name">Laptop</div>
-                                    <div class="category-meta">
-                                        <span class="badge bg-primary">156 sản phẩm</span>
-                                        <span class="badge bg-success">Hiển thị</span>
-                                    </div>
-                                </div>
-                                <div class="category-actions">
-                                    <button class="btn btn-sm btn-outline-primary" onclick="addSubCategory(7)" title="Thêm danh mục con">
-                                        <i class="bi bi-plus-circle"></i>
-                                    </button>
-                                    <button class="btn btn-sm btn-outline-success" onclick="editCategory(7)" title="Sửa">
-                                        <i class="bi bi-pencil"></i>
-                                    </button>
-                                    <button class="btn btn-sm btn-outline-danger" onclick="deleteCategory(7)" title="Xóa">
-                                        <i class="bi bi-trash"></i>
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="category-item" data-category-id="8">
-                            <div class="category-content">
-                                <button class="category-toggle" onclick="toggleCategory(this)">
-                                    <i class="bi bi-chevron-right"></i>
-                                </button>
-                                <div class="category-icon">
-                                    <i class="bi bi-tablet-fill"></i>
-                                </div>
-                                <div class="category-info">
-                                    <div class="category-name">Tablet</div>
-                                    <div class="category-meta">
-                                        <span class="badge bg-primary">78 sản phẩm</span>
-                                        <span class="badge bg-success">Hiển thị</span>
-                                    </div>
-                                </div>
-                                <div class="category-actions">
-                                    <button class="btn btn-sm btn-outline-primary" onclick="addSubCategory(8)" title="Thêm danh mục con">
-                                        <i class="bi bi-plus-circle"></i>
-                                    </button>
-                                    <button class="btn btn-sm btn-outline-success" onclick="editCategory(8)" title="Sửa">
-                                        <i class="bi bi-pencil"></i>
-                                    </button>
-                                    <button class="btn btn-sm btn-outline-danger" onclick="deleteCategory(8)" title="Xóa">
-                                        <i class="bi bi-trash"></i>
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="category-item" data-category-id="9">
-                            <div class="category-content">
-                                <span class="category-toggle invisible"></span>
-                                <div class="category-icon">
-                                    <i class="bi bi-smartwatch"></i>
-                                </div>
-                                <div class="category-info">
-                                    <div class="category-name">Đồng hồ thông minh</div>
-                                    <div class="category-meta">
-                                        <span class="badge bg-primary">34 sản phẩm</span>
-                                        <span class="badge bg-warning text-dark">Ẩn</span>
-                                    </div>
-                                </div>
-                                <div class="category-actions">
-                                    <button class="btn btn-sm btn-outline-primary" onclick="addSubCategory(9)" title="Thêm danh mục con">
-                                        <i class="bi bi-plus-circle"></i>
-                                    </button>
-                                    <button class="btn btn-sm btn-outline-success" onclick="editCategory(9)" title="Sửa">
-                                        <i class="bi bi-pencil"></i>
-                                    </button>
-                                    <button class="btn btn-sm btn-outline-danger" onclick="deleteCategory(9)" title="Xóa">
-                                        <i class="bi bi-trash"></i>
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
+                        </th:block>
                     </div>
                 </div>
             </div>
 
-            <!-- Right Column - Category Stats & Quick Actions -->
+            <!-- Right Column - Stats -->
             <div class="col-lg-4">
                 <!-- Stats -->
                 <div class="chart-container mb-4 fade-in-up" style="animation-delay: 0.1s;">
@@ -621,7 +261,7 @@
                                 <i class="bi bi-folder"></i>
                             </div>
                             <div class="stat-details">
-                                <div class="stat-value">24</div>
+                                <div class="stat-value" th:text="${totalCategories != null ? totalCategories : 0}">0</div>
                                 <div class="stat-label">Tổng danh mục</div>
                             </div>
                         </div>
@@ -630,7 +270,7 @@
                                 <i class="bi bi-eye"></i>
                             </div>
                             <div class="stat-details">
-                                <div class="stat-value">21</div>
+                                <div class="stat-value" th:text="${activeCategories != null ? activeCategories : 0}">0</div>
                                 <div class="stat-label">Đang hiển thị</div>
                             </div>
                         </div>
@@ -639,7 +279,7 @@
                                 <i class="bi bi-eye-slash"></i>
                             </div>
                             <div class="stat-details">
-                                <div class="stat-value">3</div>
+                                <div class="stat-value" th:text="${inactiveCategories != null ? inactiveCategories : 0}">0</div>
                                 <div class="stat-label">Đang ẩn</div>
                             </div>
                         </div>
@@ -648,89 +288,29 @@
                                 <i class="bi bi-box-seam"></i>
                             </div>
                             <div class="stat-details">
-                                <div class="stat-value">856</div>
+                                <div class="stat-value">0</div>
                                 <div class="stat-label">Tổng sản phẩm</div>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Top Categories -->
+                <!-- Quick Actions -->
                 <div class="chart-container fade-in-up" style="animation-delay: 0.2s;">
                     <h5 class="widget-title">
-                        <i class="bi bi-trophy-fill"></i>
-                        Danh mục bán chạy
+                        <i class="bi bi-lightning-fill"></i>
+                        Thao tác nhanh
                     </h5>
-                    <div class="top-categories-list">
-                        <div class="top-category-item">
-                            <div class="rank-badge">1</div>
-                            <div class="category-icon-small">
-                                <i class="bi bi-phone-fill"></i>
-                            </div>
-                            <div class="category-details">
-                                <div class="category-name-small">Điện thoại</div>
-                                <div class="category-stats-small">245 sản phẩm · 2.450 đơn</div>
-                            </div>
-                            <div class="category-revenue">
-                                <strong>850M₫</strong>
-                            </div>
-                        </div>
-
-                        <div class="top-category-item">
-                            <div class="rank-badge rank-2">2</div>
-                            <div class="category-icon-small">
-                                <i class="bi bi-laptop-fill"></i>
-                            </div>
-                            <div class="category-details">
-                                <div class="category-name-small">Laptop</div>
-                                <div class="category-stats-small">156 sản phẩm · 1.892 đơn</div>
-                            </div>
-                            <div class="category-revenue">
-                                <strong>720M₫</strong>
-                            </div>
-                        </div>
-
-                        <div class="top-category-item">
-                            <div class="rank-badge rank-3">3</div>
-                            <div class="category-icon-small">
-                                <i class="bi bi-tablet-fill"></i>
-                            </div>
-                            <div class="category-details">
-                                <div class="category-name-small">Tablet</div>
-                                <div class="category-stats-small">78 sản phẩm · 1.234 đơn</div>
-                            </div>
-                            <div class="category-revenue">
-                                <strong>520M₫</strong>
-                            </div>
-                        </div>
-
-                        <div class="top-category-item">
-                            <div class="rank-badge rank-other">4</div>
-                            <div class="category-icon-small">
-                                <i class="bi bi-headphones"></i>
-                            </div>
-                            <div class="category-details">
-                                <div class="category-name-small">Phụ kiện</div>
-                                <div class="category-stats-small">234 sản phẩm · 987 đơn</div>
-                            </div>
-                            <div class="category-revenue">
-                                <strong>180M₫</strong>
-                            </div>
-                        </div>
-
-                        <div class="top-category-item">
-                            <div class="rank-badge rank-other">5</div>
-                            <div class="category-icon-small">
-                                <i class="bi bi-smartwatch"></i>
-                            </div>
-                            <div class="category-details">
-                                <div class="category-name-small">Đồng hồ</div>
-                                <div class="category-stats-small">34 sản phẩm · 456 đơn</div>
-                            </div>
-                            <div class="category-revenue">
-                                <strong>95M₫</strong>
-                            </div>
-                        </div>
+                    <div class="d-grid gap-2 mt-3">
+                        <a th:href="@{/admin/categories/add}" class="btn btn-primary">
+                            <i class="bi bi-plus-circle"></i> Thêm danh mục mới
+                        </a>
+                        <button class="btn btn-outline-secondary" onclick="expandAll()">
+                            <i class="bi bi-arrows-expand"></i> Mở rộng tất cả
+                        </button>
+                        <button class="btn btn-outline-secondary" onclick="collapseAll()">
+                            <i class="bi bi-arrows-collapse"></i> Thu gọn tất cả
+                        </button>
                     </div>
                 </div>
             </div>
@@ -738,124 +318,61 @@
     </div>
 </div>
 
-<!-- Category Modal -->
-<div class="modal fade" id="categoryModal" tabindex="-1" aria-labelledby="categoryModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="categoryModalLabel">
-                    <i class="bi bi-folder-plus"></i> Thêm danh mục mới
-                </h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <form id="categoryForm">
-                    <div class="row g-3">
-                        <div class="col-md-8">
-                            <label class="form-label">Tên danh mục <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" id="categoryName" required>
-                        </div>
-
-                        <div class="col-md-4">
-                            <label class="form-label">Icon</label>
-                            <select class="form-select" id="categoryIcon">
-                                <option value="bi-folder">📁 Folder</option>
-                                <option value="bi-phone-fill">📱 Phone</option>
-                                <option value="bi-laptop-fill">💻 Laptop</option>
-                                <option value="bi-tablet-fill">📱 Tablet</option>
-                                <option value="bi-headphones">🎧 Headphones</option>
-                                <option value="bi-smartwatch">⌚ Watch</option>
-                                <option value="bi-camera-fill">📷 Camera</option>
-                                <option value="bi-speaker-fill">🔊 Speaker</option>
-                            </select>
-                        </div>
-
-                        <div class="col-md-6">
-                            <label class="form-label">Danh mục cha</label>
-                            <select class="form-select" id="parentCategory">
-                                <option value="">-- Không có (Danh mục gốc) --</option>
-                                <option value="1">Điện thoại & Phụ kiện</option>
-                                <option value="7">Laptop</option>
-                                <option value="8">Tablet</option>
-                            </select>
-                        </div>
-
-                        <div class="col-md-6">
-                            <label class="form-label">Trạng thái</label>
-                            <select class="form-select" id="categoryStatus">
-                                <option value="active">Hiển thị</option>
-                                <option value="hidden">Ẩn</option>
-                            </select>
-                        </div>
-
-                        <div class="col-12">
-                            <label class="form-label">Slug (URL)</label>
-                            <input type="text" class="form-control" id="categorySlug" placeholder="vd: dien-thoai-va-phu-kien">
-                            <small class="text-muted">Để trống để tự động tạo từ tên danh mục</small>
-                        </div>
-
-                        <div class="col-12">
-                            <label class="form-label">Mô tả</label>
-                            <textarea class="form-control" id="categoryDescription" rows="3"></textarea>
-                        </div>
-
-                        <div class="col-md-6">
-                            <label class="form-label">Thứ tự sắp xếp</label>
-                            <input type="number" class="form-control" id="categoryOrder" value="0">
-                        </div>
-
-                        <div class="col-md-6">
-                            <label class="form-label">Hiển thị trang chủ</label>
-                            <select class="form-select" id="showOnHome">
-                                <option value="no">Không</option>
-                                <option value="yes">Có</option>
-                            </select>
-                        </div>
-
-                        <div class="col-12">
-                            <label class="form-label">Hình ảnh danh mục</label>
-                            <input type="file" class="form-control" id="categoryImage" accept="image/*">
-                        </div>
-
-                        <!-- SEO Section -->
-                        <div class="col-12">
-                            <hr>
-                            <h6 class="mb-3">
-                                <i class="bi bi-search"></i> Tối ưu SEO
-                            </h6>
-                        </div>
-
-                        <div class="col-12">
-                            <label class="form-label">Meta Title</label>
-                            <input type="text" class="form-control" id="metaTitle">
-                        </div>
-
-                        <div class="col-12">
-                            <label class="form-label">Meta Description</label>
-                            <textarea class="form-control" id="metaDescription" rows="2"></textarea>
-                        </div>
-
-                        <div class="col-12">
-                            <label class="form-label">Meta Keywords</label>
-                            <input type="text" class="form-control" id="metaKeywords" placeholder="Cách nhau bởi dấu phẩy">
-                        </div>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
-                <button type="button" class="btn btn-primary" onclick="saveCategory()">
-                    <i class="bi bi-save"></i> Lưu danh mục
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Bootstrap JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <script th:src="@{/javascript/Dashboard.js}"></script>
-<script th:src="@{/javascript/Categories.js}"></script>
+
+<script>
+    // Toggle category children
+    function toggleCategory(button) {
+        const categoryItem = button.closest('.category-item');
+        const children = categoryItem.querySelector(':scope > .category-children');
+        const icon = button.querySelector('i');
+
+        if (children) {
+            children.classList.toggle('expanded');
+            icon.classList.toggle('bi-chevron-right');
+            icon.classList.toggle('bi-chevron-down');
+            button.classList.toggle('active');
+        }
+    }
+
+    // Expand all categories
+    function expandAll() {
+        document.querySelectorAll('.category-children').forEach(children => {
+            children.classList. add('expanded');
+        });
+        document.querySelectorAll('.category-toggle:not(.invisible) i').forEach(icon => {
+            icon.classList.remove('bi-chevron-right');
+            icon.classList.add('bi-chevron-down');
+        });
+        document.querySelectorAll('.category-toggle:not(.invisible)').forEach(btn => {
+            btn.classList. add('active');
+        });
+    }
+
+    // Collapse all categories
+    function collapseAll() {
+        document.querySelectorAll('.category-children').forEach(children => {
+            children.classList.remove('expanded');
+        });
+        document.querySelectorAll('.category-toggle:not(.invisible) i').forEach(icon => {
+            icon.classList.remove('bi-chevron-down');
+            icon.classList.add('bi-chevron-right');
+        });
+        document.querySelectorAll('.category-toggle:not(. invisible)').forEach(btn => {
+            btn.classList.remove('active');
+        });
+    }
+
+    // Auto dismiss alerts after 5 seconds
+    setTimeout(function() {
+        const alerts = document.querySelectorAll('.alert');
+        alerts.forEach(alert => {
+            const bsAlert = new bootstrap.Alert(alert);
+            bsAlert. close();
+        });
+    }, 5000);
+</script>
 
 </body>
 </html>

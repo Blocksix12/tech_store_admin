@@ -9,6 +9,16 @@
 
 .view-actions .btn-group .btn {
     padding: 10px 15px;
+    transition: background-color 0.3s, border-color 0.3s, color 0.3s ! important;
+    transform: none !important;
+}
+
+.view-actions .btn-group .btn:hover {
+    transform: none !important;
+}
+
+.view-actions .btn-group .btn:active {
+    transform: none !important;
 }
 
 /* Brands Grid */
@@ -30,7 +40,6 @@
 }
 
 .brand-card:hover {
-    transform: translateY(-5px);
     box-shadow: 0 8px 20px rgba(0,0,0,0.15);
 }
 
@@ -61,19 +70,128 @@
     object-fit: contain;
 }
 
+/* ==================== BRAND ACTIONS BUTTONS (GRID VIEW) ==================== */
 .brand-actions {
     display: flex;
-    gap: 8px;
+    gap: 6px;
 }
 
-.brand-actions .btn {
-    width: 36px;
-    height: 36px;
+.brand-actions .btn,
+.brand-actions form button {
+    width: 38px;
+    height: 38px;
     padding: 0;
-    display: flex;
+    display: inline-flex;
     align-items: center;
     justify-content: center;
     border-radius: 8px;
+    border-width: 1.5px;
+    transition: all 0.3s ease;
+    position: relative;
+    background: white;
+}
+
+.brand-actions .btn i,
+.brand-actions form button i {
+    font-size: 15px;
+    transition: all 0.3s ease;
+}
+
+/* Edit Button - Primary (OUTLINE) */
+.brand-actions .btn-outline-primary {
+    border-color: #667eea;
+    color: #667eea;
+    background: white;
+}
+
+.brand-actions .btn-outline-primary:hover {
+    background: #667eea;
+    border-color: #667eea;
+    color: white;
+    box-shadow: 0 4px 8px rgba(102, 126, 234, 0.3);
+}
+
+.brand-actions .btn-outline-primary:hover i {
+    transform: rotate(15deg) scale(1.1);
+}
+
+/* Activate Button - Success (OUTLINE) */
+.brand-actions .btn-outline-success,
+.brand-actions form .btn-outline-success {
+    border-color: #28a745;
+    color: #28a745;
+    background: white;
+}
+
+.brand-actions .btn-outline-success:hover,
+.brand-actions form .btn-outline-success:hover {
+    background: #28a745;
+    border-color: #28a745;
+    color: white;
+    box-shadow: 0 4px 8px rgba(40, 167, 69, 0.3);
+}
+
+.brand-actions .btn-outline-success:hover i,
+.brand-actions form .btn-outline-success:hover i {
+    transform: scale(1.15);
+}
+
+/* Delete Button - Danger (OUTLINE) */
+.brand-actions .btn-outline-danger,
+.brand-actions form .btn-outline-danger {
+    border-color: #dc3545;
+    color: #dc3545;
+    background: white;
+}
+
+.brand-actions .btn-outline-danger:hover,
+.brand-actions form .btn-outline-danger:hover {
+    background: #dc3545;
+    border-color: #dc3545;
+    color: white;
+    box-shadow: 0 4px 8px rgba(220, 53, 69, 0.3);
+}
+
+.brand-actions .btn-outline-danger:hover i,
+.brand-actions form .btn-outline-danger:hover i {
+    animation: shake 0.5s;
+}
+
+/* Button Active/Pressed State */
+.brand-actions .btn:active,
+.brand-actions form button:active {
+    transform: scale(0.92);
+}
+
+/* Form styling in brand-actions */
+.brand-actions form {
+    display: inline-block;
+    margin: 0;
+}
+
+/* Focus State */
+.brand-actions .btn:focus,
+.brand-actions form button:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.25);
+}
+
+.brand-actions .btn-outline-success:focus,
+.brand-actions form .btn-outline-success:focus {
+    box-shadow: 0 0 0 3px rgba(40, 167, 69, 0.25);
+}
+
+.brand-actions .btn-outline-danger:focus,
+.brand-actions form .btn-outline-danger:focus {
+    box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.25);
+}
+
+/* Disabled State */
+.brand-actions .btn:disabled,
+.brand-actions form button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
 }
 
 .brand-card-body {
@@ -287,6 +405,97 @@
     outline: none;
 }
 
+/* ==================== LIST VIEW BUTTONS ==================== */
+.btn-group-sm {
+    display: flex;
+    gap: 6px;
+}
+
+.btn-group-sm .btn,
+.btn-group-sm form button {
+    padding: 6px 12px;
+    font-size: 14px;
+    border-radius: 6px;
+    border-width: 1.5px;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.btn-group-sm .btn i,
+.btn-group-sm form button i {
+    font-size: 14px;
+}
+
+/* Edit Button (OUTLINE) */
+.btn-group-sm .btn-outline-primary {
+    border-color: #667eea;
+    color: #667eea;
+    background: white;
+}
+
+.btn-group-sm .btn-outline-primary:hover {
+    background: #667eea;
+    color: white;
+    box-shadow: 0 3px 8px rgba(102, 126, 234, 0.3);
+}
+
+/* Activate Button (OUTLINE) */
+.btn-group-sm .btn-outline-success,
+.btn-group-sm form .btn-outline-success {
+    border-color: #28a745;
+    color: #28a745;
+    background: white;
+}
+
+.btn-group-sm .btn-outline-success:hover,
+.btn-group-sm form .btn-outline-success:hover {
+    background: #28a745;
+    color: white;
+    box-shadow: 0 3px 8px rgba(40, 167, 69, 0.3);
+}
+
+/* Delete Button (SOLID ĐỎ - KHUNG GIỐNG EDIT) */
+.btn-group-sm .btn-outline-danger,
+.btn-group-sm form .btn-outline-danger {
+    border-color: #dc3545;
+    background: #dc3545;
+    color: white;
+    border-width: 1.5px;
+}
+
+.btn-group-sm .btn-outline-danger:hover,
+.btn-group-sm form .btn-outline-danger:hover {
+    background: #c82333;
+    border-color: #c82333;
+    color: white;
+    box-shadow: 0 3px 8px rgba(220, 53, 69, 0.4);
+}
+
+/* Form in btn-group */
+.btn-group-sm form {
+    display: inline-block;
+    margin: 0;
+}
+
+/* Focus states */
+.btn-group-sm .btn:focus,
+.btn-group-sm form button:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.25);
+}
+
+.btn-group-sm .btn-outline-success:focus,
+.btn-group-sm form .btn-outline-success:focus {
+    box-shadow: 0 0 0 3px rgba(40, 167, 69, 0.25);
+}
+
+.btn-group-sm .btn-outline-danger:focus,
+.btn-group-sm form .btn-outline-danger:focus {
+    box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.25);
+}
+
 /* Pagination */
 .pagination-wrapper {
     display: flex;
@@ -402,101 +611,19 @@
     border-radius: 15px;
 }
 
-/* Responsive Design */
-@media (max-width: 1200px) {
-    .brands-grid {
-        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+/* ==================== ANIMATIONS ==================== */
+@keyframes shake {
+    0%, 100% {
+        transform: translateX(0) scale(1.15);
+    }
+    25% {
+        transform: translateX(-2px) scale(1.15);
+    }
+    75% {
+        transform: translateX(2px) scale(1.15);
     }
 }
 
-@media (max-width: 992px) {
-    .filters-row {
-        flex-direction: column;
-        align-items: stretch;
-    }
-
-    .filters-left {
-        width: 100%;
-    }
-
-    .view-actions {
-        width: 100%;
-        justify-content: space-between;
-    }
-
-    .brands-grid {
-        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-        gap: 20px;
-    }
-}
-
-@media (max-width: 768px) {
-    .filters-left {
-        flex-direction: column;
-    }
-
-    .filter-group {
-        width: 100%;
-        min-width: 100%;
-    }
-
-    .brands-grid {
-        grid-template-columns: 1fr;
-    }
-
-    .brand-card {
-        max-width: 100%;
-    }
-
-    .stat-value {
-        font-size: 24px;
-    }
-
-    .stat-icon {
-        width: 48px;
-        height: 48px;
-        font-size: 24px;
-    }
-}
-
-@media (max-width: 576px) {
-    .view-actions {
-        flex-direction: column;
-    }
-
-    .view-actions .btn-group,
-    .view-actions .btn {
-        width: 100%;
-    }
-
-    .pagination-wrapper {
-        flex-direction: column;
-        text-align: center;
-    }
-
-    .pagination {
-        flex-wrap: wrap;
-        flex-wrap: wrap;
-        justify-content: center;
-    }
-
-    .page-link {
-        padding: 6px 12px;
-        font-size: 13px;
-    }
-
-    .brand-logo {
-        width: 80px;
-        height: 80px;
-    }
-
-    .brand-stats {
-        grid-template-columns: 1fr;
-        gap: 10px;
-    }
-}
-
-/* Animations */
 @keyframes fadeInUp {
     from {
         opacity: 0;
@@ -564,6 +691,126 @@
     border: 2px dashed #667eea;
 }
 
+/* Responsive Design */
+@media (max-width: 1200px) {
+    .brands-grid {
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    }
+}
+
+@media (max-width: 992px) {
+    .filters-row {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .filters-left {
+        width: 100%;
+    }
+
+    .view-actions {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .brands-grid {
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+        gap: 20px;
+    }
+}
+
+@media (max-width: 768px) {
+    .filters-left {
+        flex-direction: column;
+    }
+
+    .filter-group {
+        width: 100%;
+        min-width: 100%;
+    }
+
+    .brands-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .brand-card {
+        max-width: 100%;
+    }
+
+    .stat-value {
+        font-size: 24px;
+    }
+
+    .stat-icon {
+        width: 48px;
+        height: 48px;
+        font-size: 24px;
+    }
+
+    .brand-actions .btn,
+    .brand-actions form button {
+        width: 35px;
+        height: 35px;
+    }
+
+    .brand-actions .btn i,
+    .brand-actions form button i {
+        font-size: 14px;
+    }
+}
+
+@media (max-width: 576px) {
+    .view-actions {
+        flex-direction: column;
+    }
+
+    .view-actions .btn-group,
+    .view-actions .btn {
+        width: 100%;
+    }
+
+    .pagination-wrapper {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .pagination {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .page-link {
+        padding: 6px 12px;
+        font-size: 13px;
+    }
+
+    .brand-logo {
+        width: 80px;
+        height: 80px;
+    }
+
+    .brand-stats {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+
+    .brand-actions {
+        justify-content: center;
+        width: auto;
+    }
+
+    .brand-actions .btn,
+    .brand-actions form button {
+        width: 33px;
+        height: 33px;
+    }
+
+    .brand-actions .btn i,
+    .brand-actions form button i {
+        font-size: 13px;
+    }
+}
+
 /* Print Styles */
 @media print {
     .sidebar,
@@ -587,4 +834,16 @@
         break-inside: avoid;
         page-break-inside: avoid;
     }
+}
+
+.swal-wide {
+    border-radius: 15px ! important;
+}
+
+.swal2-popup {
+    font-family: 'Inter', sans-serif !important;
+}
+
+.swal2-actions {
+    gap: 10px !important;
 }

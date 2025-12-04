@@ -24,7 +24,7 @@
 }
 
 /* Section header */
-. main-content #productForm .section-header {
+.main-content #productForm .section-header {
     padding: 12px 16px;
     display: flex;
     align-items: center;
@@ -68,7 +68,7 @@
     }
 
     /* Make only the Actions section sticky (the one with buttons) */
-    .main-content #productForm .col-lg-4 > .form-section:has(. d-grid) {
+    .main-content #productForm .col-lg-4 > .form-section:has(.d-grid) {
         position: sticky;
         top: 96px;
         z-index: 10;
@@ -76,7 +76,7 @@
 }
 
 /* Inputs and selects: slightly taller and rounded for balance */
-. main-content #productForm .form-control,
+.main-content #productForm .form-control,
 .main-content #productForm .form-select,
 .main-content #productForm textarea {
     min-height: 44px;
@@ -135,7 +135,7 @@
 }
 
 /* Upload label and icons */
-.main-content #productForm . image-upload-label {
+.main-content #productForm .image-upload-label {
     cursor: pointer;
     text-align: center;
     color: #2c3e50;
@@ -179,13 +179,13 @@
     display: flex;
     gap: 8px;
 }
-. main-content #productForm .preview-actions .btn-sm {
+.main-content #productForm .preview-actions .btn-sm {
     padding: 6px 10px;
     border-radius: 8px;
 }
 
 /* Right column buttons and actions */
-. main-content #productForm . d-grid .btn {
+.main-content #productForm .d-grid .btn {
     border-radius: 10px;
     font-weight: 700;
     padding: 10px 16px;
@@ -200,7 +200,7 @@
 }
 
 /* Small stat items in right column */
-.main-content #productForm . stat-item-small {
+.main-content #productForm .stat-item-small {
     display: flex;
     justify-content: space-between;
     padding: 10px 12px;
@@ -265,7 +265,7 @@
 }
 
 /* Fix missing dropdown arrow for select elements */
-.main-content #productForm . form-select {
+.main-content #productForm .form-select {
     background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3. org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");
     background-repeat: no-repeat;
     background-position: right 0.75rem center;

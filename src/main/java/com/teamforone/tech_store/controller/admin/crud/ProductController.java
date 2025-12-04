@@ -20,7 +20,9 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Controller
@@ -223,7 +225,6 @@ public class ProductController {
         }
     }
 
-    // GET - Hiển thị trang xác nhận xóa
     @GetMapping("/products/delete/{id}")
     public String showDeleteConfirmation(@PathVariable String id, Model model) {
         try {
@@ -239,8 +240,16 @@ public class ProductController {
 
             model.addAttribute("product", productRequest);
             model.addAttribute("categoryName", categoryService.findCategoryById(product.getCategoryId()).getCategoryName());
-            model.addAttribute("brandName", brandService.findBrandById(product.getBrandId()).getBrandName());
-            model.addAttribute("createdAt", product.getCreatedAt());
+            model.addAttribute("brandName", brandService.findBrandById(product.getBrandId()). getBrandName());
+            model. addAttribute("createdAt", product.getCreatedAt());
+
+            // Breadcrumbs
+            List<Map<String, String>> breadcrumbs = new ArrayList<>();
+            breadcrumbs.add(Map. of("name", "Trang chủ", "url", "/admin"));
+            breadcrumbs.add(Map.of("name", "Sản phẩm", "url", "/admin/products"));
+            breadcrumbs.add(Map.of("name", "Xóa", "url", ""));
+            model.addAttribute("breadcrumbs", breadcrumbs);
+            model.addAttribute("pageTitle", "Xóa Sản phẩm");
 
             return "DeleteProduct";
         } catch (Exception e) {
