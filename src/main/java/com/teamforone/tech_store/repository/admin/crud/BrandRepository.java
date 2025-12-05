@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface BrandRepository extends JpaRepository<Brands, String> {
@@ -18,4 +19,5 @@ public interface BrandRepository extends JpaRepository<Brands, String> {
     List<Brands> findAllByOrderByDisplayOrderAsc();
 
     boolean existsByBrandNameAndStatus(String brandName, BrandStatus status);
+    Optional<Brands> findByBrandName(String brandName);
 }

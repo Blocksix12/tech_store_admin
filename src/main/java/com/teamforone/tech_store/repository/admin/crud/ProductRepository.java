@@ -14,13 +14,16 @@ public interface ProductRepository extends JpaRepository<Product, String> {
             "p.product_id, " +
             "p.name, " +
             "p.slug, " +
+            "p.description, " +
             "c.category_name, " +
             "MIN(ct.price) as min_price, " +
             "MAX(ct.price) as max_price, " +
             "COALESCE(SUM(ct.quantity), 0) as total_quantity, " +
             "p.status, " +
             "p.default_image, " +
-            "b.brand_name " +
+            "b.brand_name, " +
+            "p.created_at, " +
+            "p.updated_at " +
             "FROM products p " +
             "LEFT JOIN categories c ON p.category_id = c.category_id " +
             "LEFT JOIN ctproducts ct ON p.product_id = ct.product_id " +

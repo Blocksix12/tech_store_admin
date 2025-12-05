@@ -7,6 +7,7 @@ import com.teamforone.tech_store.model.Brands;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 
 public interface BrandService {
     List<Brands> getAllBrands();
@@ -32,4 +33,6 @@ public interface BrandService {
     long countActiveBrands();
 
     long countInactiveBrands();
+
+    Optional<Brands> findByBrandName(String brandName);
 }

@@ -5,6 +5,7 @@ import lombok.*;
 
 import java.math.BigDecimal;
 import java.text.NumberFormat;
+import java.util.Date;
 import java.util.Locale;
 
 @Getter
@@ -16,6 +17,7 @@ public class ProductListDTO {
     private String id;
     private String name;
     private String slug;
+    private String description;
     private String imageUrl;
     private String brands;
     private String sku;
@@ -28,19 +30,25 @@ public class ProductListDTO {
     private String stockStatusText;
     private String status;
     private String statusText;
+    private Date createdAt;
+    private Date updatedAt;
 
     // Constructor từ Native Query results
-    public ProductListDTO(String id, String name, String slug, String categoryName,
+    public ProductListDTO(String id, String name, String slug, String description, String categoryName,
                           Double minPrice, Double maxPrice, Long stockCount,
-                          Product.Status productStatus, String imageUrl, String brands) {
+                          Product.Status productStatus, String imageUrl, String brands, Date createdAt, Date updatedAt) {
         this.id = id;
         this.name = name;
         this.slug = slug;
+        this.description = description;
         this.imageUrl = imageUrl;
         this.category = categoryName != null ? categoryName : "Chưa phân loại";
         this.minPrice = minPrice != null ? minPrice : 0.0;
         this.maxPrice = maxPrice != null ? maxPrice : 0.0;
         this.stockCount = stockCount != null ? stockCount : 0L;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
+
 
         // Format giá
         this.price = formatPrice(this.minPrice, this.maxPrice);

@@ -12,6 +12,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class CategoryServiceImpl implements CategoryService {
@@ -128,6 +129,11 @@ public class CategoryServiceImpl implements CategoryService {
     public Categories findCategoryById(String id) {
         return categoryRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy danh mục"));
+    }
+
+    @Override
+    public Optional<Categories> findCategoryByName(String categoryName) {
+        return categoryRepository.findByCategoryName(categoryName);
     }
 
     // Helper method: Tạo slug tự động

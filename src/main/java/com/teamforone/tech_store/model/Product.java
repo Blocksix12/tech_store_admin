@@ -5,6 +5,7 @@ import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.hibernate.annotations.UuidGenerator;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import java.util.Date;
 import java.util.UUID;
@@ -53,10 +54,14 @@ public class Product {
     private Status productStatus = Status.PUBLISHED;
 
     @CreationTimestamp
+    @Temporal(TemporalType.DATE)
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     @Column(name = "created_at")
     private Date createdAt;
 
     @UpdateTimestamp
+    @Temporal(TemporalType.DATE)
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     @Column(name = "updated_at")
     private Date updatedAt;
 
@@ -73,9 +78,93 @@ public class Product {
         }
         public static Status toEnum(String type) {
             for (Status item : values()) {
-                if (item.toString().equalsIgnoreCase(type)) return item;
+                if (item.name().equalsIgnoreCase(type)) return item;
             }
             return null;
+        }
+
+        public static Status fromDisplayName(String displayName) {
+            if (displayName == null || displayName.isEmpty()) return null;
+            for (Status item : values()) {
+                if (item.getDisplayName().equalsIgnoreCase(displayName)) return item;
+            }
+            return null;
+        }
+
+        // In Product.Status enum
+        public static Status fromString(String value) {
+            if (value == null || value.isEmpty()) return null;
+
+            // Remove accents and normalize
+            String normalized = removeVietnameseAccents(value).toUpperCase().trim();
+
+            // Try enum name first
+            try {
+                return Status.valueOf(normalized);
+            } catch (IllegalArgumentException e) {
+                // Continue to mapping
+            }
+
+            // Map Vietnamese and English
+            switch (normalized) {
+                // PUBLISHED variants
+                case "DANG BAN":
+                case "ĐANG BÁN":
+                case "DANGBAN":
+                case "ACTIVE":
+                case "XUAT BAN":
+                case "XUẤT BẢN":
+                case "XUATBAN":
+                case "PUBLISHED":
+                    return PUBLISHED;
+
+                // ARCHIVED variants
+                case "NGUNG BAN":
+                case "NGỪNG BÁN":
+                case "NGUNGBAN":
+                case "INACTIVE":
+                case "LUU TRU":
+                case "LƯU TRỮ":
+                case "LUUTRU":
+                case "ARCHIVED":
+                    return ARCHIVED;
+
+                // DRAFT variants
+                case "NHAP":
+                case "NHÁP":
+                case "DRAFT":
+                    return DRAFT;
+
+                default:
+                    // Try display name as last resort
+                    for (Status s : values()) {
+                        if (s. getDisplayName().equalsIgnoreCase(value)) {
+                            return s;
+                        }
+                    }
+                    return null;
+            }
+        }
+
+        // Helper method to remove Vietnamese accents
+        private static String removeVietnameseAccents(String str) {
+            if (str == null) return "";
+
+            return str
+                    .replaceAll("[àáạảãâầấậẩẫăằắặẳẵ]", "a")
+                    .replaceAll("[ÀÁẠẢÃÂẦẤẬẨẪĂẰẮẶẲẴ]", "A")
+                    .replaceAll("[èéẹẻẽêềếệểễ]", "e")
+                    .replaceAll("[ÈÉẸẺẼÊỀẾỆỂỄ]", "E")
+                    .replaceAll("[ìíịỉĩ]", "i")
+                    .replaceAll("[ÌÍỊỈĨ]", "I")
+                    .replaceAll("[òóọỏõôồốộổỗơờớợởỡ]", "o")
+                    .replaceAll("[ÒÓỌỎÕÔỒỐỘỔỖƠỜỚỢỞỠ]", "O")
+                    .replaceAll("[ùúụủũưừứựửữ]", "u")
+                    .replaceAll("[ÙÚỤỦŨƯỪỨỰỬỮ]", "U")
+                    .replaceAll("[ỳýỵỷỹ]", "y")
+                    .replaceAll("[ỲÝỴỶỸ]", "Y")
+                    .replaceAll("[đ]", "d")
+                    .replaceAll("[Đ]", "D");
         }
     }
 }

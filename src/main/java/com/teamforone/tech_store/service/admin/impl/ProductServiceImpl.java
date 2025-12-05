@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -47,18 +48,40 @@ public class ProductServiceImpl implements ProductService {
         String id = (String) row[0];
         String name = (String) row[1];
         String slug = (String) row[2];
-        String categoryName = (String) row[3];
-        Double minPrice = row[4] != null ? ((Number) row[4]).doubleValue() : 0.0;
-        Double maxPrice = row[5] != null ? ((Number) row[5]).doubleValue() : 0.0;
-        Long totalQuantity = row[6] != null ? ((Number) row[6]).longValue() : 0L;
-        String statusStr = (String) row[7];
-        String imageUrl = (String) row[8];
-        String brands = (String) row[9];
+        String description = (String) row[3];
+        String categoryName = (String) row[4];
+        Double minPrice = row[5] != null ?  ((Number) row[5]).doubleValue() : 0.0;
+        Double maxPrice = row[6] != null ?  ((Number) row[6]).doubleValue() : 0.0;
+        Long totalQuantity = row[7] != null ? ((Number) row[7]).longValue() : 0L;
+        String statusStr = (String) row[8];
+        String imageUrl = (String) row[9];
+        String brands = (String) row[10];
+        Date createdAt = null;
+        if (row[11] != null) {
+            if (row[11] instanceof Date) {
+                createdAt = (Date) row[11];
+            } else if (row[11] instanceof java.sql.Timestamp) {
+                createdAt = new Date(((java.sql.Timestamp) row[11]).getTime());
+            } else if (row[11] instanceof java. sql.Date) {
+                createdAt = new Date(((java.sql.Date) row[11]).getTime());
+            }
+        }
+
+        Date updatedAt = null;
+        if (row[12] != null) {
+            if (row[12] instanceof Date) {
+                updatedAt = (Date) row[12];
+            } else if (row[12] instanceof java.sql.Timestamp) {
+                updatedAt = new Date(((java.sql.Timestamp) row[12]).getTime());
+            } else if (row[12] instanceof java.sql.Date) {
+                updatedAt = new Date(((java.sql.Date) row[12]).getTime());
+            }
+        }
 
         Product.Status status = Product.Status.toEnum(statusStr);
 
-        return new ProductListDTO(id, name, slug, categoryName, minPrice, maxPrice,
-                totalQuantity, status, imageUrl, brands);
+        return new ProductListDTO(id, name, slug, description, categoryName, minPrice, maxPrice,
+                totalQuantity, status, imageUrl, brands, createdAt, updatedAt);
     }
 
     @Override
@@ -211,6 +234,16 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public List<Product.Status> getAllProductStatuses() {
         return List.of(Product.Status.values());
+    }
+
+    @Override
+    public List<Product> saveAll(List<Product> products) {
+        return productRepository.saveAll(products);
+    }
+
+    @Override
+    public List<Product> findAllProducts() {
+        return productRepository.findAll();
     }
 
 }

@@ -13,6 +13,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class BrandServiceImpl implements BrandService {
@@ -164,6 +165,10 @@ public class BrandServiceImpl implements BrandService {
         return brandRepository.countByStatus(BrandStatus.INACTIVE);
     }
 
+    @Override
+    public Optional<Brands> findByBrandName(String brandName) {
+        return brandRepository.findByBrandName(brandName);
+    }
     private void validateBrandRequest(BrandRequest request) {
         if (request.getBrandName() == null || request.getBrandName().trim().isEmpty()) {
             throw new IllegalArgumentException("Tên thương hiệu không được để trống");
