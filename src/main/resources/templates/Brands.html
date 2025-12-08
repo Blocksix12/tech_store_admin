@@ -153,9 +153,9 @@
         <!-- Brands Grid View -->
         <div class="brands-grid mt-4 fade-in-up" id="brandsGridView" style="animation-delay: 0.5s;">
             <!-- Loop through brands -->
-            <div th:each="brand : ${brands}"
+            <div th:each="brand : ${brandsWithStats}"
                  class="brand-card"
-                 th:data-brand-id="${brand.brandID}"
+                 th:data-brand-id="${brand.brandId}"
                  th:data-brand-name="${brand.brandName}"
                  th:data-brand-status="${brand.status}">
                 <div class="brand-card-header">
@@ -170,7 +170,7 @@
                              alt="Brand Logo">
                     </div>
                     <div class="brand-actions">
-                        <a th:href="@{/admin/brands/edit/{id}(id=${brand.brandID})}"
+                        <a th:href="@{/admin/brands/edit/{id}(id=${brand.brandId})}"
                            class="btn btn-sm btn-outline-primary"
                            title="Chỉnh sửa">
                             <i class="bi bi-pencil"></i>
@@ -178,7 +178,7 @@
 
                         <!-- Show activate button if inactive -->
                         <form th:if="${brand.status. name() == 'INACTIVE'}"
-                              th:action="@{/admin/brands/activate/{id}(id=${brand.brandID})}"
+                              th:action="@{/admin/brands/activate/{id}(id=${brand.brandId})}"
                               method="post"
                               style="display: inline;">
                             <button type="submit"
@@ -193,7 +193,7 @@
                                 th:if="${brand.status.name() == 'ACTIVE'}"
                                 class="btn btn-sm btn-outline-danger btn-delete-brand"
                                 title="Vô hiệu hóa"
-                                th:data-brand-id="${brand.brandID}"
+                                th:data-brand-id="${brand.brandId}"
                                 th:data-brand-name="${brand.brandName}">
                             <i class="bi bi-x-circle"></i>
                         </button>
@@ -210,12 +210,18 @@
                     </p>
                     <div class="brand-stats">
                         <div class="brand-stat-item">
-                            <span class="stat-label">Sản phẩm</span>
-                            <span class="stat-value">0</span>
+                            <i class="bi bi-box-seam text-primary"></i>
+                            <div>
+                                <span class="stat-label">Sản phẩm</span>
+                                <span class="stat-value" th:text="${brand.productCount ?: 0}">0</span>
+                            </div>
                         </div>
                         <div class="brand-stat-item">
-                            <span class="stat-label">Doanh thu</span>
-                            <span class="stat-value">0₫</span>
+                            <i class="bi bi-cash-coin text-success"></i>
+                            <div>
+                                <span class="stat-label">Doanh thu</span>
+                                <span class="stat-value" th:text="${brand.formattedRevenue ?: '0₫'}">0₫</span>
+                            </div>
                         </div>
                     </div>
                     <div class="brand-footer">
@@ -227,7 +233,7 @@
             </div>
 
             <!-- Empty State -->
-            <div th:if="${#lists.isEmpty(brands)}" class="col-12">
+            <div th:if="${#lists.isEmpty(brandsWithStats)}" class="col-12">
                 <div class="brands-empty">
                     <i class="bi bi-award"></i>
                     <h5>Chưa có thương hiệu nào</h5>
@@ -254,20 +260,30 @@
                         <th style="width: 60px;">STT</th>
                         <th>Tên thương hiệu</th>
                         <th>Quốc gia</th>
+                        <th>Số Sản Phẩm</th>
+                        <th>Tổng Doanh Thu</th>
                         <th>Trạng thái</th>
                         <th style="width: 150px;">Thao tác</th>
                     </tr>
                     </thead>
                     <tbody>
-                    <tr th:each="brand, iterStat : ${brands}"
+                    <tr th:each="brand, iterStat : ${brandsWithStats}"
                         th:data-brand-name="${brand.brandName}"
-                        th:data-brand-status="${brand.status}">
+                        th:data-brand-status="${brand.status}"
+                        th:data-product-count="${brand.productCount}"
+                        th:data-revenue="${brand.totalRevenue}">
                         <td th:text="${iterStat.count}">1</td>
                         <td>
                             <strong th:text="${brand.brandName}">Brand Name</strong>
-                            <div class="small text-muted" th:text="'ID: ' + ${brand.brandID}">ID</div>
+                            <div class="small text-muted" th:text="'ID: ' + ${brand.brandId}">ID</div>
                         </td>
                         <td th:text="${brand.country ?: '-'}">-</td>
+                        <td>
+                            <span class="badge bg-primary" th:text="${brand.productCount ?: 0}">0</span>
+                        </td>
+                        <td>
+                            <strong th:text="${brand.formattedRevenue ?: '0₫'}">0₫</strong>
+                        </td>
                         <td>
                             <span class="badge"
                                   th:classappend="${brand.status.badgeClass}"
@@ -275,7 +291,7 @@
                         </td>
                         <td>
                             <div class="btn-group btn-group-sm">
-                                <a th:href="@{/admin/brands/edit/{id}(id=${brand.brandID})}"
+                                <a th:href="@{/admin/brands/edit/{id}(id=${brand.brandId})}"
                                    class="btn btn-outline-primary"
                                    title="Chỉnh sửa">
                                     <i class="bi bi-pencil"></i>
@@ -283,7 +299,7 @@
 
                                 <!-- Activate button -->
                                 <!-- Show deactivate button if active -->
-                                <a th:href="@{/admin/brands/delete/{id}(id=${brand.brandID})}"
+                                <a th:href="@{/admin/brands/delete/{id}(id=${brand.brandId})}"
                                    th:if="${brand.status.name() == 'INACTIVE'}"
                                    class="btn btn-outline-success"
                                    title="Kích hoạt">
@@ -291,7 +307,7 @@
                                 </a>
 
                                 <!-- Delete button - ACTIVE -->
-                                <a th:href="@{/admin/brands/delete/{id}(id=${brand.brandID})}"
+                                <a th:href="@{/admin/brands/delete/{id}(id=${brand.brandId})}"
                                    th:if="${brand.status.name() == 'ACTIVE'}"
                                    class="btn btn-outline-danger"
                                    title="Xóa">
@@ -299,7 +315,7 @@
                                 </a>
 
                                 <!-- Delete button - DISCONTINUED -->
-                                <a th:href="@{/admin/brands/delete/{id}(id=${brand.brandID})}"
+                                <a th:href="@{/admin/brands/delete/{id}(id=${brand.brandId})}"
                                    th:if="${brand.status.name() == 'DISCONTINUED'}"
                                    class="btn btn-outline-danger"
                                    title="Xóa">
@@ -308,7 +324,7 @@
                             </div>
                         </td>
                     </tr>
-                    <tr th:if="${#lists.isEmpty(brands)}">
+                    <tr th:if="${#lists.isEmpty(brandsWithStats)}">
                         <td colspan="5" class="text-center py-4">
                             <i class="bi bi-inbox fs-1 text-muted"></i>
                             <p class="text-muted mt-2">Chưa có thương hiệu nào</p>
@@ -320,9 +336,9 @@
         </div>
 
         <!-- Pagination -->
-        <div class="pagination-wrapper mt-4" th:if="${! #lists.isEmpty(brands)}">
+        <div class="pagination-wrapper mt-4" th:if="${! #lists.isEmpty(brandsWithStats)}">
             <div class="pagination-info">
-                Hiển thị <strong th:text="${#lists.size(brands)}">0</strong> thương hiệu
+                Hiển thị <strong th:text="${#lists.size(brandsWithStats)}">0</strong> thương hiệu
             </div>
         </div>
     </div>

@@ -1,5 +1,6 @@
 package com.teamforone.tech_store.controller. admin. crud;
 
+import com.teamforone.tech_store.dto.request.BrandListDTO;
 import com.teamforone.tech_store.dto.request.BrandRequest;
 import com.teamforone.tech_store.enums.BrandStatus;
 import com.teamforone.tech_store.model. Brands;
@@ -17,6 +18,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import static org.thymeleaf.util.NumberUtils.formatCurrency;
+
 @Controller
 @RequestMapping("/admin")
 public class BrandController {
@@ -31,35 +34,122 @@ public class BrandController {
         this.fileStorageService = fileStorageService;
     }
 
+//    @GetMapping("/brands")
+//    public String showBrandsPage(@RequestParam(required = false) String status, Model model) {
+//        try {
+//            List<Brands> brands;
+//
+//            // Filter by status if provided
+//            if (status != null && !status.isEmpty()) {
+//                try {
+//                    BrandStatus brandStatus = BrandStatus.valueOf(status.toUpperCase());
+//                    brands = brandService.findByStatus(brandStatus);
+//                } catch (IllegalArgumentException e) {
+//                    brands = brandService.getAllBrands();
+//                }
+//            } else {
+//                brands = brandService.getAllBrands();
+//            }
+//
+//            long totalBrands = brandService.countTotalBrands();
+//            long activeBrands = brandService.countActiveBrands();
+//            long inactiveBrands = brandService.countInactiveBrands();
+//
+//            // IMPORTANT: Always add brandRequest to model
+//            model.addAttribute("brands", brands);
+//            model.addAttribute("totalBrands", totalBrands);
+//            model.addAttribute("activeBrands", activeBrands);
+//            model.addAttribute("inactiveBrands", inactiveBrands);
+//
+//            // FIX: Always provide brandRequest even if empty
+//            if (! model.containsAttribute("brandRequest")) {
+//                model.addAttribute("brandRequest", new BrandRequest());
+//            }
+//
+//            model.addAttribute("brandStatuses", BrandStatus.values());
+//
+//            // Data for topbar
+//            model.addAttribute("pageTitle", "Quản lý Thương hiệu");
+//            model.addAttribute("searchPlaceholder", "Tìm kiếm thương hiệu.. .");
+//            model.addAttribute("searchId", "searchBrands");
+//
+//            // Breadcrumbs
+//            List<Map<String, String>> breadcrumbs = new ArrayList<>();
+//            breadcrumbs.add(Map. of("name", "Trang chủ", "url", "/admin"));
+//            breadcrumbs.add(Map.of("name", "Sản phẩm", "url", "/admin/products"));
+//            breadcrumbs. add(Map.of("name", "Thương hiệu", "url", ""));
+//            model.addAttribute("breadcrumbs", breadcrumbs);
+//
+//            return "Brands";
+//
+//        } catch (Exception e) {
+//            // FIX: Even on error, provide brandRequest
+//            if (!model.containsAttribute("brandRequest")) {
+//                model.addAttribute("brandRequest", new BrandRequest());
+//            }
+//            if (!model.containsAttribute("brands")) {
+//                model.addAttribute("brands", new ArrayList<>());
+//            }
+//            if (!model.containsAttribute("brandStatuses")) {
+//                model. addAttribute("brandStatuses", BrandStatus.values());
+//            }
+//
+//            model.addAttribute("totalBrands", 0L);
+//            model.addAttribute("activeBrands", 0L);
+//            model.addAttribute("inactiveBrands", 0L);
+//            model.addAttribute("errorMessage", "Lỗi khi tải danh sách thương hiệu: " + e.getMessage());
+//
+//            return "Brands";
+//        }
+//    }
+
     @GetMapping("/brands")
-    public String showBrandsPage(@RequestParam(required = false) String status, Model model) {
+    public String showBrandsPage(@RequestParam(required = false) String status,
+                                 @RequestParam(defaultValue = "false") boolean withStats,
+                                 Model model) {
         try {
-            List<Brands> brands;
+            // ✅ Get brands with stats
+            List<BrandListDTO> brandsWithStats = brandService.getAllBrandsWithStats();
 
             // Filter by status if provided
             if (status != null && !status.isEmpty()) {
                 try {
                     BrandStatus brandStatus = BrandStatus.valueOf(status.toUpperCase());
-                    brands = brandService.findByStatus(brandStatus);
+                    brandsWithStats = brandsWithStats.stream()
+                            .filter(b -> b.getStatus() == brandStatus)
+                            .collect(java.util.stream.Collectors. toList());
                 } catch (IllegalArgumentException e) {
-                    brands = brandService.getAllBrands();
+                    // Keep all brands
                 }
-            } else {
-                brands = brandService.getAllBrands();
             }
 
-            long totalBrands = brandService.countTotalBrands();
-            long activeBrands = brandService.countActiveBrands();
-            long inactiveBrands = brandService.countInactiveBrands();
+            // Calculate totals
+            long totalBrands = brandsWithStats.size();
+            long activeBrands = brandsWithStats.stream()
+                    .filter(b -> b. getStatus() == BrandStatus. ACTIVE)
+                    .count();
+            long inactiveBrands = totalBrands - activeBrands;
 
-            // IMPORTANT: Always add brandRequest to model
-            model.addAttribute("brands", brands);
+            // ✅ Calculate total revenue
+            double totalRevenue = brandsWithStats.stream()
+                    .mapToDouble(b -> b.getTotalRevenue() != null ? b.getTotalRevenue() : 0.0)
+                    .sum();
+
+            // ✅ Calculate total products
+            long totalProducts = brandsWithStats.stream()
+                    . mapToLong(b -> b.getProductCount() != null ? b.getProductCount() : 0L)
+                    .sum();
+
+            // ✅ Add stats to model
+            model.addAttribute("brandsWithStats", brandsWithStats);
             model.addAttribute("totalBrands", totalBrands);
             model. addAttribute("activeBrands", activeBrands);
             model.addAttribute("inactiveBrands", inactiveBrands);
+            model.addAttribute("totalRevenue", formatCurrency(totalRevenue));
+            model.addAttribute("totalProducts", totalProducts);
 
-            // FIX: Always provide brandRequest even if empty
-            if (! model.containsAttribute("brandRequest")) {
+            // Always provide brandRequest
+            if (!model.containsAttribute("brandRequest")) {
                 model.addAttribute("brandRequest", new BrandRequest());
             }
 
@@ -72,32 +162,44 @@ public class BrandController {
 
             // Breadcrumbs
             List<Map<String, String>> breadcrumbs = new ArrayList<>();
-            breadcrumbs.add(Map. of("name", "Trang chủ", "url", "/admin"));
+            breadcrumbs.add(Map.of("name", "Trang chủ", "url", "/admin"));
             breadcrumbs.add(Map.of("name", "Sản phẩm", "url", "/admin/products"));
-            breadcrumbs. add(Map.of("name", "Thương hiệu", "url", ""));
+            breadcrumbs.add(Map.of("name", "Thương hiệu", "url", ""));
             model.addAttribute("breadcrumbs", breadcrumbs);
 
             return "Brands";
 
         } catch (Exception e) {
-            // FIX: Even on error, provide brandRequest
+            // Error handling
             if (!model.containsAttribute("brandRequest")) {
                 model.addAttribute("brandRequest", new BrandRequest());
             }
-            if (!model.containsAttribute("brands")) {
-                model.addAttribute("brands", new ArrayList<>());
+            if (!model.containsAttribute("brandsWithStats")) {
+                model.addAttribute("brandsWithStats", new ArrayList<>());
             }
             if (!model.containsAttribute("brandStatuses")) {
-                model. addAttribute("brandStatuses", BrandStatus.values());
+                model.addAttribute("brandStatuses", BrandStatus.values());
             }
 
             model.addAttribute("totalBrands", 0L);
             model.addAttribute("activeBrands", 0L);
             model.addAttribute("inactiveBrands", 0L);
+            model.addAttribute("totalRevenue", "0 ₫");
+            model.addAttribute("totalProducts", 0L);
             model.addAttribute("errorMessage", "Lỗi khi tải danh sách thương hiệu: " + e.getMessage());
 
+            e.printStackTrace();
             return "Brands";
         }
+    }
+
+    private String formatCurrency(Double amount) {
+        if (amount == null || amount == 0) {
+            return "0 ₫";
+        }
+
+        java.text.NumberFormat formatter = java.text.NumberFormat.getInstance(new java.util.Locale("vi", "VN"));
+        return formatter.format(amount) + " ₫";
     }
 
     @GetMapping("/brands/add")

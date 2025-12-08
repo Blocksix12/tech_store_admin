@@ -1,5 +1,6 @@
 package com.teamforone.tech_store.service.admin.impl;
 
+import com.teamforone.tech_store.dto.request.BrandListDTO;
 import com.teamforone.tech_store.dto.request.BrandRequest;
 import com.teamforone.tech_store.dto.response.Response;
 import com.teamforone.tech_store.enums.BrandStatus;
@@ -12,8 +13,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.text.NumberFormat;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class BrandServiceImpl implements BrandService {
@@ -25,6 +29,62 @@ public class BrandServiceImpl implements BrandService {
                             FileStorageService fileStorageService) {
         this.brandRepository = brandRepository;
         this.fileStorageService = fileStorageService;
+    }
+
+    @Override
+    public List<BrandListDTO> getAllBrandsWithStats() {
+        List<Object[]> results = brandRepository.findAllBrandsWithRevenueStats();
+
+        return results.stream()
+                .map(this::mapToBrandWithStatsDTO)
+                .collect(Collectors.toList());
+    }
+
+    private BrandListDTO mapToBrandWithStatsDTO(Object[] row) {
+        String brandId = (String) row[0];
+        String brandName = (String) row[1];
+        String description = row[2] != null ? (String) row[2] : "";
+        String logoUrl = row[3] != null ? (String) row[3] : "";
+        String websiteUrl = row[4] != null ? (String) row[4] : "";
+        String country = row[5] != null ?  (String) row[5] : "";
+        String statusStr = (String) row[6];
+        Integer displayOrder = row[7] != null ? ((Number) row[7]).intValue() : 0;
+        Long productCount = row[8] != null ? ((Number) row[8]).longValue() : 0L;
+        Double totalRevenue = row[9] != null ? ((Number) row[9]).doubleValue() : 0.0;
+
+        // Parse status
+        BrandStatus status = BrandStatus. ACTIVE;
+        try {
+            status = BrandStatus.valueOf(statusStr);
+        } catch (Exception e) {
+            // Default to ACTIVE
+        }
+
+        // Format revenue
+        String formattedRevenue = formatCurrency(totalRevenue);
+
+        return BrandListDTO.builder()
+                .brandId(brandId)
+                .brandName(brandName)
+                .description(description)
+                .logoUrl(logoUrl)
+                .websiteUrl(websiteUrl)
+                .country(country)
+                .status(status)
+                .displayOrder(displayOrder)
+                .productCount(productCount)
+                .totalRevenue(totalRevenue)
+                .formattedRevenue(formattedRevenue)
+                .build();
+    }
+
+    private String formatCurrency(Double amount) {
+        if (amount == null || amount == 0) {
+            return "0 ₫";
+        }
+
+        NumberFormat formatter = NumberFormat.getInstance(new Locale("vi", "VN"));
+        return formatter.format(amount) + " ₫";
     }
 
     @Override

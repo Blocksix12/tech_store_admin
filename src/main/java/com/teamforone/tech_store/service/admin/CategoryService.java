@@ -1,5 +1,7 @@
 package com.teamforone.tech_store.service.admin;
 
+import com.teamforone.tech_store.dto.request.BrandListDTO;
+import com.teamforone.tech_store.dto.request.CategoriesListDTO;
 import com.teamforone.tech_store.dto.request.CategoryRequest;
 import com.teamforone.tech_store.dto.response.Response;
 import com.teamforone.tech_store.model.Categories;
@@ -10,6 +12,7 @@ import java.util.Optional;
 
 public interface CategoryService {
     List<Categories> getAllCategories();
+    List<CategoriesListDTO> getAllCategoriesWithStats();
     Categories addCategory(CategoryRequest request);
     Categories updateCategory(String id, CategoryRequest request) throws IOException;
     void deleteCategory(String id);

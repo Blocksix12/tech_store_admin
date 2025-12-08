@@ -12,8 +12,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/css/Dashboard.css}" />
     <link rel="stylesheet" th:href="@{/css/Categories.css}" />
-
-
 </head>
 <body>
 
@@ -74,16 +72,15 @@
                             </a>
                         </div>
 
-                        <!-- ROOT CATEGORIES LOOP -->
+                        <!-- ✅ ROOT CATEGORIES LOOP - Removed parent check -->
                         <th:block th:each="category : ${categories}">
-                            <div th:if="${category.parentCategory == null}"
-                                 class="category-item"
+                            <div class="category-item"
                                  th:attr="data-category-id=${category.categoryId}">
 
                                 <div class="category-content">
                                     <!-- Toggle Button -->
                                     <button class="category-toggle"
-                                            th:classappend="${category.subCategories == null or #lists.isEmpty(category.subCategories)} ? 'invisible' : ''"
+                                            th:classappend="${category.subCategories == null or #lists. isEmpty(category.subCategories)} ? 'invisible' : ''"
                                             onclick="toggleCategory(this)">
                                         <i class="bi bi-chevron-right"></i>
                                     </button>
@@ -91,14 +88,12 @@
                                     <!-- Category Icon/Image -->
                                     <div class="category-icon"
                                          th:classappend="${category.imageUrl != null and !category.imageUrl.isEmpty()} ? 'has-image' : ''">
-                                        <!-- Hiển thị ảnh nếu có -->
-                                        <img th:if="${category. imageUrl != null and !category. imageUrl.isEmpty()}"
-                                             th:src="${category. imageUrl}"
+                                        <img th:if="${category.imageUrl != null and !category.imageUrl.isEmpty()}"
+                                             th:src="${category.imageUrl}"
                                              th:alt="${category.categoryName}"
                                              class="category-image"
                                              onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
 
-                                        <!-- Hiển thị icon mặc định nếu không có ảnh hoặc ảnh lỗi -->
                                         <i class="bi bi-folder-fill"
                                            th:style="${category.imageUrl != null and !category.imageUrl. isEmpty()} ? 'display: none;' : ''"></i>
                                     </div>
@@ -107,10 +102,12 @@
                                     <div class="category-info">
                                         <div class="category-name" th:text="${category. categoryName}">Category Name</div>
                                         <div class="category-meta">
-                                            <span class="badge bg-primary" th:text="'0 sản phẩm'">0 sản phẩm</span>
+                                            <!-- ✅ FIXED: Display actual product count -->
+                                            <span class="badge bg-primary"
+                                                  th:text="${category.productCount != null ?  category.productCount : 0} + ' sản phẩm'">0 sản phẩm</span>
                                             <span class="badge"
-                                                  th:classappend="${category.status?.name() == 'ACTIVE'} ? 'bg-success' : 'bg-warning'"
-                                                  th:text="${category.status?.displayName}">
+                                                  th:classappend="${category.status != null and category.status.name() == 'ACTIVE'} ?  'bg-success' : 'bg-warning'"
+                                                  th:text="${category. status != null ?  category.status.displayName : 'N/A'}">
                                                 Hiển thị
                                             </span>
                                         </div>
@@ -125,7 +122,8 @@
                                         </a>
                                         <a th:href="@{/admin/categories/delete/{id}(id=${category. categoryId})}"
                                            class="btn btn-sm btn-outline-danger"
-                                           title="Xóa">
+                                           title="Xóa"
+                                           onclick="return confirm('Bạn có chắc muốn xóa danh mục này?')">
                                             <i class="bi bi-trash"></i>
                                         </a>
                                     </div>
@@ -133,7 +131,7 @@
 
                                 <!-- SUB CATEGORIES (Level 2) -->
                                 <div class="category-children"
-                                     th:if="${category.subCategories != null and !#lists.isEmpty(category.subCategories)}">
+                                     th:if="${category.subCategories != null and ! #lists.isEmpty(category.subCategories)}">
 
                                     <th:block th:each="subCategory : ${category.subCategories}">
                                         <div class="category-item"
@@ -150,23 +148,25 @@
                                                 <!-- Sub Category Icon/Image -->
                                                 <div class="category-icon"
                                                      th:classappend="${subCategory.imageUrl != null and !subCategory.imageUrl.isEmpty()} ? 'has-image' : ''">
-                                                    <img th:if="${subCategory. imageUrl != null and !subCategory.imageUrl.isEmpty()}"
-                                                         th:src="${subCategory.imageUrl}"
+                                                    <img th:if="${subCategory.imageUrl != null and !subCategory.imageUrl.isEmpty()}"
+                                                         th:src="${subCategory. imageUrl}"
                                                          th:alt="${subCategory.categoryName}"
                                                          class="category-image"
-                                                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                                         onerror="this. style.display='none'; this. nextElementSibling.style. display='flex';">
 
                                                     <i class="bi bi-tag-fill"
-                                                       th:style="${subCategory.imageUrl != null and !subCategory.imageUrl. isEmpty()} ? 'display: none;' : ''"></i>
+                                                       th:style="${subCategory.imageUrl != null and !subCategory. imageUrl.isEmpty()} ? 'display: none;' : ''"></i>
                                                 </div>
 
                                                 <div class="category-info">
                                                     <div class="category-name" th:text="${subCategory.categoryName}">Sub Category</div>
                                                     <div class="category-meta">
-                                                        <span class="badge bg-primary" th:text="'0 sản phẩm'">0 sản phẩm</span>
+                                                        <!-- ✅ FIXED: Display actual product count -->
+                                                        <span class="badge bg-primary"
+                                                              th:text="${subCategory.productCount != null ? subCategory.productCount : 0} + ' sản phẩm'">0 sản phẩm</span>
                                                         <span class="badge"
-                                                              th:classappend="${subCategory. status?.name() == 'ACTIVE'} ? 'bg-success' : 'bg-warning'"
-                                                              th:text="${subCategory.status?.displayName}">
+                                                              th:classappend="${subCategory.status != null and subCategory.status.name() == 'ACTIVE'} ? 'bg-success' : 'bg-warning'"
+                                                              th:text="${subCategory.status != null ? subCategory.status. displayName : 'N/A'}">
                                                             Hiển thị
                                                         </span>
                                                     </div>
@@ -180,7 +180,8 @@
                                                     </a>
                                                     <a th:href="@{/admin/categories/delete/{id}(id=${subCategory.categoryId})}"
                                                        class="btn btn-sm btn-outline-danger"
-                                                       title="Xóa">
+                                                       title="Xóa"
+                                                       onclick="return confirm('Bạn có chắc muốn xóa danh mục này?')">
                                                         <i class="bi bi-trash"></i>
                                                     </a>
                                                 </div>
@@ -192,19 +193,19 @@
 
                                                 <th:block th:each="subSubCategory : ${subCategory.subCategories}">
                                                     <div class="category-item"
-                                                         th:attr="data-category-id=${subSubCategory. categoryId}">
+                                                         th:attr="data-category-id=${subSubCategory.categoryId}">
 
                                                         <div class="category-content">
                                                             <span class="category-toggle invisible"></span>
 
                                                             <!-- Sub-Sub Category Icon/Image -->
                                                             <div class="category-icon"
-                                                                 th:classappend="${subSubCategory.imageUrl != null and ! subSubCategory.imageUrl.isEmpty()} ? 'has-image' : ''">
-                                                                <img th:if="${subSubCategory.imageUrl != null and !subSubCategory.imageUrl. isEmpty()}"
+                                                                 th:classappend="${subSubCategory.imageUrl != null and !subSubCategory.imageUrl.isEmpty()} ? 'has-image' : ''">
+                                                                <img th:if="${subSubCategory.imageUrl != null and !subSubCategory. imageUrl.isEmpty()}"
                                                                      th:src="${subSubCategory.imageUrl}"
                                                                      th:alt="${subSubCategory.categoryName}"
                                                                      class="category-image"
-                                                                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                                                     onerror="this. style.display='none'; this. nextElementSibling.style. display='flex';">
 
                                                                 <i class="bi bi-tags-fill"
                                                                    th:style="${subSubCategory.imageUrl != null and !subSubCategory.imageUrl.isEmpty()} ? 'display: none;' : ''"></i>
@@ -213,10 +214,12 @@
                                                             <div class="category-info">
                                                                 <div class="category-name" th:text="${subSubCategory. categoryName}">Sub Sub Category</div>
                                                                 <div class="category-meta">
-                                                                    <span class="badge bg-primary" th:text="'0 sản phẩm'">0 sản phẩm</span>
+                                                                    <!-- ✅ FIXED: Display actual product count -->
+                                                                    <span class="badge bg-primary"
+                                                                          th:text="${subSubCategory.productCount != null ? subSubCategory.productCount : 0} + ' sản phẩm'">0 sản phẩm</span>
                                                                     <span class="badge"
-                                                                          th:classappend="${subSubCategory.status?. name() == 'ACTIVE'} ? 'bg-success' : 'bg-warning'"
-                                                                          th:text="${subSubCategory.status?.displayName}">
+                                                                          th:classappend="${subSubCategory.status != null and subSubCategory.status.name() == 'ACTIVE'} ? 'bg-success' : 'bg-warning'"
+                                                                          th:text="${subSubCategory.status != null ? subSubCategory.status.displayName : 'N/A'}">
                                                                         Hiển thị
                                                                     </span>
                                                                 </div>
@@ -230,7 +233,8 @@
                                                                 </a>
                                                                 <a th:href="@{/admin/categories/delete/{id}(id=${subSubCategory.categoryId})}"
                                                                    class="btn btn-sm btn-outline-danger"
-                                                                   title="Xóa">
+                                                                   title="Xóa"
+                                                                   onclick="return confirm('Bạn có chắc muốn xóa danh mục này?')">
                                                                     <i class="bi bi-trash"></i>
                                                                 </a>
                                                             </div>
@@ -288,7 +292,8 @@
                                 <i class="bi bi-box-seam"></i>
                             </div>
                             <div class="stat-details">
-                                <div class="stat-value">0</div>
+                                <!-- ✅ FIXED: Display actual total products -->
+                                <div class="stat-value" th:text="${totalProducts != null ? totalProducts : 0}">0</div>
                                 <div class="stat-label">Tổng sản phẩm</div>
                             </div>
                         </div>
@@ -341,7 +346,7 @@
         document.querySelectorAll('.category-children').forEach(children => {
             children.classList. add('expanded');
         });
-        document.querySelectorAll('.category-toggle:not(.invisible) i').forEach(icon => {
+        document.querySelectorAll('.category-toggle:not(. invisible) i').forEach(icon => {
             icon.classList.remove('bi-chevron-right');
             icon.classList.add('bi-chevron-down');
         });
@@ -367,9 +372,9 @@
     // Auto dismiss alerts after 5 seconds
     setTimeout(function() {
         const alerts = document.querySelectorAll('.alert');
-        alerts.forEach(alert => {
+        alerts. forEach(alert => {
             const bsAlert = new bootstrap.Alert(alert);
-            bsAlert. close();
+            bsAlert.close();
         });
     }, 5000);
 </script>

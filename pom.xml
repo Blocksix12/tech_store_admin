@@ -9,7 +9,7 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.TeamForOne</groupId>
-    <artifactId>tech_store</artifactId>
+    <artifactId>tech-store</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>tech_store</name>
     <description>tech_store</description>

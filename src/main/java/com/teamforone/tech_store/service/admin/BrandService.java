@@ -1,5 +1,6 @@
 package com.teamforone.tech_store.service.admin;
 
+import com.teamforone.tech_store.dto.request.BrandListDTO;
 import com.teamforone.tech_store.dto.request.BrandRequest;
 import com.teamforone.tech_store.dto.response.Response;
 import com.teamforone.tech_store.enums.BrandStatus;
@@ -11,6 +12,7 @@ import java.util.Optional;
 
 public interface BrandService {
     List<Brands> getAllBrands();
+    List<BrandListDTO> getAllBrandsWithStats();
 
     List<Brands> getActiveBrands();
 

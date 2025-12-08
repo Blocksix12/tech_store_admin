@@ -1,5 +1,6 @@
 package com.teamforone.tech_store.service.admin.impl;
 
+import com.teamforone.tech_store.dto.request.CategoriesListDTO;
 import com.teamforone.tech_store.dto.request.CategoryRequest;
 import com.teamforone.tech_store.dto.response.Response;
 import com.teamforone.tech_store.model.Categories;
@@ -13,6 +14,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class CategoryServiceImpl implements CategoryService {
@@ -25,6 +27,60 @@ public class CategoryServiceImpl implements CategoryService {
         this.categoryRepository = categoryRepository;
         this.fileStorageService = fileStorageService;
     }
+
+    @Override
+    public List<CategoriesListDTO> getAllCategoriesWithStats() {
+        List<Object[]> results = categoryRepository.findAllCategoriesWithStats();
+
+        return results.stream()
+                .map(this::mapToCategoryWithStatsDTO)
+                .collect(Collectors.toList());
+    }
+
+    private CategoriesListDTO mapToCategoryWithStatsDTO(Object[] row) {
+        String categoryId = (String) row[0];
+        String categoryName = (String) row[1];
+        String description = row[2] != null ? (String) row[2] : "";
+        String slug = row[3] != null ? (String) row[3] : "";
+        String statusStr = (String) row[4];
+        Integer displayOrder = row[5] != null ? ((Number) row[5]).intValue() : 0;
+        String imageUrl = row[6] != null ? (String) row[6] : "";
+        String parentId = row[7] != null ? (String) row[7] : null;
+        String parentName = row[8] != null ? (String) row[8] : null;
+        Long productCount = row[9] != null ? ((Number) row[9]).longValue() : 0L;
+
+        // Parse status
+        Categories.Status status = Categories.Status.ACTIVE;
+        try {
+            status = Categories.Status.valueOf(statusStr);
+        } catch (Exception e) {
+            // Default to ACTIVE
+        }
+
+        // ✅ Create parent category if exists
+        Categories parentCategory = null;
+        if (parentId != null) {
+            parentCategory = Categories.builder()
+                    .categoryId(parentId)
+                    .categoryName(parentName != null ? parentName : "")
+                    .build();
+        }
+
+        // ✅ Build DTO
+        return CategoriesListDTO.builder()
+                .categoryId(categoryId)
+                .categoryName(categoryName)
+                .description(description)
+                .slug(slug)
+                .status(status)
+                .displayOrder(displayOrder)
+                .imageUrl(imageUrl)
+                .parentCategory(parentCategory)
+                .ownProductCount(productCount)
+                .productCount(productCount)
+                .build();
+    }
+
 
     @Override
     public List<Categories> getAllCategories() {
@@ -143,7 +199,7 @@ public class CategoryServiceImpl implements CategoryService {
         }
 
         // Tạo slug từ categoryName
-        String slug = request. getCategoryName()
+        String slug = request.getCategoryName()
                 .toLowerCase()
                 .replaceAll("đ", "d")
                 .replaceAll("[àáạảãâầấậẩẫăằắặẳẵ]", "a")
@@ -151,7 +207,7 @@ public class CategoryServiceImpl implements CategoryService {
                 .replaceAll("[ìíịỉĩ]", "i")
                 .replaceAll("[òóọỏõôồốộổỗơờớợởỡ]", "o")
                 .replaceAll("[ùúụủũưừứựửữ]", "u")
-                . replaceAll("[ỳýỵỷỹ]", "y")
+                .replaceAll("[ỳýỵỷỹ]", "y")
                 .replaceAll("[^a-z0-9\\s-]", "")
                 .trim()
                 .replaceAll("\\s+", "-")
