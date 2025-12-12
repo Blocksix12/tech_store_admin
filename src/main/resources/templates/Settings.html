@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cài đặt - Admin Dashboard</title>
+
+    <!-- Bootstrap 5.3 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Dashboard CSS -->
+    <link rel="stylesheet" th:href="@{/css/Dashboard.css}" />
+    <!-- Settings CSS -->
+    <link rel="stylesheet" th:href="@{/css/Settings.css}" />
+</head>
+<body>
+
+<!-- Sidebar -->
+<div class="sidebar" id="sidebar">
+    <button class="sidebar-toggle" onclick="toggleSidebarCollapse()" title="Thu gọn/Mở rộng">
+        <i class="bi bi-chevron-left"></i>
+    </button>
+
+    <div class="sidebar-brand">
+        <i class="bi bi-shop-window"></i>
+        <span class="sidebar-brand-text">E-Commerce</span>
+    </div>
+
+    <div class="sidebar-menu">
+        <div class="menu-section-title">Main</div>
+        <a href="/admin/dashboard" class="menu-item">
+            <i class="bi bi-grid-fill"></i>
+            <span>Dashboard</span>
+        </a>
+
+        <div class="menu-section-title">System</div>
+        <div>
+            <div class="menu-item open active" onclick="toggleSubmenu(this)">
+                <i class="bi bi-gear-fill"></i>
+                <span>Cài đặt</span>
+                <i class="bi bi-chevron-down"></i>
+            </div>
+            <div class="submenu show">
+                <a href="#general" class="submenu-item active" onclick="showSection('general')">Cài đặt chung</a>
+                <a href="#shipping" class="submenu-item" onclick="showSection('shipping')">Vận chuyển</a>
+                <a href="#payment" class="submenu-item" onclick="showSection('payment')">Thanh toán</a>
+                <a href="#email" class="submenu-item" onclick="showSection('email')">Email SMTP</a>
+                <a href="#audit-logs" class="submenu-item" onclick="showSection('audit-logs')">Audit Logs</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Main Content -->
+<div class="main-content">
+    <!-- Topbar -->
+    <div class="topbar">
+        <div class="topbar-left">
+            <button class="mobile-menu-btn" onclick="toggleSidebar()">
+                <i class="bi bi-list"></i>
+            </button>
+            <div>
+                <h1 class="page-title">Cài đặt hệ thống</h1>
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="/admin">Trang chủ</a></li>
+                        <li class="breadcrumb-item active">Cài đặt</li>
+                    </ol>
+                </nav>
+            </div>
+        </div>
+
+        <div class="topbar-right">
+            <!-- User Menu -->
+            <div class="dropdown">
+                <div class="user-menu" data-bs-toggle="dropdown" aria-expanded="false">
+                    <div class="user-avatar">
+                        <span>N</span>
+                    </div>
+                    <div class="user-info">
+                        <div class="user-name" sec:authentication="name">NvkhoaDev54</div>
+                    </div>
+                    <i class="bi bi-chevron-down"></i>
+                </div>
+                <ul class="dropdown-menu dropdown-menu-end">
+                    <li>
+                        <a class="dropdown-item" href="/admin/profile">
+                            <i class="bi bi-person"></i>
+                            <span>Hồ sơ của tôi</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item active" href="/admin/settings">
+                            <i class="bi bi-gear"></i>
+                            <span>Cài đặt</span>
+                        </a>
+                    </li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li>
+                        <form th:action="@{/logout}" method="post">
+                            <button type="submit" class="dropdown-item">
+                                <i class="bi bi-box-arrow-right"></i>
+                                <span>Đăng xuất</span>
+                            </button>
+                        </form>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Success Messages -->
+    <div th:if="${param.success}" class="alert alert-success alert-dismissible fade show mx-4 mt-3" role="alert">
+        <i class="bi bi-check-circle"></i> Lưu thành công!
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    <div th:if="${param.uploaded}" class="alert alert-success alert-dismissible fade show mx-4 mt-3" role="alert">
+        <i class="bi bi-check-circle"></i> Tải lên thành công!
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    <div th:if="${param.cleared}" class="alert alert-success alert-dismissible fade show mx-4 mt-3" role="alert">
+        <i class="bi bi-check-circle"></i> Đã xóa logs!
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+
+    <!-- Content Area -->
+    <div class="content-area">
+        <div class="row g-4">
+            <!-- Left Sidebar Navigation -->
+            <div class="col-lg-3">
+                <div class="settings-sidebar fade-in-up">
+                    <div class="settings-sidebar-header">
+                        <i class="bi bi-sliders"></i>
+                        <span>Danh mục cài đặt</span>
+                    </div>
+
+                    <div class="settings-nav-group">
+                        <a href="#general" class="settings-nav-link active" onclick="showSection(event, 'general')">
+                            <i class="bi bi-gear"></i>
+                            <span>Cài đặt chung</span>
+                            <i class="bi bi-chevron-right"></i>
+                        </a>
+                        <a href="#shipping" class="settings-nav-link" onclick="showSection(event, 'shipping')">
+                            <i class="bi bi-truck"></i>
+                            <span>Vận chuyển</span>
+                            <i class="bi bi-chevron-right"></i>
+                        </a>
+                        <a href="#payment" class="settings-nav-link" onclick="showSection(event, 'payment')">
+                            <i class="bi bi-credit-card"></i>
+                            <span>Thanh toán</span>
+                            <i class="bi bi-chevron-right"></i>
+                        </a>
+                        <a href="#email" class="settings-nav-link" onclick="showSection(event, 'email')">
+                            <i class="bi bi-envelope"></i>
+                            <span>Email SMTP</span>
+                            <i class="bi bi-chevron-right"></i>
+                        </a>
+                        <a href="#audit-logs" class="settings-nav-link" onclick="showSection(event, 'audit-logs')">
+                            <i class="bi bi-journal-text"></i>
+                            <span>Audit Logs</span>
+                            <i class="bi bi-chevron-right"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Content Area -->
+            <div class="col-lg-9">
+                <!-- ==================== CÀI ĐẶT CHUNG ==================== -->
+                <div class="settings-content active fade-in-up" id="general-section">
+                    <div class="settings-header">
+                        <div>
+                            <h3><i class="bi bi-gear"></i> Cài đặt chung</h3>
+                            <p>Cấu hình thông tin cơ bản của hệ thống</p>
+                        </div>
+                    </div>
+
+                    <!-- General Settings Form -->
+                    <form th:action="@{/admin/settings/general}" method="post">
+                        <input type="hidden" name="id" th:value="${general?. id}">
+
+                        <div class="settings-card">
+                            <div class="settings-card-header">
+                                <h5><i class="bi bi-info-circle"></i> Thông tin website</h5>
+                            </div>
+                            <div class="settings-card-body">
+                                <div class="row g-3">
+                                    <div class="col-12">
+                                        <label class="form-label">Tên website</label>
+                                        <input type="text" class="form-control" name="websiteName"
+                                               th:value="${general?.websiteName}" placeholder="Nhập tên website">
+                                    </div>
+                                    <div class="col-12">
+                                        <label class="form-label">Slogan</label>
+                                        <input type="text" class="form-control" name="slogan"
+                                               th:value="${general?.slogan}" placeholder="Slogan">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">URL Website</label>
+                                        <input type="url" class="form-control" name="websiteUrl"
+                                               th: value="${general?.websiteUrl}" placeholder="https://example.com">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Email liên hệ</label>
+                                        <input type="email" class="form-control" name="contactEmail"
+                                               th:value="${general?.contactEmail}" placeholder="email@example.com">
+                                    </div>
+                                    <div class="col-12">
+                                        <label class="form-label">Mô tả</label>
+                                        <textarea class="form-control" rows="3" name="description"
+                                                  placeholder="Mô tả về website" th:text="${general?.description}"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="settings-card">
+                            <div class="settings-card-header">
+                                <h5><i class="bi bi-building"></i> Thông tin công ty</h5>
+                            </div>
+                            <div class="settings-card-body">
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label">Tên công ty</label>
+                                        <input type="text" class="form-control" name="companyName"
+                                               th:value="${general?. companyName}" placeholder="Tên công ty">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Số điện thoại</label>
+                                        <input type="tel" class="form-control" name="phone"
+                                               th:value="${general?.phone}" placeholder="+84 xxx xxx xxx">
+                                    </div>
+                                    <div class="col-12">
+                                        <label class="form-label">Địa chỉ</label>
+                                        <input type="text" class="form-control" name="address"
+                                               th:value="${general?.address}" placeholder="Địa chỉ đầy đủ">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Mã số thuế</label>
+                                        <input type="text" class="form-control" name="taxCode"
+                                               th:value="${general?.taxCode}" placeholder="Mã số thuế">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Hotline</label>
+                                        <input type="tel" class="form-control" name="hotline"
+                                               th: value="${general?.hotline}" placeholder="1900-xxxx">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="settings-card">
+                            <div class="settings-card-header">
+                                <h5><i class="bi bi-globe"></i> Bản địa hóa</h5>
+                            </div>
+                            <div class="settings-card-body">
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label">Ngôn ngữ mặc định</label>
+                                        <select class="form-select" name="language" th:value="${general?.language}">
+                                            <option value="vi" th:selected="${general?.language == 'vi'}">Tiếng Việt</option>
+                                            <option value="en" th:selected="${general?.language == 'en'}">English</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Múi giờ</label>
+                                        <select class="form-select" name="timezone">
+                                            <option value="Asia/Ho_Chi_Minh" th:selected="${general?. timezone == 'Asia/Ho_Chi_Minh'}">Asia/Ho Chi Minh (UTC+7)</option>
+                                            <option value="Asia/Tokyo" th:selected="${general?.timezone == 'Asia/Tokyo'}">Asia/Tokyo (UTC+9)</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Tiền tệ</label>
+                                        <select class="form-select" name="currency">
+                                            <option value="VND" th:selected="${general?.currency == 'VND'}">VND - Việt Nam Đồng</option>
+                                            <option value="USD" th:selected="${general?.currency == 'USD'}">USD - US Dollar</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Định dạng ngày</label>
+                                        <select class="form-select" name="dateFormat">
+                                            <option value="DD/MM/YYYY" th: selected="${general?.dateFormat == 'DD/MM/YYYY'}">DD/MM/YYYY</option>
+                                            <option value="MM/DD/YYYY" th:selected="${general?.dateFormat == 'MM/DD/YYYY'}">MM/DD/YYYY</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="text-end">
+                            <button type="submit" class="btn btn-success btn-lg">
+                                <i class="bi bi-check-circle"></i> Lưu cài đặt chung
+                            </button>
+                        </div>
+                    </form>
+
+                    <!-- Logo Upload Form -->
+                    <form th: action="@{/admin/settings/upload/logo}" method="post" enctype="multipart/form-data" class="mt-4">
+                        <div class="settings-card">
+                            <div class="settings-card-header">
+                                <h5><i class="bi bi-image"></i> Logo & Favicon</h5>
+                            </div>
+                            <div class="settings-card-body">
+                                <div class="row g-4">
+                                    <div class="col-md-6">
+                                        <label class="form-label">Logo</label>
+                                        <div class="image-upload-box">
+                                            <div class="image-preview">
+                                                <img th:src="${general?.logoUrl != null ? general.logoUrl : 'https://via.placeholder.com/200x60? text=Your+Logo'}"
+                                                     id="logoPreview" alt="Logo">
+                                            </div>
+                                            <input type="file" name="logoFile" id="logoInput" accept="image/*" hidden onchange="handleImageUpload(event, 'logoPreview')">
+                                            <button type="button" class="btn btn-primary btn-sm mt-2" onclick="document.getElementById('logoInput').click()">
+                                                <i class="bi bi-upload"></i> Tải lên Logo
+                                            </button>
+                                            <small class="d-block text-muted mt-2">Khuyến nghị: PNG/SVG, 200x60px</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Favicon</label>
+                                        <div class="image-upload-box">
+                                            <div class="image-preview small">
+                                                <img th:src="${general?.faviconUrl != null ? general.faviconUrl : 'https://via.placeholder.com/32? text=F'}"
+                                                     id="faviconPreview" alt="Favicon">
+                                            </div>
+                                            <input type="file" name="faviconFile" id="faviconInput" accept="image/*" hidden onchange="handleImageUpload(event, 'faviconPreview')">
+                                            <button type="button" class="btn btn-primary btn-sm mt-2" onclick="document. getElementById('faviconInput').click()">
+                                                <i class="bi bi-upload"></i> Tải lên Favicon
+                                            </button>
+                                            <small class="d-block text-muted mt-2">Khuyến nghị: ICO/PNG, 32x32px</small>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="text-end mt-3">
+                                    <button type="submit" class="btn btn-success btn-lg">
+                                        <i class="bi bi-upload"></i> Upload Hình ảnh
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- ==================== VẬN CHUYỂN ==================== -->
+                <div class="settings-content fade-in-up" id="shipping-section" style="display: none;">
+                    <div class="settings-header">
+                        <div>
+                            <h3><i class="bi bi-truck"></i> Vận chuyển</h3>
+                            <p>Cấu hình các phương thức vận chuyển</p>
+                        </div>
+                    </div>
+
+                    <div class="settings-card">
+                        <div class="settings-card-header">
+                            <h5><i class="bi bi-truck"></i> Đơn vị vận chuyển</h5>
+                        </div>
+                        <div class="settings-card-body">
+                            <div class="shipping-methods-list">
+                                <div th:each="shipping : ${shippingList}" class="shipping-method-item">
+                                    <div class="shipping-method-info">
+                                        <div class="shipping-method-logo">
+                                            <img th:src="${shipping.logoUrl}" th:alt="${shipping.methodName}"
+                                                 onerror="this.src='https://via.placeholder.com/60?text=Ship'">
+                                        </div>
+                                        <div class="shipping-method-details">
+                                            <h6 th:text="${shipping.methodName}">Shipping Name</h6>
+                                            <p th:text="${shipping. description}">Description</p>
+                                            <span th:class="${shipping.active ? 'badge bg-success' : 'badge bg-secondary'}"
+                                                  th:text="${shipping.active ? 'Đang hoạt động' : 'Tạm ngừng'}"></span>
+                                        </div>
+                                    </div>
+                                    <div class="shipping-method-actions">
+                                        <div class="form-check form-switch ms-2">
+                                            <input class="form-check-input" type="checkbox" th:checked="${shipping.active}">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div th:if="${#lists.isEmpty(shippingList)}" class="text-center py-5">
+                                    <i class="bi bi-inbox" style="font-size: 48px; color: #ccc;"></i>
+                                    <p class="text-muted mt-3">Chưa có đơn vị vận chuyển nào</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Add Shipping Form -->
+                    <form th: action="@{/admin/settings/shipping}" method="post">
+                        <div class="settings-card">
+                            <div class="settings-card-header">
+                                <h5><i class="bi bi-plus-circle"></i> Thêm đơn vị vận chuyển</h5>
+                            </div>
+                            <div class="settings-card-body">
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label">Tên đơn vị *</label>
+                                        <input type="text" class="form-control" name="methodName" required>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Logo URL</label>
+                                        <input type="url" class="form-control" name="logoUrl" placeholder="https://...">
+                                    </div>
+                                    <div class="col-12">
+                                        <label class="form-label">Mô tả</label>
+                                        <textarea class="form-control" name="description" rows="2"></textarea>
+                                    </div>
+                                </div>
+                                <div class="text-end mt-3">
+                                    <button type="submit" class="btn btn-success btn-lg">
+                                        <i class="bi bi-check-circle"></i> Thêm đơn vị
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- ==================== THANH TOÁN ==================== -->
+                <div class="settings-content fade-in-up" id="payment-section" style="display: none;">
+                    <div class="settings-header">
+                        <div>
+                            <h3><i class="bi bi-credit-card"></i> Thanh toán</h3>
+                            <p>Cấu hình các phương thức thanh toán</p>
+                        </div>
+                    </div>
+
+                    <!-- Payment Methods -->
+                    <div class="settings-card">
+                        <div class="settings-card-header">
+                            <h5><i class="bi bi-wallet2"></i> Phương thức thanh toán</h5>
+                        </div>
+                        <div class="settings-card-body">
+                            <div class="payment-methods-list">
+                                <div th:each="payment : ${paymentList}" class="payment-method-item">
+                                    <div class="payment-method-info">
+                                        <div class="payment-method-icon cod">
+                                            <img th:if="${payment.logoUrl != null}" th:src="${payment.logoUrl}" th:alt="${payment.methodName}"
+                                                 onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                            <i class="bi bi-cash-coin" style="display: none;"></i>
+                                        </div>
+                                        <div class="payment-method-details">
+                                            <h6 th:text="${payment.methodName}">Payment Name</h6>
+                                            <p th:text="${payment. description}">Description</p>
+                                            <span th:class="${payment.active ? 'badge bg-success' : 'badge bg-secondary'}"
+                                                  th:text="${payment.active ? 'Đang hoạt động' : 'Tạm ngừng'}"></span>
+                                        </div>
+                                    </div>
+                                    <div class="payment-method-actions">
+                                        <div class="form-check form-switch ms-2">
+                                            <input class="form-check-input" type="checkbox" th:checked="${payment.active}">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div th:if="${#lists.isEmpty(paymentList)}" class="text-center py-5">
+                                    <i class="bi bi-inbox" style="font-size: 48px; color:  #ccc;"></i>
+                                    <p class="text-muted mt-3">Chưa có phương thức thanh toán nào</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Add Payment Form -->
+                    <form th: action="@{/admin/settings/payment}" method="post">
+                        <div class="settings-card">
+                            <div class="settings-card-header">
+                                <h5><i class="bi bi-plus-circle"></i> Thêm phương thức thanh toán</h5>
+                            </div>
+                            <div class="settings-card-body">
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label">Tên phương thức *</label>
+                                        <input type="text" class="form-control" name="methodName" required>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Logo URL</label>
+                                        <input type="url" class="form-control" name="logoUrl" placeholder="https://...">
+                                    </div>
+                                    <div class="col-12">
+                                        <label class="form-label">Mô tả</label>
+                                        <textarea class="form-control" name="description" rows="2"></textarea>
+                                    </div>
+                                </div>
+                                <div class="text-end mt-3">
+                                    <button type="submit" class="btn btn-success btn-lg">
+                                        <i class="bi bi-check-circle"></i> Thêm phương thức
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+
+                    <!-- Bank Accounts -->
+                    <div class="settings-card">
+                        <div class="settings-card-header">
+                            <h5><i class="bi bi-bank"></i> Tài khoản ngân hàng</h5>
+                        </div>
+                        <div class="settings-card-body">
+                            <div class="bank-accounts-list">
+                                <div th:each="bank : ${banks}" class="bank-account-item">
+                                    <div class="bank-account-info">
+                                        <div class="bank-logo">
+                                            <img th:src="${bank.logoUrl}" th:alt="${bank.bankName}"
+                                                 onerror="this.src='https://via.placeholder.com/50?text=Bank'">
+                                        </div>
+                                        <div>
+                                            <h6 th:text="${bank.bankName}">Bank Name</h6>
+                                            <p class="mb-1"><strong>STK:</strong> <span th: text="${bank.accountNumber}"></span></p>
+                                            <p class="mb-0"><strong>Chủ TK:</strong> <span th: text="${bank.ownerName}"></span></p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div th:if="${#lists.isEmpty(banks)}" class="text-center py-5">
+                                    <i class="bi bi-inbox" style="font-size: 48px; color: #ccc;"></i>
+                                    <p class="text-muted mt-3">Chưa có tài khoản ngân hàng nào</p>
+                                </div>
+                            </div>
+
+                            <!-- Add Bank Form -->
+                            <form th: action="@{/admin/settings/bank}" method="post" class="mt-4">
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label">Tên ngân hàng *</label>
+                                        <input type="text" class="form-control" name="bankName" required>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Số tài khoản *</label>
+                                        <input type="text" class="form-control" name="accountNumber" required>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Chủ tài khoản *</label>
+                                        <input type="text" class="form-control" name="ownerName" required>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Logo URL</label>
+                                        <input type="url" class="form-control" name="logoUrl" placeholder="https://...">
+                                    </div>
+                                </div>
+                                <div class="text-end mt-3">
+                                    <button type="submit" class="btn btn-primary btn-lg">
+                                        <i class="bi bi-plus-circle"></i> Thêm tài khoản
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ==================== EMAIL SMTP ==================== -->
+                <div class="settings-content fade-in-up" id="email-section" style="display: none;">
+                    <div class="settings-header">
+                        <div>
+                            <h3><i class="bi bi-envelope"></i> Email SMTP</h3>
+                            <p>Cấu hình máy chủ email</p>
+                        </div>
+                    </div>
+
+                    <form th:action="@{/admin/settings/smtp}" method="post">
+                        <input type="hidden" name="id" th:value="${smtp?. id}">
+
+                        <div class="settings-card">
+                            <div class="settings-card-header">
+                                <h5><i class="bi bi-server"></i> Cấu hình SMTP</h5>
+                            </div>
+                            <div class="settings-card-body">
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label">SMTP Host *</label>
+                                        <input type="text" class="form-control" name="host"
+                                               th:value="${smtp?.host}" placeholder="smtp.gmail.com" required>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">SMTP Port *</label>
+                                        <input type="number" class="form-control" name="port"
+                                               th:value="${smtp?.port}" placeholder="587" required>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Email người gửi *</label>
+                                        <input type="email" class="form-control" name="senderEmail"
+                                               th:value="${smtp?.senderEmail}" placeholder="noreply@example.com" required>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Tên người gửi</label>
+                                        <input type="text" class="form-control" name="senderName"
+                                               th:value="${smtp?.senderName}" placeholder="E-Commerce">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Username *</label>
+                                        <input type="text" class="form-control" name="username"
+                                               th:value="${smtp?.username}" placeholder="Username SMTP" required>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Password *</label>
+                                        <div class="input-group">
+                                            <input type="password" class="form-control" name="password"
+                                                   id="smtpPassword" th:value="${smtp?.password}" placeholder="Password" required>
+                                            <button class="btn btn-outline-secondary" type="button" onclick="togglePasswordVisibility('smtpPassword')">
+                                                <i class="bi bi-eye"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Mã hóa</label>
+                                        <select class="form-select" name="secureType">
+                                            <option value="tls" th:selected="${smtp?.secureType == 'tls'}">TLS</option>
+                                            <option value="ssl" th:selected="${smtp?.secureType == 'ssl'}">SSL</option>
+                                            <option value="none" th:selected="${smtp?.secureType == 'none'}">None</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="text-end">
+                            <button type="submit" class="btn btn-success btn-lg">
+                                <i class="bi bi-check-circle"></i> Lưu cấu hình SMTP
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- ==================== AUDIT LOGS ==================== -->
+                <div class="settings-content fade-in-up" id="audit-logs-section" style="display: none;">
+                    <div class="settings-header">
+                        <div>
+                            <h3><i class="bi bi-journal-text"></i> Audit Logs</h3>
+                            <p>Nhật ký hoạt động của hệ thống</p>
+                        </div>
+                        <form th:action="@{/admin/settings/audit/clear}" method="post" style="display: inline;">
+                            <button type="submit" class="btn btn-outline-danger"
+                                    onclick="return confirm('Bạn có chắc muốn xóa tất cả logs cũ?')">
+                                <i class="bi bi-trash"></i> Xóa logs cũ
+                            </button>
+                        </form>
+                    </div>
+
+                    <div class="settings-card">
+                        <div class="settings-card-header">
+                            <h5><i class="bi bi-list-ul"></i> Nhật ký hoạt động</h5>
+                        </div>
+                        <div class="settings-card-body">
+                            <div class="audit-logs-list">
+                                <div th:each="audit : ${audits}" class="audit-log-item">
+                                    <div class="audit-log-icon create">
+                                        <i class="bi bi-info-circle"></i>
+                                    </div>
+                                    <div class="audit-log-details">
+                                        <div class="audit-log-header">
+                                            <h6 th:text="${audit.action}">Action</h6>
+                                            <span class="audit-log-time"
+                                                  th:text="${#temporals.format(audit.time, 'dd/MM/yyyy HH:mm: ss')}">Time</span>
+                                        </div>
+                                        <p>
+                                            <strong th: text="${audit.username}">User</strong>
+                                            <span th:text="${audit.description}">Description</span>
+                                        </p>
+                                        <div class="audit-log-meta">
+                                            <span><i class="bi bi-pc-display"></i> <span th:text="${audit.userAgent}">Browser</span></span>
+                                            <span><i class="bi bi-geo-alt"></i> <span th:text="${audit.ipAddress}">IP</span></span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div th:if="${#lists.isEmpty(audits)}" class="text-center py-5">
+                                    <i class="bi bi-inbox" style="font-size: 48px; color: #ccc;"></i>
+                                    <p class="text-muted mt-3">Chưa có logs nào</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<!-- Dashboard JS -->
+<script th:src="@{/javascript/Dashboard.js}"></script>
+
+<script>
+    // Settings Navigation
+    function showSection(event, sectionId) {
+        event.preventDefault();
+
+        // Hide all sections
+        document.querySelectorAll('.settings-content').forEach(section => {
+            section.style.display = 'none';
+            section.classList.remove('active');
+        });
+
+        // Show selected section
+        const selectedSection = document.getElementById(sectionId + '-section');
+        if (selectedSection) {
+            selectedSection. style.display = 'block';
+            selectedSection.classList.add('active');
+        }
+
+        // Update navigation links
+        document.querySelectorAll('. settings-nav-link').forEach(link => {
+            link.classList.remove('active');
+        });
+        event.target.closest('.settings-nav-link').classList.add('active');
+
+        // Update URL hash
+        window.location.hash = sectionId;
+    }
+
+    // Load section from URL hash or param
+    window.addEventListener('DOMContentLoaded', () => {
+        const urlParams = new URLSearchParams(window. location.search);
+        const tab = urlParams.get('tab');
+        const hash = window.location.hash. substring(1);
+
+        const targetSection = tab || hash || 'general';
+        const link = document.querySelector(`.settings-nav-link[href="#${targetSection}"]`);
+
+        if (link) {
+            link.click();
+        }
+    });
+
+    // Image Upload Preview
+    function handleImageUpload(event, previewId) {
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById(previewId).src = e.target.result;
+            }
+            reader.readAsDataURL(file);
+        }
+    }
+
+    // Toggle Password Visibility
+    function togglePasswordVisibility(inputId) {
+        const input = document.getElementById(inputId);
+        const icon = event.target.closest('button').querySelector('i');
+
+        if (input.type === 'password') {
+            input.type = 'text';
+            icon.classList.remove('bi-eye');
+            icon.classList. add('bi-eye-slash');
+        } else {
+            input.type = 'password';
+            icon.classList.remove('bi-eye-slash');
+            icon.classList.add('bi-eye');
+        }
+    }
+
+    // Auto-hide alerts after 5 seconds
+    setTimeout(() => {
+        const alerts = document.querySelectorAll('.alert');
+        alerts.forEach(alert => {
+            alert.classList.remove('show');
+            setTimeout(() => alert.remove(), 150);
+        });
+    }, 5000);
+</script>
+
+</body>
+</html>
