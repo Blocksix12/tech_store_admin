@@ -1,5 +1,6 @@
 package com.teamforone.tech_store.controller.admin;
 
+import com.teamforone.tech_store.dto.request.SettingsGeneralDTO;
 import com.teamforone.tech_store.model.*;
 import com.teamforone.tech_store.service.admin.*;
 import org.springframework.stereotype.Controller;
@@ -8,6 +9,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+
+import java.io.IOException;
 
 @Controller
 @RequestMapping("/admin/settings")
@@ -41,12 +44,12 @@ public class SettingsController {
         model.addAttribute("banks", bankService.list());
         model.addAttribute("smtp", smtpService.get());
         model.addAttribute("audits", auditService.list());
-        return "admin/settings";
+        return "Settings";
     }
 
     @PostMapping("/general")
-    public String saveGeneral(@ModelAttribute SettingsGeneral general) {
-        generalService.save(general);
+    public String saveGeneral(@ModelAttribute SettingsGeneralDTO general) throws IOException {
+        generalService.saveSettings(general);
         return "redirect:/admin/settings?tab=general&success";
     }
 

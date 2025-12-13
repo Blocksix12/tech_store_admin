@@ -1,116 +1,25 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="vi">
+<html xmlns:th="http://www.thymeleaf.org" lang="vi">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cài đặt - Admin Dashboard</title>
 
-    <!-- Bootstrap 5.3 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <!-- Dashboard CSS -->
+    <link href="https://fonts.googleapis.com/css2? family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/css/Dashboard.css}" />
-    <!-- Settings CSS -->
     <link rel="stylesheet" th:href="@{/css/Settings.css}" />
 </head>
 <body>
 
-<!-- Sidebar -->
-<div class="sidebar" id="sidebar">
-    <button class="sidebar-toggle" onclick="toggleSidebarCollapse()" title="Thu gọn/Mở rộng">
-        <i class="bi bi-chevron-left"></i>
-    </button>
-
-    <div class="sidebar-brand">
-        <i class="bi bi-shop-window"></i>
-        <span class="sidebar-brand-text">E-Commerce</span>
-    </div>
-
-    <div class="sidebar-menu">
-        <div class="menu-section-title">Main</div>
-        <a href="/admin/dashboard" class="menu-item">
-            <i class="bi bi-grid-fill"></i>
-            <span>Dashboard</span>
-        </a>
-
-        <div class="menu-section-title">System</div>
-        <div>
-            <div class="menu-item open active" onclick="toggleSubmenu(this)">
-                <i class="bi bi-gear-fill"></i>
-                <span>Cài đặt</span>
-                <i class="bi bi-chevron-down"></i>
-            </div>
-            <div class="submenu show">
-                <a href="#general" class="submenu-item active" onclick="showSection('general')">Cài đặt chung</a>
-                <a href="#shipping" class="submenu-item" onclick="showSection('shipping')">Vận chuyển</a>
-                <a href="#payment" class="submenu-item" onclick="showSection('payment')">Thanh toán</a>
-                <a href="#email" class="submenu-item" onclick="showSection('email')">Email SMTP</a>
-                <a href="#audit-logs" class="submenu-item" onclick="showSection('audit-logs')">Audit Logs</a>
-            </div>
-        </div>
-    </div>
-</div>
+<!-- Include Sidebar -->
+<div th:replace="~{fragments/sidebar ::  sidebar}"></div>
 
 <!-- Main Content -->
 <div class="main-content">
-    <!-- Topbar -->
-    <div class="topbar">
-        <div class="topbar-left">
-            <button class="mobile-menu-btn" onclick="toggleSidebar()">
-                <i class="bi bi-list"></i>
-            </button>
-            <div>
-                <h1 class="page-title">Cài đặt hệ thống</h1>
-                <nav aria-label="breadcrumb">
-                    <ol class="breadcrumb">
-                        <li class="breadcrumb-item"><a href="/admin">Trang chủ</a></li>
-                        <li class="breadcrumb-item active">Cài đặt</li>
-                    </ol>
-                </nav>
-            </div>
-        </div>
-
-        <div class="topbar-right">
-            <!-- User Menu -->
-            <div class="dropdown">
-                <div class="user-menu" data-bs-toggle="dropdown" aria-expanded="false">
-                    <div class="user-avatar">
-                        <span>N</span>
-                    </div>
-                    <div class="user-info">
-                        <div class="user-name" sec:authentication="name">NvkhoaDev54</div>
-                    </div>
-                    <i class="bi bi-chevron-down"></i>
-                </div>
-                <ul class="dropdown-menu dropdown-menu-end">
-                    <li>
-                        <a class="dropdown-item" href="/admin/profile">
-                            <i class="bi bi-person"></i>
-                            <span>Hồ sơ của tôi</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a class="dropdown-item active" href="/admin/settings">
-                            <i class="bi bi-gear"></i>
-                            <span>Cài đặt</span>
-                        </a>
-                    </li>
-                    <li><hr class="dropdown-divider"></li>
-                    <li>
-                        <form th:action="@{/logout}" method="post">
-                            <button type="submit" class="dropdown-item">
-                                <i class="bi bi-box-arrow-right"></i>
-                                <span>Đăng xuất</span>
-                            </button>
-                        </form>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </div>
+    <!-- Include Topbar -->
+    <div th:replace="~{fragments/topbar :: topbar}"></div>
 
     <!-- Success Messages -->
     <div th:if="${param.success}" class="alert alert-success alert-dismissible fade show mx-4 mt-3" role="alert">
@@ -119,10 +28,6 @@
     </div>
     <div th:if="${param.uploaded}" class="alert alert-success alert-dismissible fade show mx-4 mt-3" role="alert">
         <i class="bi bi-check-circle"></i> Tải lên thành công!
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    </div>
-    <div th:if="${param.cleared}" class="alert alert-success alert-dismissible fade show mx-4 mt-3" role="alert">
-        <i class="bi bi-check-circle"></i> Đã xóa logs!
         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     </div>
 
@@ -179,8 +84,8 @@
                     </div>
 
                     <!-- General Settings Form -->
-                    <form th:action="@{/admin/settings/general}" method="post">
-                        <input type="hidden" name="id" th:value="${general?. id}">
+                    <form th:action="@{/admin/settings/general}" method="post" enctype="multipart/form-data">
+<!--                        <input type="hidden" name="id" th:value="${general?.id}">-->
 
                         <div class="settings-card">
                             <div class="settings-card-header">
@@ -201,7 +106,7 @@
                                     <div class="col-md-6">
                                         <label class="form-label">URL Website</label>
                                         <input type="url" class="form-control" name="websiteUrl"
-                                               th: value="${general?.websiteUrl}" placeholder="https://example.com">
+                                               th:value="${general?.websiteUrl}" placeholder="https://example.com">
                                     </div>
                                     <div class="col-md-6">
                                         <label class="form-label">Email liên hệ</label>
@@ -226,7 +131,7 @@
                                     <div class="col-md-6">
                                         <label class="form-label">Tên công ty</label>
                                         <input type="text" class="form-control" name="companyName"
-                                               th:value="${general?. companyName}" placeholder="Tên công ty">
+                                               th:value="${general?.companyName}" placeholder="Tên công ty">
                                     </div>
                                     <div class="col-md-6">
                                         <label class="form-label">Số điện thoại</label>
@@ -246,7 +151,7 @@
                                     <div class="col-md-6">
                                         <label class="form-label">Hotline</label>
                                         <input type="tel" class="form-control" name="hotline"
-                                               th: value="${general?.hotline}" placeholder="1900-xxxx">
+                                               th:value="${general?.hotline}" placeholder="1900-xxxx">
                                     </div>
                                 </div>
                             </div>
@@ -260,7 +165,7 @@
                                 <div class="row g-3">
                                     <div class="col-md-6">
                                         <label class="form-label">Ngôn ngữ mặc định</label>
-                                        <select class="form-select" name="language" th:value="${general?.language}">
+                                        <select class="form-select" name="language">
                                             <option value="vi" th:selected="${general?.language == 'vi'}">Tiếng Việt</option>
                                             <option value="en" th:selected="${general?.language == 'en'}">English</option>
                                         </select>
@@ -268,7 +173,7 @@
                                     <div class="col-md-6">
                                         <label class="form-label">Múi giờ</label>
                                         <select class="form-select" name="timezone">
-                                            <option value="Asia/Ho_Chi_Minh" th:selected="${general?. timezone == 'Asia/Ho_Chi_Minh'}">Asia/Ho Chi Minh (UTC+7)</option>
+                                            <option value="Asia/Ho_Chi_Minh" th:selected="${general?.timezone == 'Asia/Ho_Chi_Minh'}">Asia/Ho Chi Minh (UTC+7)</option>
                                             <option value="Asia/Tokyo" th:selected="${general?.timezone == 'Asia/Tokyo'}">Asia/Tokyo (UTC+9)</option>
                                         </select>
                                     </div>
@@ -282,9 +187,48 @@
                                     <div class="col-md-6">
                                         <label class="form-label">Định dạng ngày</label>
                                         <select class="form-select" name="dateFormat">
-                                            <option value="DD/MM/YYYY" th: selected="${general?.dateFormat == 'DD/MM/YYYY'}">DD/MM/YYYY</option>
+                                            <option value="DD/MM/YYYY" th:selected="${general?.dateFormat == 'DD/MM/YYYY'}">DD/MM/YYYY</option>
                                             <option value="MM/DD/YYYY" th:selected="${general?.dateFormat == 'MM/DD/YYYY'}">MM/DD/YYYY</option>
                                         </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="settings-card">
+                            <div class="settings-card-header">
+                                <h5><i class="bi bi-image"></i> Logo Website</h5>
+                            </div>
+                            <div class="settings-card-body">
+                                <div class="row g-4">
+                                    <div class="col-12">
+                                        <label class="form-label">Logo</label>
+
+                                        <div class="image-upload-box">
+                                            <div class="image-preview">
+                                                <img id="logoPreview"
+                                                     th:src="${general.logoUrl != null ? general.logoUrl : 'https://via.placeholder.com/200x60?text=Your+Logo'}"
+                                                     alt="Logo">
+                                            </div>
+
+                                            <!-- ✅ FILE INPUT PHẢI TRÙNG TÊN DTO -->
+                                            <input type="file"
+                                                   name="logoFile"
+                                                   id="logoInput"
+                                                   accept="image/*"
+                                                   hidden
+                                                   onchange="handleImageUpload(event, 'logoPreview')">
+
+                                            <button type="button"
+                                                    class="btn btn-primary btn-sm mt-2"
+                                                    onclick="document.getElementById('logoInput').click()">
+                                                <i class="bi bi-upload"></i> Chọn logo
+                                            </button>
+
+                                            <small class="d-block text-muted mt-2">
+                                                PNG / SVG, kích thước 200x60
+                                            </small>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -294,52 +238,6 @@
                             <button type="submit" class="btn btn-success btn-lg">
                                 <i class="bi bi-check-circle"></i> Lưu cài đặt chung
                             </button>
-                        </div>
-                    </form>
-
-                    <!-- Logo Upload Form -->
-                    <form th: action="@{/admin/settings/upload/logo}" method="post" enctype="multipart/form-data" class="mt-4">
-                        <div class="settings-card">
-                            <div class="settings-card-header">
-                                <h5><i class="bi bi-image"></i> Logo & Favicon</h5>
-                            </div>
-                            <div class="settings-card-body">
-                                <div class="row g-4">
-                                    <div class="col-md-6">
-                                        <label class="form-label">Logo</label>
-                                        <div class="image-upload-box">
-                                            <div class="image-preview">
-                                                <img th:src="${general?.logoUrl != null ? general.logoUrl : 'https://via.placeholder.com/200x60? text=Your+Logo'}"
-                                                     id="logoPreview" alt="Logo">
-                                            </div>
-                                            <input type="file" name="logoFile" id="logoInput" accept="image/*" hidden onchange="handleImageUpload(event, 'logoPreview')">
-                                            <button type="button" class="btn btn-primary btn-sm mt-2" onclick="document.getElementById('logoInput').click()">
-                                                <i class="bi bi-upload"></i> Tải lên Logo
-                                            </button>
-                                            <small class="d-block text-muted mt-2">Khuyến nghị: PNG/SVG, 200x60px</small>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label class="form-label">Favicon</label>
-                                        <div class="image-upload-box">
-                                            <div class="image-preview small">
-                                                <img th:src="${general?.faviconUrl != null ? general.faviconUrl : 'https://via.placeholder.com/32? text=F'}"
-                                                     id="faviconPreview" alt="Favicon">
-                                            </div>
-                                            <input type="file" name="faviconFile" id="faviconInput" accept="image/*" hidden onchange="handleImageUpload(event, 'faviconPreview')">
-                                            <button type="button" class="btn btn-primary btn-sm mt-2" onclick="document. getElementById('faviconInput').click()">
-                                                <i class="bi bi-upload"></i> Tải lên Favicon
-                                            </button>
-                                            <small class="d-block text-muted mt-2">Khuyến nghị: ICO/PNG, 32x32px</small>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="text-end mt-3">
-                                    <button type="submit" class="btn btn-success btn-lg">
-                                        <i class="bi bi-upload"></i> Upload Hình ảnh
-                                    </button>
-                                </div>
-                            </div>
                         </div>
                     </form>
                 </div>
@@ -367,7 +265,7 @@
                                         </div>
                                         <div class="shipping-method-details">
                                             <h6 th:text="${shipping.methodName}">Shipping Name</h6>
-                                            <p th:text="${shipping. description}">Description</p>
+                                            <p th:text="${shipping.description}">Description</p>
                                             <span th:class="${shipping.active ? 'badge bg-success' : 'badge bg-secondary'}"
                                                   th:text="${shipping.active ? 'Đang hoạt động' : 'Tạm ngừng'}"></span>
                                         </div>
@@ -388,7 +286,7 @@
                     </div>
 
                     <!-- Add Shipping Form -->
-                    <form th: action="@{/admin/settings/shipping}" method="post">
+                    <form th:action="@{/admin/settings/shipping}" method="post">
                         <div class="settings-card">
                             <div class="settings-card-header">
                                 <h5><i class="bi bi-plus-circle"></i> Thêm đơn vị vận chuyển</h5>
@@ -443,7 +341,7 @@
                                         </div>
                                         <div class="payment-method-details">
                                             <h6 th:text="${payment.methodName}">Payment Name</h6>
-                                            <p th:text="${payment. description}">Description</p>
+                                            <p th:text="${payment.description}">Description</p>
                                             <span th:class="${payment.active ? 'badge bg-success' : 'badge bg-secondary'}"
                                                   th:text="${payment.active ? 'Đang hoạt động' : 'Tạm ngừng'}"></span>
                                         </div>
@@ -464,7 +362,7 @@
                     </div>
 
                     <!-- Add Payment Form -->
-                    <form th: action="@{/admin/settings/payment}" method="post">
+                    <form th:action="@{/admin/settings/payment}" method="post">
                         <div class="settings-card">
                             <div class="settings-card-header">
                                 <h5><i class="bi bi-plus-circle"></i> Thêm phương thức thanh toán</h5>
@@ -508,8 +406,8 @@
                                         </div>
                                         <div>
                                             <h6 th:text="${bank.bankName}">Bank Name</h6>
-                                            <p class="mb-1"><strong>STK:</strong> <span th: text="${bank.accountNumber}"></span></p>
-                                            <p class="mb-0"><strong>Chủ TK:</strong> <span th: text="${bank.ownerName}"></span></p>
+                                            <p class="mb-1"><strong>STK:</strong> <span th:text="${bank.accountNumber}"></span></p>
+                                            <p class="mb-0"><strong>Chủ TK:</strong> <span th:text="${bank.ownerName}"></span></p>
                                         </div>
                                     </div>
                                 </div>
@@ -521,7 +419,7 @@
                             </div>
 
                             <!-- Add Bank Form -->
-                            <form th: action="@{/admin/settings/bank}" method="post" class="mt-4">
+                            <form th:action="@{/admin/settings/bank}" method="post" class="mt-4">
                                 <div class="row g-3">
                                     <div class="col-md-6">
                                         <label class="form-label">Tên ngân hàng *</label>
@@ -654,7 +552,7 @@
                                                   th:text="${#temporals.format(audit.time, 'dd/MM/yyyy HH:mm: ss')}">Time</span>
                                         </div>
                                         <p>
-                                            <strong th: text="${audit.username}">User</strong>
+                                            <strong th:text="${audit.username}">User</strong>
                                             <span th:text="${audit.description}">Description</span>
                                         </p>
                                         <div class="audit-log-meta">
@@ -678,42 +576,33 @@
     </div>
 </div>
 
-<!-- Bootstrap JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-<!-- Dashboard JS -->
 <script th:src="@{/javascript/Dashboard.js}"></script>
 
 <script>
-    // Settings Navigation
     function showSection(event, sectionId) {
         event.preventDefault();
-
-        // Hide all sections
         document.querySelectorAll('.settings-content').forEach(section => {
             section.style.display = 'none';
             section.classList.remove('active');
         });
 
-        // Show selected section
         const selectedSection = document.getElementById(sectionId + '-section');
         if (selectedSection) {
             selectedSection. style.display = 'block';
             selectedSection.classList.add('active');
         }
 
-        // Update navigation links
-        document.querySelectorAll('. settings-nav-link').forEach(link => {
+        document.querySelectorAll('.settings-nav-link').forEach(link => {
             link.classList.remove('active');
         });
         event.target.closest('.settings-nav-link').classList.add('active');
 
-        // Update URL hash
         window.location.hash = sectionId;
     }
 
-    // Load section from URL hash or param
     window.addEventListener('DOMContentLoaded', () => {
-        const urlParams = new URLSearchParams(window. location.search);
+        const urlParams = new URLSearchParams(window.location.search);
         const tab = urlParams.get('tab');
         const hash = window.location.hash. substring(1);
 
@@ -725,7 +614,6 @@
         }
     });
 
-    // Image Upload Preview
     function handleImageUpload(event, previewId) {
         const file = event.target.files[0];
         if (file) {
@@ -737,25 +625,8 @@
         }
     }
 
-    // Toggle Password Visibility
-    function togglePasswordVisibility(inputId) {
-        const input = document.getElementById(inputId);
-        const icon = event.target.closest('button').querySelector('i');
-
-        if (input.type === 'password') {
-            input.type = 'text';
-            icon.classList.remove('bi-eye');
-            icon.classList. add('bi-eye-slash');
-        } else {
-            input.type = 'password';
-            icon.classList.remove('bi-eye-slash');
-            icon.classList.add('bi-eye');
-        }
-    }
-
-    // Auto-hide alerts after 5 seconds
     setTimeout(() => {
-        const alerts = document.querySelectorAll('.alert');
+        const alerts = document.querySelectorAll('. alert');
         alerts.forEach(alert => {
             alert.classList.remove('show');
             setTimeout(() => alert.remove(), 150);

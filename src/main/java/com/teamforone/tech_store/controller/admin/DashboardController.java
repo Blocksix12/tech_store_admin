@@ -52,7 +52,7 @@ public class DashboardController {
         return "Profile"; // KHÔNG cần /templates, chỉ tên file
     }
 
-    @GetMapping("/settings")
+    @GetMapping("/setting")
     public String settings() {
         return "Settings"; // KHÔNG cần /templates, chỉ tên file
     }

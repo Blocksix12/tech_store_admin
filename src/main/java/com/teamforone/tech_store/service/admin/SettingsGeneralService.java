@@ -1,8 +1,11 @@
 package com.teamforone.tech_store.service.admin;
 
+import com.teamforone.tech_store.dto.request.SettingsGeneralDTO;
 import com.teamforone.tech_store.model.SettingsGeneral;
 
+import java.io.IOException;
+
 public interface SettingsGeneralService {
-    SettingsGeneral get();
-    SettingsGeneral save(SettingsGeneral s);
+    SettingsGeneralDTO get();
+    SettingsGeneral saveSettings(SettingsGeneralDTO s) throws IOException;;
 }

@@ -98,8 +98,8 @@ public class ProductController {
         model.addAttribute("categories", categoryService.getAllCategories());
         model.addAttribute("brands", brandService.getAllBrands());
 
-        model. addAttribute("colors", ctProductService.getAllColors());
-        model. addAttribute("storages", ctProductService.getAllStorages());
+        model.addAttribute("colors", ctProductService.getAllColors());
+        model.addAttribute("storages", ctProductService.getAllStorages());
         model.addAttribute("sizes", ctProductService.getAllSizes());
         return "AddProducts";
     }
@@ -132,8 +132,8 @@ public class ProductController {
         } catch (IllegalArgumentException e) {
             // ✅ Lỗi validation nghiệp vụ
             model.addAttribute("error", e.getMessage());
-            model. addAttribute("categories", categoryService. getAllCategories());
-            model. addAttribute("brands", brandService. getAllBrands());
+            model.addAttribute("categories", categoryService. getAllCategories());
+            model.addAttribute("brands", brandService. getAllBrands());
             model.addAttribute("colors", ctProductService.getAllColors());
             model.addAttribute("storages", ctProductService.getAllStorages());
             model.addAttribute("sizes", ctProductService.getAllSizes());
@@ -150,8 +150,8 @@ public class ProductController {
 
         } catch (Exception e) {
             model.addAttribute("error", "Có lỗi xảy ra: " + e.getMessage());
-            model. addAttribute("categories", categoryService. getAllCategories());
-            model. addAttribute("brands", brandService. getAllBrands());
+            model.addAttribute("categories", categoryService. getAllCategories());
+            model.addAttribute("brands", brandService. getAllBrands());
             model.addAttribute("colors", ctProductService.getAllColors());
             model.addAttribute("storages", ctProductService.getAllStorages());
             model.addAttribute("sizes", ctProductService.getAllSizes());

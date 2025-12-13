@@ -1,40 +1,31 @@
-package com.teamforone.tech_store.model;
+package com.teamforone.tech_store.dto.request;
 
-import jakarta.persistence.*;
+
 import lombok.*;
-import org.hibernate.annotations.GenericGenerator;
-import org.hibernate.annotations.UuidGenerator;
+import org.springframework.web.multipart.MultipartFile;
 
 @Getter
 @Setter
-@AllArgsConstructor
 @NoArgsConstructor
-@Entity
+@AllArgsConstructor
 @Builder
-@Table(name = "settings_general")
-public class SettingsGeneral {
-    @Id
-    @UuidGenerator
-    private String id;
-
+public class SettingsGeneralDTO {
     private String websiteName;
     private String slogan;
     private String websiteUrl;
     private String contactEmail;
-
-    @Column(columnDefinition = "TEXT")
     private String description;
-
-    private String logoUrl;
-
     private String companyName;
     private String phone;
     private String address;
     private String taxCode;
     private String hotline;
-
     private String language;
     private String timezone;
     private String currency;
     private String dateFormat;
+    private String logoUrl;
+
+    // 🔥 giống Product
+    private MultipartFile logoFile;
 }

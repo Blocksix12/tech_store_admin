@@ -17,7 +17,7 @@ import java.util.UUID;
 public class FileStorageService {
     @Value("${file.upload-dir}")
     private String uploadDir;
-    private final Path uploadRoot = Paths.get("uploads");
+    private final Path uploadRoot = Paths.get("images");
 
     public String saveFile(MultipartFile file) throws IOException {
         if (file.isEmpty()) {
@@ -80,18 +80,32 @@ public class FileStorageService {
     }
 
     public String store(MultipartFile file, String subdir) throws IOException {
+        if (file.isEmpty()) {
+            throw new IllegalArgumentException("File is empty");
+        }
+
         String original = StringUtils.cleanPath(file.getOriginalFilename());
         String ext = "";
         int i = original.lastIndexOf('.');
         if (i >= 0) ext = original.substring(i);
-        String fname = UUID.randomUUID().toString() + ext;
-        Path dir = uploadRoot.resolve(subdir);
-        if (!Files.exists(dir)) Files.createDirectories(dir);
+
+        String fname = UUID.randomUUID() + ext;
+
+        // 🔥 DÙNG uploadDir
+        Path baseDir = Paths.get(uploadDir);
+        Path dir = baseDir.resolve(subdir);
+
+        if (!Files.exists(dir)) {
+            Files.createDirectories(dir);
+        }
+
         Path dest = dir.resolve(fname);
         try (InputStream in = file.getInputStream()) {
             Files.copy(in, dest, StandardCopyOption.REPLACE_EXISTING);
         }
-        return "/uploads/" + subdir + "/" + fname;
+
+        return "/images/" + subdir + "/" + fname;
     }
+
 
 }
