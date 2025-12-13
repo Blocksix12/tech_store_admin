@@ -1,5 +1,6 @@
 package com.teamforone.tech_store.model;
 
+import com.teamforone.tech_store.enums.CommentStatus;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -23,13 +24,11 @@ public class Comment {
     @Column(name = "comment_id", updatable = false, nullable = false)
     private String commentID;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "product_id", nullable = false, columnDefinition = "CHAR(36)")
-    private Product product;
+    @Column(name = "product_id", nullable = false, columnDefinition = "CHAR(36)")
+    private String product;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false, columnDefinition = "CHAR(36)")
-    private User user;
+    @Column(name = "user_id", nullable = false, columnDefinition = "CHAR(36)")
+    private String user;
 
     @Column(name = "rating", columnDefinition = "INT CHECK (rating >= 1 AND rating <= 5)")
     private int rating;
@@ -39,7 +38,7 @@ public class Comment {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
-    private Status status;
+    private CommentStatus status;
 
     @CreationTimestamp
     @Column(name = "ngaybl", nullable = false, insertable = false, updatable = false)
@@ -58,20 +57,7 @@ public class Comment {
             this.commentID = UUID.randomUUID().toString();
         }
         if (this.status == null) {
-            this.status = Status.PENDING;
-        }
-    }
-
-    public enum Status {
-        PENDING,
-        APPROVED,
-        REJECTED;
-
-        public static Status toEnum(String value) {
-            for (Status status : Status.values()) {
-                if (status.toString().equalsIgnoreCase(value)) return status;
-            }
-            return null;
+            this.status = CommentStatus.PENDING;
         }
     }
 }

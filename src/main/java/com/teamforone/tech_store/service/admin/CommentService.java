@@ -1,10 +1,16 @@
 package com.teamforone.tech_store.service.admin;
 
+import com.teamforone.tech_store.dto.request.CreateCommentRequest;
+import com.teamforone.tech_store.dto.response.CommentResponse;
+import com.teamforone.tech_store.dto.response.ReplyResponse;
+import com.teamforone.tech_store.enums.CommentStatus;
 import com.teamforone.tech_store.model.Comment;
 import com.teamforone.tech_store.model.Reply;
+import com.teamforone.tech_store.model.Product;
 import com.teamforone.tech_store.model.User;
 import com.teamforone.tech_store.repository.admin.CommentRepository;
 import com.teamforone.tech_store.repository.admin.ReplyRepository;
+import com.teamforone.tech_store.repository.admin.crud.ProductRepository;
 import com.teamforone.tech_store.repository.admin.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,67 +23,137 @@ public class CommentService {
     private final CommentRepository commentRepository;
     private final ReplyRepository replyRepository;
     private final UserRepository userRepository;
+    private final ProductRepository productRepository;
 
     public CommentService(CommentRepository commentRepository,
                           ReplyRepository replyRepository,
-                          UserRepository userRepository) {
+                          UserRepository userRepository,
+                          ProductRepository productRepository) {
         this.commentRepository = commentRepository;
         this.replyRepository = replyRepository;
         this.userRepository = userRepository;
+        this.productRepository = productRepository;
     }
 
-    // ====== LẤY DANH SÁCH BÌNH LUẬN ======
-    public List<Comment> findAllComments() {
-        return commentRepository.findAllByOrderByCreatedAtDesc();
-    }
-
-    // ====== DUYỆT BÌNH LUẬN ======
+    // ====== TẠO COMMENT ======
     @Transactional
-    public Comment approveComment(String commentId) {
-        Comment comment = commentRepository.findById(commentId)
-                .orElseThrow(() -> new RuntimeException("Comment not found"));
-        comment.setStatus(Comment.Status.APPROVED);
-        return commentRepository.save(comment);
+    public void createComment(CreateCommentRequest request) {
+        Comment comment = Comment.builder()
+                .product(request.getProductId()) // lưu ID kiểu String
+                .user(request.getUserId())       // lưu ID kiểu String
+                .rating(request.getRating())
+                .commentText(request.getCommentText())
+                .status(CommentStatus.PENDING)
+                .build();
+
+        commentRepository.save(comment);
     }
 
-    // ====== ẨN NỘI DUNG XẤU ======
-    @Transactional
-    public Comment hideComment(String commentId) {
-        Comment comment = commentRepository.findById(commentId)
-                .orElseThrow(() -> new RuntimeException("Comment not found"));
+    // ====== LẤY COMMENT ======
+    public List<CommentResponse> findAllComments() {
+        return commentRepository.findAllByOrderByCreatedAtDesc()
+                .stream()
+                .map(this::toResponse)
+                .toList();
+    }
 
-        comment.setStatus(Comment.Status.REJECTED);
+    // ====== DUYỆT ======
+    @Transactional
+    public void approveComment(String commentId) {
+        Comment comment = getComment(commentId);
+        comment.setStatus(CommentStatus.APPROVED);
+    }
+
+    // ====== ẨN ======
+    @Transactional
+    public void hideComment(String commentId) {
+        Comment comment = getComment(commentId);
+        comment.setStatus(CommentStatus.REJECTED);
         comment.setCommentText("[Nội dung đã bị ẩn do vi phạm chính sách]");
-
-        return commentRepository.save(comment);
     }
 
-    // ====== XOÁ BÌNH LUẬN ======
+    // ====== XOÁ ======
     @Transactional
     public void deleteComment(String commentId) {
-        Comment comment = commentRepository.findById(commentId)
-                .orElseThrow(() -> new RuntimeException("Comment not found"));
-
-        // Xóa luôn các phản hồi liên quan
-        replyRepository.deleteAllByComment(comment);
+        Comment comment = getComment(commentId);
+        replyRepository.deleteAllByCommentId(comment.getCommentID());
         commentRepository.delete(comment);
     }
 
-    // ====== ADMIN TRẢ LỜI BÌNH LUẬN ======
+    // ====== ADMIN TRẢ LỜI ======
     @Transactional
-    public Reply replyToComment(String commentId, String adminId, String content) {
-        Comment comment = commentRepository.findById(commentId)
+    public void replyToComment(String commentId, String adminId, String content) {
+        getComment(commentId);
+
+        Reply reply = Reply.builder()
+                .comment(commentId)
+                .user(adminId)
+                .commentText(content)
+                .status(CommentStatus.APPROVED)
+                .likeCount(0)
+                .build();
+
+        replyRepository.save(reply);
+    }
+
+    // ====== HELPER ======
+    private Comment getComment(String id) {
+        if (id == null) throw new RuntimeException("Comment ID is null");
+        return commentRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Comment not found"));
-        User admin = userRepository.findById(adminId)
-                .orElseThrow(() -> new RuntimeException("Admin not found"));
+    }
 
-        Reply reply = new Reply();
-        reply.setComment(comment);
-        reply.setUser(admin);
-        reply.setCommentText(content);
-        reply.setStatus(Comment.Status.APPROVED); // admin trả lời thì auto duyệt
-        reply.setLikeCount(0);
+    private CommentResponse toResponse(Comment c) {
+        // Lấy user và product từ DB, kiểm tra null trước khi findById
+        User user = null;
+        if (c.getUser() != null) {
+            user = userRepository.findById(c.getUser())
+                    .orElseThrow(() -> new RuntimeException("User not found"));
+        }
 
-        return replyRepository.save(reply);
+        Product product = null;
+        if (c.getProduct() != null) {
+            product = productRepository.findById(c.getProduct())
+                    .orElseThrow(() -> new RuntimeException("Product not found"));
+        }
+
+        return CommentResponse.builder()
+                .commentId(c.getCommentID())
+                .userId(user != null ? user.getId() : null)
+                .username(user != null ? user.getUsername() : "[Unknown User]")
+                .productId(product != null ? product.getId() : null)
+                .productName(product != null ? product.getName() : "[Unknown Product]")
+                .rating(c.getRating())
+                .commentText(c.getCommentText())
+                .status(c.getStatus())
+                .createdAt(c.getCreatedAt())
+                .likeCount(c.getLikeCount())
+                .replies(
+                        c.getReplies() != null
+                                ? c.getReplies().stream()
+                                .map(this::toReplyResponse)
+                                .toList()
+                                : null
+                )
+                .build();
+    }
+
+    private ReplyResponse toReplyResponse(Reply r) {
+        User user = null;
+        if (r.getUser() != null) {
+            user = userRepository.findById(r.getUser())
+                    .orElseThrow(() -> new RuntimeException("User not found"));
+        }
+
+        return ReplyResponse.builder()
+                .replyId(r.getReplyID())
+                .commentId(r.getComment())
+                .userId(user != null ? user.getId() : null)
+                .username(user != null ? user.getUsername() : "[Unknown User]")
+                .commentText(r.getCommentText())
+                .status(r.getStatus())
+                .createdAt(r.getCreatedAt())
+                .likeCount(r.getLikeCount())
+                .build();
     }
 }

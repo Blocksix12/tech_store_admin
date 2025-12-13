@@ -40,8 +40,8 @@
                     <tbody>
                     <tr th:each="comment, iterStat : ${comments}">
                         <td th:text="${iterStat.index + 1}"></td>
-                        <td th:text="${comment.user.username}"></td>
-                        <td th:text="${comment.product.name}"></td>
+                        <td th:text="${comment.username}"></td>
+                        <td th:text="${comment.productName}"></td>
                         <td>
                             <span th:each="i : ${#numbers.sequence(1,5)}">
                                 <i th:classappend="${i <= comment.rating} ? 'bi bi-star-fill text-warning' : 'bi bi-star text-muted'"></i>
@@ -60,18 +60,18 @@
                         <td class="text-start">
 
                             <!-- Xoá / Duyệt / Ẩn -->
-                            <form th:action="@{'/admin/comments/' + ${comment.commentID} + '/delete'}" method="post" style="display:inline;">
+                            <form th:action="@{'/admin/comments/' + ${comment.commentId} + '/delete'}" method="post" style="display:inline;">
                                 <button type="button" class="btn btn-sm btn-outline-danger"
-                                        onclick="deleteComment('${comment.commentID}', this.form)">
+                                        onclick="deleteComment('${comment.commentId}', this.form)">
                                     <i class="bi bi-trash"></i>
                                 </button>
                             </form>
-                            <form th:action="@{'/admin/comments/' + ${comment.commentID} + '/approve'}" method="post" style="display:inline;">
+                            <form th:action="@{'/admin/comments/' + ${comment.commentId} + '/approve'}" method="post" style="display:inline;">
                                 <button type="submit" class="btn btn-sm btn-outline-success">
                                     <i class="bi bi-check-circle"></i>
                                 </button>
                             </form>
-                            <form th:action="@{'/admin/comments/' + ${comment.commentID} + '/hide'}" method="post" style="display:inline;">
+                            <form th:action="@{'/admin/comments/' + ${comment.commentId} + '/hide'}" method="post" style="display:inline;">
                                 <button type="submit" class="btn btn-sm btn-outline-warning">
                                     <i class="bi bi-eye-slash"></i>
                                 </button>
@@ -83,7 +83,7 @@
                                 Trả lời
                             </button>
                             <div th:id="'reply-form-' + ${iterStat.index}" class="mt-2 p-2 border rounded bg-light" style="display:none;">
-                                <form th:action="@{'/admin/comments/' + ${comment.commentID} + '/reply'}" method="post">
+                                <form th:action="@{'/admin/comments/' + ${comment.commentId} + '/reply'}" method="post">
                                     <input type="hidden" name="adminId" th:value="${session.adminId}"/>
                                     <textarea name="content" class="form-control mb-2" rows="2"></textarea>
                                     <button type="submit" class="btn btn-primary btn-sm">Gửi</button>
@@ -92,10 +92,11 @@
 
                             <!-- Xem phản hồi -->
                             <button type="button" class="btn btn-sm btn-outline-secondary"
-                                    th:onclick="'toggleReplyList(' + ${iterStat.index} + ')'">Xem</button>
+                                    th:onclick="'toggleReplyList(' + ${iterStat.index} + ')'">Xem
+                            </button>
                             <div th:id="'reply-list-' + ${iterStat.index}" class="mt-2 p-2 border rounded bg-white" style="display:none;">
                                 <div th:each="rep : ${comment.replies}">
-                                    <strong th:text="${rep.user.username}">Admin</strong>
+                                    <strong th:text="${rep.username}">Admin</strong>
                                     <p th:text="${rep.commentText}"></p>
                                 </div>
                             </div>
