@@ -13,27 +13,26 @@ import java.util.UUID;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "ctproducts")
 @IdClass(CTProductId.class)
+@Table(name = "ctproducts")
 public class CTProducts {
     @Id
-    @Column(name = "product_id", nullable = false)
+    @Column(name = "product_id", nullable = false, columnDefinition = "CHAR(36)")
     private String productId;
 
     @Id
-    @Column(name = "colorID", nullable = false)
+    @Column(name = "colorID", nullable = false, columnDefinition = "CHAR(36)")
     private String colorId;
 
-
     @Id
-    @Column(name = "sizeID", nullable = false)
-    private String sizeId;
-
-    @Id
-    @Column(name = "storageID", nullable = false)
+    @Column(name = "storageID", nullable = false, columnDefinition = "CHAR(36)")
     private String storageId;
 
-    @Column(name = "price", nullable = false)
+    @Id
+    @Column(name = "sizeID", nullable = false, columnDefinition = "CHAR(36)")
+    private String sizeId;
+
+    @Column(name = "price", nullable = false, columnDefinition = "CHAR(36)")
     private Double price;
 
     @Column(name = "sale_price")
@@ -52,10 +51,10 @@ public class CTProducts {
     private Color color;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "sizeID", insertable = false, updatable = false)
-    private DisplaySize size;
-
-    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "storageID", insertable = false, updatable = false)
     private Storage storage;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "sizeID", insertable = false, updatable = false)
+    private DisplaySize size;
 }

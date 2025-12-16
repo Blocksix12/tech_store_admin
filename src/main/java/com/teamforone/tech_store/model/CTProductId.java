@@ -19,8 +19,8 @@ public class CTProductId implements Serializable {
 
     private String productId;
     private String colorId;
-    private String sizeId;
     private String storageId;
+    private String sizeId;
 
     @Override
     public boolean equals(Object o) {
@@ -29,13 +29,13 @@ public class CTProductId implements Serializable {
         CTProductId that = (CTProductId) o;
         return Objects.equals(productId, that.productId) &&
                 Objects.equals(colorId, that.colorId) &&
-                Objects.equals(sizeId, that.sizeId) &&
-                Objects.equals(storageId, that.storageId);
+                Objects.equals(storageId, that.storageId) &&
+                Objects.equals(sizeId, that.sizeId);
     }
 
 
     @Override
     public int hashCode(){
-        return Objects.hash(productId, colorId, sizeId, storageId);
+        return Objects.hash(productId, colorId, storageId, sizeId);
     }
 }

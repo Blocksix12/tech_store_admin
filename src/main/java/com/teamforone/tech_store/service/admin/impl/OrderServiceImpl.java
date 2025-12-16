@@ -19,17 +19,14 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public Orders getOrderById(Long id) {
+    public Orders getOrderById(String id) {
         return orderRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Order not found"));
     }
 
     @Override
-    public Orders updateOrderStatus(Long id, String status) {
+    public Orders updateOrderStatus(String id, String status) {
         Orders order = getOrderById(id);
-        if (order == null) {
-            throw new IllegalArgumentException("Order not found with id: " + id);
-        }
 
         try {
             Orders.OrderStatus statusEnum = Orders.OrderStatus.valueOf(status.toUpperCase());
@@ -43,7 +40,7 @@ public class OrderServiceImpl implements OrderService {
 
 
     @Override
-    public void deleteOrder(Long id) {
+    public void deleteOrder(String id) {
         orderRepository.deleteById(id);
     }
 }
