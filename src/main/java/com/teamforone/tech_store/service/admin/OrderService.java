@@ -9,5 +9,7 @@ public interface OrderService {
     Orders getOrderById(String id);
     Orders updateOrderStatus(String id, String status);
     void deleteOrder(String id);
+    List<Orders> getOrdersByStatus(Orders.OrderStatus status);
+
 }
 

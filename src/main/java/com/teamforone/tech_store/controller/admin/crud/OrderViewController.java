@@ -29,19 +29,37 @@ public class OrderViewController {
             @RequestParam(required = false) String status,
             Model model
     ) {
-        // Lấy tất cả đơn hàng
-        List<Orders> orders = orderService.getAllOrders();
+        // Lấy tất cả đơn hàng hoặc filter theo status
+        List<Orders> orders;
 
-        // Đếm theo trạng thái
-        long totalOrders = orders.size();
-        long pendingOrders = orders.stream().filter(o -> o.getStatus() == Orders.OrderStatus.PENDING).count();
-        long processingOrders = orders.stream().filter(o -> o.getStatus() == Orders.OrderStatus.PROCESSING).count();
-        long shippedOrders = orders.stream().filter(o -> o.getStatus() == Orders.OrderStatus.SHIPPED).count();
-        long deliveredOrders = orders.stream().filter(o -> o.getStatus() == Orders.OrderStatus.DELIVERED).count();
-        long cancelledOrders = orders.stream().filter(o -> o.getStatus() == Orders.OrderStatus.CANCELLED).count();
+        if (status != null && !status.isEmpty()) {
+            // Lọc theo trạng thái
+            try {
+                Orders.OrderStatus orderStatus = Orders.OrderStatus.valueOf(status);
+                orders = orderService.getOrdersByStatus(orderStatus);
+            } catch (IllegalArgumentException e) {
+                // Nếu status không hợp lệ, lấy tất cả
+                orders = orderService.getAllOrders();
+            }
+        } else {
+            // Lấy tất cả nếu không có filter
+            orders = orderService.getAllOrders();
+        }
+
+        // Lấy TẤT CẢ đơn hàng để đếm (không phụ thuộc vào filter)
+        List<Orders> allOrders = orderService.getAllOrders();
+
+        // Đếm theo trạng thái từ TẤT CẢ đơn hàng
+        long totalOrders = allOrders.size();
+        long pendingOrders = allOrders.stream().filter(o -> o.getStatus() == Orders.OrderStatus.PENDING).count();
+        long processingOrders = allOrders.stream().filter(o -> o.getStatus() == Orders.OrderStatus.PROCESSING).count();
+        long shippedOrders = allOrders.stream().filter(o -> o.getStatus() == Orders.OrderStatus.SHIPPED).count();
+        long deliveredOrders = allOrders.stream().filter(o -> o.getStatus() == Orders.OrderStatus.DELIVERED).count();
+        long cancelledOrders = allOrders.stream().filter(o -> o.getStatus() == Orders.OrderStatus.CANCELLED).count();
 
         // Truyền dữ liệu vào view
-        model.addAttribute("orders", orders);
+        model.addAttribute("orders", orders); // Danh sách đã filter
+        model.addAttribute("currentStatus", status); // Trạng thái hiện tại đang filter
         model.addAttribute("totalOrders", totalOrders);
         model.addAttribute("pendingOrders", pendingOrders);
         model.addAttribute("processingOrders", processingOrders);

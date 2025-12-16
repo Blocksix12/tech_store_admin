@@ -38,6 +38,10 @@ public class OrderServiceImpl implements OrderService {
         return orderRepository.save(order);
     }
 
+    @Override
+    public List<Orders> getOrdersByStatus(Orders.OrderStatus status) {
+        return orderRepository.findByStatus(status);
+    }
 
     @Override
     public void deleteOrder(String id) {

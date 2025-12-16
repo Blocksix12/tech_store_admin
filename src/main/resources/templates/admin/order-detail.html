@@ -71,20 +71,23 @@
     <!-- Content Area -->
     <div class="content-area">
         <!-- Action Buttons -->
-        <div class="mb-4">
-            <a th:href="@{/admin/quanlidonhang}" class="btn btn-outline-secondary">
-                <i class="bi bi-arrow-left"></i> Quay lại
-            </a>
-            <button class="btn btn-primary" th:onclick="'updateStatus(\'' + ${order.orderID} + '\''">
-                <i class="bi bi-pencil"></i> Cập nhật trạng thái
-            </button>
-            <button class="btn btn-info text-white" th:onclick="'exportOrderPdf(\'' + ${order.orderID} + '\''">
-                <i class="bi bi-file-earmark-pdf"></i> Xuất PDF
-            </button>
-            <button class="btn btn-danger" th:onclick="'deleteOrder(\'' + ${order.orderID} + '\''">
-                <i class="bi bi-trash"></i> Xóa đơn hàng
-            </button>
-        </div>
+        <button class="btn btn-primary"
+                th:data-order-id="${order.orderID}"
+                onclick="updateStatus(this.dataset.orderId)">
+            <i class="bi bi-pencil"></i> Cập nhật trạng thái
+        </button>
+
+        <button class="btn btn-info text-white"
+                th:data-order-id="${order.orderID}"
+                onclick="exportOrderPdf(this.dataset.orderId)">
+            <i class="bi bi-file-earmark-pdf"></i> Xuất PDF
+        </button>
+
+        <button class="btn btn-danger"
+                th:data-order-id="${order.orderID}"
+                onclick="deleteOrder(this.dataset.orderId)">
+            <i class="bi bi-trash"></i> Xóa đơn hàng
+        </button>
 
         <div class="row g-4">
             <!-- Order Info Card -->
@@ -94,7 +97,7 @@
                         <h5 class="table-title">
                             <i class="bi bi-info-circle"></i> Thông tin đơn hàng
                         </h5>
-                        <th:block th:switch="${order.status}">
+                        <th:block th:switch="${order.status.name()}">
                             <span class="status-badge pending" th:case="'PENDING'">Chờ xử lý</span>
                             <span class="status-badge processing" th:case="'PROCESSING'">Đang xử lý</span>
                             <span class="status-badge shipped" th:case="'SHIPPED'">Đang giao</span>
@@ -113,14 +116,16 @@
                             <div class="col-md-6">
                                 <div class="mb-3">
                                     <label class="text-muted small">Ngày đặt hàng</label>
-                                    <div class="fw-bold" th:text="${#temporals.format(order.createdAt, 'dd/MM/yyyy HH:mm')}">17/11/2024 10:30</div>
-                                </div>
+                                    <div class="fw-bold"
+                                         th:text="${#temporals.format(order.createdAt.toLocalDateTime(), 'dd/MM/yyyy HH:mm')}">
+                                        17/11/2024 10:30
+                                    </div>                                </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="mb-3">
                                     <label class="text-muted small">Phương thức thanh toán</label>
                                     <div>
-                                        <th:block th:switch="${order.paymentMethod}">
+                                        <th:block th:switch="${order.paymentMethod.name()}">
                                             <span class="badge bg-primary" th:case="'MOMO'">MOMO</span>
                                             <span class="badge bg-info" th:case="'VNPAY'">VNPAY</span>
                                             <span class="badge bg-warning" th:case="'STRIPE'">STRIPE</span>
@@ -166,7 +171,7 @@
                                     <small class="text-muted">SKU: <span th:text="${item.orderItemID}">ID</span></small>
                                 </td>
                                 <td th:text="${item.color != null ? item.color.colorname : '-'}">Black</td>
-                                <td th:text="${item.displaySize != null ? item.displaySize.sizeInch + '\"' : '-'}">6.7"</td>
+                                <td th:text="${item.color != null ? item.color.colorName : '-'}">Black</td>
                                 <td th:text="${item.storage != null ? item.storage.ram + '/' + item.storage.rom : '-'}">8GB/256GB</td>
                                 <td th:text="${item.quantity}">1</td>
                                 <td th:text="${#numbers.formatDecimal(item.subTotal / item.quantity, 0, 'COMMA', 0, 'POINT')} + '₫'">15,000,000₫</td>

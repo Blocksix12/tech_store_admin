@@ -1,5 +1,6 @@
 package com.teamforone.tech_store.service.admin;
 
+import com.itextpdf.io.font.PdfEncodings;
 import com.itextpdf.kernel.colors.ColorConstants;
 import com.itextpdf.kernel.colors.DeviceRgb;
 import com.itextpdf.kernel.font.PdfFont;
@@ -12,7 +13,9 @@ import com.itextpdf.layout.element.Paragraph;
 import com.itextpdf.layout.element.Table;
 import com.itextpdf.layout.properties.TextAlignment;
 import com.itextpdf.layout.properties.UnitValue;
+import com.teamforone.tech_store.model.OrderItem;
 import com.teamforone.tech_store.model.Orders;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayOutputStream;
@@ -22,17 +25,27 @@ import java.util.List;
 import java.util.Locale;
 
 @Service
+@RequiredArgsConstructor
 public class OrderPdfService {
+    private final OrderItemService orderItemService;
 
     public byte[] generateOrderListPdf(List<Orders> orders) throws Exception {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-
         PdfWriter writer = new PdfWriter(baos);
         PdfDocument pdf = new PdfDocument(writer);
         Document document = new Document(pdf);
 
-        PdfFont font = PdfFontFactory.createFont("STSong-Light", "UniGB-UCS2-H");
-        document.setFont(font);
+        try {
+            // Load font từ resources
+            String fontPath = "fonts/times.ttf";
+            PdfFont font = PdfFontFactory.createFont(
+                    getClass().getClassLoader().getResource(fontPath).getPath(),
+                    PdfEncodings.IDENTITY_H
+            );
+            document.setFont(font);
+        } catch (Exception e) {
+            System.out.println("Could not load font: " + e.getMessage());
+        }
 
         addHeader(document);
         addStatistics(document, orders);
@@ -56,12 +69,79 @@ public class OrderPdfService {
         addDetailHeader(document, order);
         addOrderDetails(document, order);
 
-        if (order.getOrderItems() != null && !order.getOrderItems().isEmpty()) {
-            addOrderItems(document, order);
+        List<OrderItem> items = orderItemService.getOrderItemsByOrderId(order.getOrderID());
+        if (items != null && !items.isEmpty()) {
+            addOrderItemsTable(document, items);
         }
 
         document.close();
         return baos.toByteArray();
+    }
+
+    private void addOrderItemsTable(Document document, List<OrderItem> items) {
+        Paragraph itemsHeader = new Paragraph("CHI TIẾT SẢN PHẨM")
+                .setFontSize(14)
+                .setBold()
+                .setMarginTop(10)
+                .setMarginBottom(10);
+        document.add(itemsHeader);
+
+        float[] columnWidths = {8, 22, 20, 20, 15, 15};
+        Table table = new Table(UnitValue.createPercentArray(columnWidths))
+                .useAllAvailableWidth();
+
+        table.addHeaderCell(createHeaderCell("STT"));
+        table.addHeaderCell(createHeaderCell("Màu sắc"));
+        table.addHeaderCell(createHeaderCell("Kích thước màn hình"));
+        table.addHeaderCell(createHeaderCell("RAM/ROM"));
+        table.addHeaderCell(createHeaderCell("Số lượng"));
+        table.addHeaderCell(createHeaderCell("Thành tiền"));
+
+        int index = 1;
+        for (OrderItem item : items) {
+            table.addCell(createDataCell(String.valueOf(index++)));
+
+            // Màu sắc
+            String colorName = item.getColor() != null && item.getColor().getColorName() != null
+                    ? item.getColor().getColorName()
+                    : "N/A";
+            table.addCell(createDataCell(colorName));
+
+            // Kích thước màn hình
+            String displayInfo = "N/A";
+            if (item.getDisplaySize() != null) {
+                if (item.getDisplaySize().getSizeInch() != null) {
+                    displayInfo = item.getDisplaySize().getSizeInch() + "\"";
+                    if (item.getDisplaySize().getResolution() != null) {
+                        displayInfo += " - " + item.getDisplaySize().getResolution();
+                    }
+                }
+            }
+            table.addCell(createDataCell(displayInfo));
+
+            // RAM/ROM
+            String storageInfo = "N/A";
+            if (item.getStorage() != null) {
+                String ram = item.getStorage().getRam() != null ? item.getStorage().getRam() : "";
+                String rom = item.getStorage().getRom() != null ? item.getStorage().getRom() : "";
+                if (!ram.isEmpty() && !rom.isEmpty()) {
+                    storageInfo = ram + "/" + rom;
+                } else if (!ram.isEmpty()) {
+                    storageInfo = ram;
+                } else if (!rom.isEmpty()) {
+                    storageInfo = rom;
+                }
+            }
+            table.addCell(createDataCell(storageInfo));
+
+            // Số lượng
+            table.addCell(createDataCell(String.valueOf(item.getQuantity() != null ? item.getQuantity() : 0)));
+
+            // Thành tiền
+            table.addCell(createDataCell(formatCurrency(item.getSubTotal())));
+        }
+
+        document.add(table);
     }
 
     private void addHeader(Document document) {

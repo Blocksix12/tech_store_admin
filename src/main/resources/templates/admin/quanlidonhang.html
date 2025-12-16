@@ -41,17 +41,37 @@
                 <i class="bi bi-chevron-down"></i>
             </div>
             <div class="submenu show">
-                <a th:href="@{/admin/quanlidonhang}" class="submenu-item active">
+                <a th:href="@{/admin/quanlidonhang}"
+                   th:classappend="${currentStatus == null or currentStatus == '' ? 'active' : ''}"
+                   class="submenu-item">
                     Danh sách đơn hàng
                 </a>
-                <a th:href="@{/admin/quanlidonhang(status='PENDING')}" class="submenu-item">
+                <a th:href="@{/admin/quanlidonhang(status='PENDING')}"
+                   th:classappend="${currentStatus == 'PENDING' ? 'active' : ''}"
+                   class="submenu-item">
                     Chờ xử lý
                     <span class="badge bg-warning text-dark" th:text="${pendingOrders}">2</span>
                 </a>
-                <a th:href="@{/admin/quanlidonhang(status='PROCESSING')}" class="submenu-item">Đang xử lý</a>
-                <a th:href="@{/admin/quanlidonhang(status='SHIPPED')}" class="submenu-item">Đang giao</a>
-                <a th:href="@{/admin/quanlidonhang(status='DELIVERED')}" class="submenu-item">Hoàn tất</a>
-                <a th:href="@{/admin/quanlidonhang(status='CANCELLED')}" class="submenu-item">Đã hủy</a>
+                <a th:href="@{/admin/quanlidonhang(status='PROCESSING')}"
+                   th:classappend="${currentStatus == 'PROCESSING' ? 'active' : ''}"
+                   class="submenu-item">
+                    Đang xử lý
+                </a>
+                <a th:href="@{/admin/quanlidonhang(status='SHIPPED')}"
+                   th:classappend="${currentStatus == 'SHIPPED' ? 'active' : ''}"
+                   class="submenu-item">
+                    Đang giao
+                </a>
+                <a th:href="@{/admin/quanlidonhang(status='DELIVERED')}"
+                   th:classappend="${currentStatus == 'DELIVERED' ? 'active' : ''}"
+                   class="submenu-item">
+                    Hoàn tất
+                </a>
+                <a th:href="@{/admin/quanlidonhang(status='CANCELLED')}"
+                   th:classappend="${currentStatus == 'CANCELLED' ? 'active' : ''}"
+                   class="submenu-item">
+                    Đã hủy
+                </a>
             </div>
         </div>
 
@@ -236,7 +256,7 @@
                         </td>
 
                         <td>
-                            <th:block th:switch="${order.paymentMethod}">
+                            <th:block th:switch="${order.paymentMethod.name()}">
                                 <span class="badge bg-primary" th:case="'MOMO'">MOMO</span>
                                 <span class="badge bg-info" th:case="'VNPAY'">VNPAY</span>
                                 <span class="badge bg-warning" th:case="'STRIPE'">STRIPE</span>
@@ -245,7 +265,7 @@
                         </td>
 
                         <td>
-                            <th:block th:switch="${order.status}">
+                            <th:block th:switch="${order.status.name()}">
                                 <span class="status-badge pending" th:case="'PENDING'">Chờ xử lý</span>
                                 <span class="status-badge processing" th:case="'PROCESSING'">Đang xử lý</span>
                                 <span class="status-badge shipped" th:case="'SHIPPED'">Đang giao</span>
@@ -254,7 +274,7 @@
                             </th:block>
                         </td>
 
-                        <td th:text="${#temporals.format(order.createdAt, 'dd/MM/yyyy HH:mm')}">17/11/2025</td>
+                        <td th:text="${#temporals.format(order.createdAt.toLocalDateTime(), 'dd/MM/yyyy HH:mm')}"></td>
 
                         <td>
                             <div class="btn-group btn-group-sm" role="group">
@@ -263,17 +283,20 @@
                                     <i class="bi bi-eye"></i>
                                 </a>
                                 <button class="btn btn-sm btn-outline-success"
-                                        th:onclick="'updateStatus(\'' + ${order.orderID} + '\')'"
+                                        th:data-order-id="${order.orderID}"
+                                        onclick="updateStatus(this.dataset.orderId)"
                                         title="Cập nhật trạng thái">
                                     <i class="bi bi-pencil"></i>
                                 </button>
                                 <button class="btn btn-sm btn-outline-info"
-                                        th:onclick="'exportOrderPdf(\'' + ${order.orderID} + '\')'"
+                                        th:data-order-id="${order.orderID}"
+                                        onclick="exportOrderPdf(this.dataset.orderId)"
                                         title="Xuất PDF">
                                     <i class="bi bi-file-earmark-pdf"></i>
                                 </button>
                                 <button class="btn btn-sm btn-outline-danger"
-                                        th:onclick="'deleteOrder(\'' + ${order.orderID} + '\')'"
+                                        th:data-order-id="${order.orderID}"
+                                        onclick="deleteOrder(this.dataset.orderId)"
                                         title="Xóa">
                                     <i class="bi bi-trash"></i>
                                 </button>
