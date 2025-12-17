@@ -1,10 +1,12 @@
+// ========================================
+// FILE 2: ReportController.java - UPDATED
+// ========================================
 package com.teamforone.tech_store.controller.admin;
 
 import com.teamforone.tech_store.dto.request.ReportDTO;
 import com.teamforone.tech_store.service.admin.ReportService;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -23,30 +25,23 @@ public class ReportController {
 
     private final ReportService reportService;
 
-
+    // ========== WEB VIEWS ==========
 
     @GetMapping("/reports")
     public String showReportsPage(Model model) {
         try {
-            // Dashboard statistics
             Map<String, Object> dashboardStats = reportService.getDashboardStatistics();
             model.addAttribute("dashboardStats", dashboardStats);
-
-            // Data for topbar
             model.addAttribute("pageTitle", "Báo cáo & Thống kê");
-            model.addAttribute("searchPlaceholder", "Tìm kiếm báo cáo...");
-            model.addAttribute("searchId", "searchReports");
 
-            // Breadcrumbs
             List<Map<String, String>> breadcrumbs = new ArrayList<>();
             breadcrumbs.add(Map.of("name", "Trang chủ", "url", "/admin"));
             breadcrumbs.add(Map.of("name", "Báo cáo", "url", ""));
             model.addAttribute("breadcrumbs", breadcrumbs);
 
             return "Reports";
-
         } catch (Exception e) {
-            model.addAttribute("errorMessage", "Lỗi khi tải báo cáo: " + e.getMessage());
+            model.addAttribute("errorMessage", "Lỗi: " + e.getMessage());
             return "Reports";
         }
     }
@@ -58,16 +53,15 @@ public class ReportController {
             @RequestParam(defaultValue = "10") int limit,
             Model model) {
         try {
-            List<ReportDTO.BestSellingProduct> bestSelling =
+            List<ReportDTO.BestSellingProduct> products =
                     reportService.getBestSellingProducts(startDate, endDate, limit);
 
-            model.addAttribute("products", bestSelling);
+            model.addAttribute("products", products);
             model.addAttribute("startDate", startDate);
             model.addAttribute("endDate", endDate);
             model.addAttribute("limit", limit);
             model.addAttribute("pageTitle", "Sản phẩm Bán chạy");
 
-            // Breadcrumbs
             List<Map<String, String>> breadcrumbs = new ArrayList<>();
             breadcrumbs.add(Map.of("name", "Trang chủ", "url", "/admin"));
             breadcrumbs.add(Map.of("name", "Báo cáo", "url", "/admin/reports"));
@@ -75,7 +69,6 @@ public class ReportController {
             model.addAttribute("breadcrumbs", breadcrumbs);
 
             return "BestSellingReport";
-
         } catch (Exception e) {
             model.addAttribute("errorMessage", "Lỗi: " + e.getMessage());
             return "BestSellingReport";
@@ -89,7 +82,6 @@ public class ReportController {
         try {
             List<ReportDTO.InventoryReport> inventory = reportService.getInventoryReport();
 
-            // Filter by status if provided
             if (status != null && !status.isEmpty()) {
                 inventory = inventory.stream()
                         .filter(i -> {
@@ -103,12 +95,10 @@ public class ReportController {
                         .toList();
             }
 
-            // Calculate totals
             long totalProducts = inventory.size();
             long outOfStock = inventory.stream().filter(i -> i.getTotalStock() == 0).count();
             long lowStock = inventory.stream()
-                    .filter(i -> i.getTotalStock() > 0 && i.getTotalStock() <= 10)
-                    .count();
+                    .filter(i -> i.getTotalStock() > 0 && i.getTotalStock() <= 10).count();
             long inStock = totalProducts - outOfStock - lowStock;
 
             model.addAttribute("inventory", inventory);
@@ -118,7 +108,6 @@ public class ReportController {
             model.addAttribute("inStock", inStock);
             model.addAttribute("pageTitle", "Báo cáo Tồn kho");
 
-            // Breadcrumbs
             List<Map<String, String>> breadcrumbs = new ArrayList<>();
             breadcrumbs.add(Map.of("name", "Trang chủ", "url", "/admin"));
             breadcrumbs.add(Map.of("name", "Báo cáo", "url", "/admin/reports"));
@@ -126,7 +115,6 @@ public class ReportController {
             model.addAttribute("breadcrumbs", breadcrumbs);
 
             return "InventoryReport";
-
         } catch (Exception e) {
             model.addAttribute("errorMessage", "Lỗi: " + e.getMessage());
             return "InventoryReport";
@@ -143,13 +131,10 @@ public class ReportController {
             List<ReportDTO.RevenueReport> revenue =
                     reportService.getRevenueReport(startDate, endDate, groupBy);
 
-            // Calculate totals
             double totalRevenue = revenue.stream()
-                    .mapToDouble(ReportDTO.RevenueReport::getTotalRevenue)
-                    .sum();
+                    .mapToDouble(ReportDTO.RevenueReport::getTotalRevenue).sum();
             long totalOrders = revenue.stream()
-                    .mapToLong(ReportDTO.RevenueReport::getTotalOrders)
-                    .sum();
+                    .mapToLong(ReportDTO.RevenueReport::getTotalOrders).sum();
 
             model.addAttribute("revenue", revenue);
             model.addAttribute("totalRevenue", totalRevenue);
@@ -159,7 +144,6 @@ public class ReportController {
             model.addAttribute("groupBy", groupBy);
             model.addAttribute("pageTitle", "Báo cáo Doanh thu");
 
-            // Breadcrumbs
             List<Map<String, String>> breadcrumbs = new ArrayList<>();
             breadcrumbs.add(Map.of("name", "Trang chủ", "url", "/admin"));
             breadcrumbs.add(Map.of("name", "Báo cáo", "url", "/admin/reports"));
@@ -167,7 +151,6 @@ public class ReportController {
             model.addAttribute("breadcrumbs", breadcrumbs);
 
             return "RevenueReport";
-
         } catch (Exception e) {
             model.addAttribute("errorMessage", "Lỗi: " + e.getMessage());
             return "RevenueReport";
@@ -183,7 +166,6 @@ public class ReportController {
             model.addAttribute("categories", performance);
             model.addAttribute("pageTitle", "Hiệu suất Danh mục");
 
-            // Breadcrumbs
             List<Map<String, String>> breadcrumbs = new ArrayList<>();
             breadcrumbs.add(Map.of("name", "Trang chủ", "url", "/admin"));
             breadcrumbs.add(Map.of("name", "Báo cáo", "url", "/admin/reports"));
@@ -191,7 +173,6 @@ public class ReportController {
             model.addAttribute("breadcrumbs", breadcrumbs);
 
             return "CategoryPerformanceReport";
-
         } catch (Exception e) {
             model.addAttribute("errorMessage", "Lỗi: " + e.getMessage());
             return "CategoryPerformanceReport";
@@ -207,7 +188,6 @@ public class ReportController {
             model.addAttribute("brands", performance);
             model.addAttribute("pageTitle", "Hiệu suất Thương hiệu");
 
-            // Breadcrumbs
             List<Map<String, String>> breadcrumbs = new ArrayList<>();
             breadcrumbs.add(Map.of("name", "Trang chủ", "url", "/admin"));
             breadcrumbs.add(Map.of("name", "Báo cáo", "url", "/admin/reports"));
@@ -215,14 +195,13 @@ public class ReportController {
             model.addAttribute("breadcrumbs", breadcrumbs);
 
             return "BrandPerformanceReport";
-
         } catch (Exception e) {
             model.addAttribute("errorMessage", "Lỗi: " + e.getMessage());
             return "BrandPerformanceReport";
         }
     }
 
-    // ===== API ENDPOINTS FOR CHARTS =====
+    // ========== API ENDPOINTS FOR AJAX ==========
 
     @GetMapping("/api/reports/dashboard")
     @ResponseBody
@@ -239,10 +218,10 @@ public class ReportController {
         return reportService.getRevenueReport(startDate, endDate, groupBy);
     }
 
-    // ===== EXCEL EXPORT ENDPOINTS =====
+    // ========== EXCEL EXPORTS ==========
 
     @GetMapping("/reports/best-selling/export")
-    public void exportBestSellingToExcel(
+    public void exportBestSelling(
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
             @RequestParam(defaultValue = "50") int limit,
@@ -250,18 +229,17 @@ public class ReportController {
 
         List<ReportDTO.BestSellingProduct> products =
                 reportService.getBestSellingProducts(startDate, endDate, limit);
-
         reportService.exportBestSellingToExcel(products, response);
     }
 
     @GetMapping("/reports/inventory/export")
-    public void exportInventoryToExcel(HttpServletResponse response) throws IOException {
+    public void exportInventory(HttpServletResponse response) throws IOException {
         List<ReportDTO.InventoryReport> inventory = reportService.getInventoryReport();
         reportService.exportInventoryToExcel(inventory, response);
     }
 
     @GetMapping("/reports/revenue/export")
-    public void exportRevenueToExcel(
+    public void exportRevenue(
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
             @RequestParam(defaultValue = "month") String groupBy,
@@ -269,24 +247,23 @@ public class ReportController {
 
         List<ReportDTO.RevenueReport> revenue =
                 reportService.getRevenueReport(startDate, endDate, groupBy);
-
         reportService.exportRevenueToExcel(revenue, groupBy, response);
     }
 
     @GetMapping("/reports/category-performance/export")
-    public void exportCategoryPerformanceToExcel(HttpServletResponse response) throws IOException {
+    public void exportCategoryPerformance(HttpServletResponse response) throws IOException {
         List<ReportDTO.CategoryPerformance> performance = reportService.getCategoryPerformance();
         reportService.exportCategoryPerformanceToExcel(performance, response);
     }
 
     @GetMapping("/reports/brand-performance/export")
-    public void exportBrandPerformanceToExcel(HttpServletResponse response) throws IOException {
+    public void exportBrandPerformance(HttpServletResponse response) throws IOException {
         List<ReportDTO.BrandPerformance> performance = reportService.getBrandPerformance();
         reportService.exportBrandPerformanceToExcel(performance, response);
     }
 
     @GetMapping("/reports/comprehensive/export")
-    public void exportComprehensiveReport(HttpServletResponse response) throws IOException {
+    public void exportComprehensive(HttpServletResponse response) throws IOException {
         reportService.exportComprehensiveReport(response);
     }
 }

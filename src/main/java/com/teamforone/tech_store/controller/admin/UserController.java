@@ -1,7 +1,6 @@
 package com.teamforone.tech_store.controller.admin;
 
 import com.teamforone.tech_store.dto.request.UserRequest;
-import com.teamforone.tech_store.dto.response.Response;
 import com.teamforone.tech_store.model.User;
 import com.teamforone.tech_store.service.admin.UserService;
 import jakarta.validation.Valid;
@@ -14,18 +13,16 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 @Controller
 @RequestMapping("/admin")
 public class UserController {
-    @Autowired
-    private final UserService userService;
 
-    public UserController(UserService userService) {
-        this.userService = userService;
-    }
+    @Autowired
+    private UserService userService;
 
     // ===== WEB VIEWS =====
 
@@ -38,7 +35,7 @@ public class UserController {
         try {
             List<User> allUsers = userService.getAllUsers();
 
-            // Filter by status if provided
+            // Filter by status
             if (status != null && !status.isEmpty()) {
                 try {
                     User.Status userStatus = User.Status.valueOf(status.toUpperCase());
@@ -50,7 +47,7 @@ public class UserController {
                 }
             }
 
-            // Calculate pagination
+            // Pagination
             int totalUsers = allUsers.size();
             int totalPages = (int) Math.ceil((double) totalUsers / size);
 
@@ -72,7 +69,50 @@ public class UserController {
                     .count();
             long lockedUsers = totalCount - activeUsers;
 
-            // Add to model
+            // Stats cards data
+            List<Map<String, Object>> stats = new ArrayList<>();
+
+            Map<String, Object> totalStat = new HashMap<>();
+            totalStat.put("label", "Tổng người dùng");
+            totalStat.put("value", String.valueOf(totalCount));
+            totalStat.put("icon", "bi bi-people-fill");
+            totalStat.put("iconClass", "primary");
+            totalStat.put("changeText", "+12% vs tháng trước");
+            totalStat.put("changeIcon", "bi bi-arrow-up");
+            totalStat.put("changeClass", "positive");
+            stats.add(totalStat);
+
+            Map<String, Object> activeStat = new HashMap<>();
+            activeStat.put("label", "Đang hoạt động");
+            activeStat.put("value", String.valueOf(activeUsers));
+            activeStat.put("icon", "bi bi-check-circle-fill");
+            activeStat.put("iconClass", "success");
+            activeStat.put("changeText", "85% tổng số");
+            activeStat.put("changeIcon", "bi bi-arrow-up");
+            activeStat.put("changeClass", "positive");
+            stats.add(activeStat);
+
+            Map<String, Object> lockedStat = new HashMap<>();
+            lockedStat.put("label", "Bị khóa");
+            lockedStat.put("value", String.valueOf(lockedUsers));
+            lockedStat.put("icon", "bi bi-lock-fill");
+            lockedStat.put("iconClass", "danger");
+            lockedStat.put("changeText", "Cần xem xét");
+            lockedStat.put("changeIcon", "bi bi-exclamation-triangle");
+            lockedStat.put("changeClass", "negative");
+            stats.add(lockedStat);
+
+            Map<String, Object> newStat = new HashMap<>();
+            newStat.put("label", "Mới tuần này");
+            newStat.put("value", "24");
+            newStat.put("icon", "bi bi-person-plus-fill");
+            newStat.put("iconClass", "warning");
+            newStat.put("changeText", "+18% vs tuần trước");
+            newStat.put("changeIcon", "bi bi-arrow-up");
+            newStat.put("changeClass", "positive");
+            stats.add(newStat);
+
+            model.addAttribute("stats", stats);
             model.addAttribute("users", users);
             model.addAttribute("totalUsers", totalCount);
             model.addAttribute("activeUsers", activeUsers);
@@ -83,13 +123,10 @@ public class UserController {
             model.addAttribute("startIndex", startIndex + 1);
             model.addAttribute("endIndex", endIndex);
             model.addAttribute("userStatuses", User.Status.values());
-
-            // Data for topbar
             model.addAttribute("pageTitle", "Quản lý Người dùng");
             model.addAttribute("searchPlaceholder", "Tìm kiếm người dùng...");
             model.addAttribute("searchId", "searchUsers");
 
-            // Breadcrumbs
             List<Map<String, String>> breadcrumbs = new ArrayList<>();
             breadcrumbs.add(Map.of("name", "Trang chủ", "url", "/admin"));
             breadcrumbs.add(Map.of("name", "Người dùng", "url", ""));
@@ -98,7 +135,7 @@ public class UserController {
             return "Users";
 
         } catch (Exception e) {
-            model.addAttribute("errorMessage", "Lỗi khi tải danh sách người dùng: " + e.getMessage());
+            model.addAttribute("errorMessage", "Lỗi: " + e.getMessage());
             model.addAttribute("users", new ArrayList<>());
             return "Users";
         }
@@ -117,7 +154,6 @@ public class UserController {
             model.addAttribute("user", user);
             model.addAttribute("pageTitle", "Chi tiết Người dùng");
 
-            // Breadcrumbs
             List<Map<String, String>> breadcrumbs = new ArrayList<>();
             breadcrumbs.add(Map.of("name", "Trang chủ", "url", "/admin"));
             breadcrumbs.add(Map.of("name", "Người dùng", "url", "/admin/users"));
@@ -126,7 +162,7 @@ public class UserController {
 
             return "UserDetail";
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Có lỗi xảy ra: " + e.getMessage());
+            redirectAttributes.addFlashAttribute("errorMessage", "Có lỗi: " + e.getMessage());
             return "redirect:/admin/users";
         }
     }
@@ -137,7 +173,6 @@ public class UserController {
         model.addAttribute("userStatuses", User.Status.values());
         model.addAttribute("pageTitle", "Thêm Người dùng");
 
-        // Breadcrumbs
         List<Map<String, String>> breadcrumbs = new ArrayList<>();
         breadcrumbs.add(Map.of("name", "Trang chủ", "url", "/admin"));
         breadcrumbs.add(Map.of("name", "Người dùng", "url", "/admin/users"));
@@ -156,7 +191,7 @@ public class UserController {
 
         if (result.hasErrors()) {
             model.addAttribute("userStatuses", User.Status.values());
-            model.addAttribute("errorMessage", "Vui lòng kiểm tra lại thông tin đã nhập!");
+            model.addAttribute("errorMessage", "Vui lòng kiểm tra lại thông tin!");
             return "AddUser";
         }
 
@@ -173,7 +208,7 @@ public class UserController {
 
         } catch (Exception e) {
             model.addAttribute("userStatuses", User.Status.values());
-            model.addAttribute("errorMessage", "Lỗi khi thêm người dùng: " + e.getMessage());
+            model.addAttribute("errorMessage", "Lỗi: " + e.getMessage());
             return "AddUser";
         }
     }
@@ -196,7 +231,6 @@ public class UserController {
             model.addAttribute("userStatuses", User.Status.values());
             model.addAttribute("pageTitle", "Chỉnh sửa Người dùng");
 
-            // Breadcrumbs
             List<Map<String, String>> breadcrumbs = new ArrayList<>();
             breadcrumbs.add(Map.of("name", "Trang chủ", "url", "/admin"));
             breadcrumbs.add(Map.of("name", "Người dùng", "url", "/admin/users"));
@@ -223,14 +257,14 @@ public class UserController {
             User user = userService.findUserById(id);
             model.addAttribute("user", user);
             model.addAttribute("userStatuses", User.Status.values());
-            model.addAttribute("errorMessage", "Vui lòng kiểm tra lại thông tin đã nhập!");
+            model.addAttribute("errorMessage", "Vui lòng kiểm tra lại thông tin!");
             return "EditUser";
         }
 
         try {
             User updatedUser = userService.updateUser(id, userRequest);
             redirectAttributes.addFlashAttribute("successMessage",
-                    "Đã cập nhật người dùng '" + updatedUser.getUsername() + "' thành công!");
+                    "Đã cập nhật '" + updatedUser.getUsername() + "' thành công!");
             return "redirect:/admin/users";
 
         } catch (IllegalArgumentException e) {
@@ -241,8 +275,7 @@ public class UserController {
             return "EditUser";
 
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("errorMessage",
-                    "Lỗi khi cập nhật người dùng: " + e.getMessage());
+            redirectAttributes.addFlashAttribute("errorMessage", "Lỗi: " + e.getMessage());
             return "redirect:/admin/users/edit/" + id;
         }
     }
@@ -253,10 +286,9 @@ public class UserController {
             userService.lockUser(id);
             User user = userService.findUserById(id);
             redirectAttributes.addFlashAttribute("successMessage",
-                    "Đã khóa tài khoản '" + user.getUsername() + "' thành công!");
+                    "Đã khóa tài khoản '" + user.getUsername() + "'!");
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("errorMessage",
-                    "Lỗi khi khóa tài khoản: " + e.getMessage());
+            redirectAttributes.addFlashAttribute("errorMessage", "Lỗi: " + e.getMessage());
         }
         return "redirect:/admin/users";
     }
@@ -267,15 +299,14 @@ public class UserController {
             userService.unlockUser(id);
             User user = userService.findUserById(id);
             redirectAttributes.addFlashAttribute("successMessage",
-                    "Đã mở khóa tài khoản '" + user.getUsername() + "' thành công!");
+                    "Đã mở khóa '" + user.getUsername() + "'!");
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("errorMessage",
-                    "Lỗi khi mở khóa tài khoản: " + e.getMessage());
+            redirectAttributes.addFlashAttribute("errorMessage", "Lỗi: " + e.getMessage());
         }
         return "redirect:/admin/users";
     }
 
-    // ===== REST API ENDPOINTS =====
+    // ===== REST API =====
 
     @GetMapping("/api/users")
     @ResponseBody
