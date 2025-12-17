@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -18,15 +17,13 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfiguration {
     @Autowired
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+
+    // ✅ URLs không cần JWT token (public access)
     private static final String[] WHITE_LIST_URL = {
-            "/auth/admin/register",
-            "/admin/2fa/phone/**",
-            "/admin/2fa/email/**",
-            "/auth/admin/update/{id}",
-            "/auth/login",
-            "/api/v1/auth/refresh-token",
-            "/api/v1/auth/verify",
-            "/admin/**",
+            // Auth endpoints
+            "/auth/**",
+
+            // Static resources
             "/css/**",
             "/js/**",
             "/javascript/**",
@@ -34,19 +31,63 @@ public class SecurityConfiguration {
             "/static/**",
             "/favicon.ico",
             "/webjars/**",
-            "/**"
+
+            // Admin pages (HTML views) - không cần JWT
+            "/admin/dashboard",
+            "/admin/products",
+            "/admin/products/**",
+            "/admin/categories",
+            "/admin/categories/**",
+            "/admin/brands",
+            "/admin/brands/**",
+            "/admin/users",
+            "/admin/users/**",
+            "/admin/reports",
+            "/admin/reports/**",
+            "/admin/orders",
+            "/admin/orders/**",
+            "/admin/inventory",
+            "/admin/inventory/**",
+            "/admin/settings",
+            "/admin/settings/**",
+            "/admin/profile",
+            "/admin/2fa/**",
+            "/admin/CTProduct",
+            "/admin/addCTProduct",
+            "/admin/product-variants",
+            "/admin/product-variants/**",
+            "/admin/attributes",
+            "/admin/attributes/**"
     };
 
-
+    // ✅ URLs cần JWT token (API endpoints)
+    private static final String[] SECURED_API_URL = {
+            "/admin/api/**",
+            "/admin/permissions/**",
+            "/admin/roles/**"
+    };
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity htpp) throws Exception {
-        htpp.csrf(AbstractHttpConfigurer::disable)
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http
+                .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
+                        // ✅ Cho phép truy cập không cần JWT
                         .requestMatchers(WHITE_LIST_URL).permitAll()
-                        .anyRequest().authenticated()
-                ).sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+
+                        // ✅ Yêu cầu JWT cho API endpoints
+                        .requestMatchers(SECURED_API_URL).authenticated()
+
+                        // ✅ Tất cả request khác cũng cho phép (vì là web app)
+                        .anyRequest().permitAll()
+                )
+                // ✅ Session stateless cho API, nhưng vẫn cho phép session cho web pages
+                .sessionManagement(session ->
+                        session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
+                )
+                // ✅ Chỉ áp dụng JWT filter cho secured APIs
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
-        return htpp.build();
+
+        return http.build();
     }
 }

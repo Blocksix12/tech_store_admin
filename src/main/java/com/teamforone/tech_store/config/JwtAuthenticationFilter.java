@@ -29,11 +29,30 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtService jwtService;
     private final UserDetailsService userDetailsService;
 
+    // ✅ Các path cần kiểm tra JWT
+    private static final String[] SECURED_PATHS = {
+            "/admin/api/",
+            "/admin/permissions/",
+            "/admin/roles/"
+    };
+
     @Override
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
                                     FilterChain filterChain)
             throws ServletException, IOException {
+
+        String requestPath = request.getRequestURI();
+
+        // ✅ Chỉ kiểm tra JWT cho secured paths
+        boolean isSecuredPath = Arrays.stream(SECURED_PATHS)
+                .anyMatch(requestPath::startsWith);
+
+        if (!isSecuredPath) {
+            // Bỏ qua JWT filter cho các trang HTML views
+            filterChain.doFilter(request, response);
+            return;
+        }
 
         String authHeader = request.getHeader("Authorization");
 
@@ -42,35 +61,39 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
 
-        String token = authHeader.substring(7);
-        String username = jwtService.extractUsername(token);
+        try {
+            String token = authHeader.substring(7);
+            String username = jwtService.extractUsername(token);
 
-        if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+            if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 
-            if (jwtService.verifyToken(token)) {
-                // Lấy roles từ token dưới dạng String và convert thành List
-                String rolesString = jwtService.extractRoles(token);
-                List<GrantedAuthority> authorities;
+                if (jwtService.verifyToken(token)) {
+                    // Lấy roles từ token
+                    String rolesString = jwtService.extractRoles(token);
+                    List<GrantedAuthority> authorities;
 
-                if (StringUtils.hasText(rolesString)) {
-                    authorities = Arrays.stream(rolesString.split(","))
-                            .map(String::trim)
-                            .map(SimpleGrantedAuthority::new)
-                            .collect(Collectors.toList());
-                } else {
-                    authorities = Collections.emptyList();
+                    if (StringUtils.hasText(rolesString)) {
+                        authorities = Arrays.stream(rolesString.split(","))
+                                .map(String::trim)
+                                .map(SimpleGrantedAuthority::new)
+                                .collect(Collectors.toList());
+                    } else {
+                        authorities = Collections.emptyList();
+                    }
+
+                    UsernamePasswordAuthenticationToken authToken =
+                            new UsernamePasswordAuthenticationToken(userDetails, null, authorities);
+
+                    authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                    SecurityContextHolder.getContext().setAuthentication(authToken);
                 }
-
-                UsernamePasswordAuthenticationToken authToken =
-                        new UsernamePasswordAuthenticationToken(userDetails, null, authorities);
-
-                authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                SecurityContextHolder.getContext().setAuthentication(authToken);
             }
+        } catch (Exception e) {
+            // Log lỗi nhưng không block request
+            System.err.println("JWT validation error: " + e.getMessage());
         }
 
         filterChain.doFilter(request, response);
     }
-
 }
