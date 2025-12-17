@@ -2,7 +2,7 @@ package com.teamforone.tech_store.service.admin.impl;
 
 import com.teamforone.tech_store.dto.request.ReportDTO;
 import com.teamforone.tech_store.repository.admin.ReportRepository;
-import com.teamforone.tech_store.repository.admin.UserRepository;
+import com.teamforone.tech_store.repository.admin.crud.UserRepository;
 import com.teamforone.tech_store.repository.admin.crud.ProductRepository;
 import com.teamforone.tech_store.service.admin.ReportService;
 import jakarta.servlet.http.HttpServletResponse;
@@ -288,6 +288,7 @@ public class ReportServiceImpl implements ReportService {
                 .totalRevenue(revenue)
                 .formattedRevenue(formatCurrency(revenue))
                 .marketShare(marketShare)
+                .revenuePercentage(marketShare)
                 .build();
     }
 
@@ -323,6 +324,7 @@ public class ReportServiceImpl implements ReportService {
                 .totalRevenue(revenue)
                 .formattedRevenue(formatCurrency(revenue))
                 .marketShare(marketShare)
+                .revenuePercentage(marketShare) // ✅ THÊM DÒNG NÀY
                 .build();
     }
 
@@ -899,4 +901,5 @@ public class ReportServiceImpl implements ReportService {
             sheet.autoSizeColumn(i);
         }
     }
+
 }

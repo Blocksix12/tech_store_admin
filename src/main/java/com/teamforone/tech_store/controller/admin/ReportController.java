@@ -4,6 +4,8 @@
 package com.teamforone.tech_store.controller.admin;
 
 import com.teamforone.tech_store.dto.request.ReportDTO;
+import com.teamforone.tech_store.dto.response.CustomerReportDTO;
+import com.teamforone.tech_store.service.admin.CustomerReportService;
 import com.teamforone.tech_store.service.admin.ReportService;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +26,7 @@ import java.util.Map;
 public class ReportController {
 
     private final ReportService reportService;
+    private final CustomerReportService customerReportService;
 
     // ========== WEB VIEWS ==========
 
@@ -160,10 +163,9 @@ public class ReportController {
     @GetMapping("/reports/category-performance")
     public String showCategoryPerformance(Model model) {
         try {
-            List<ReportDTO.CategoryPerformance> performance =
-                    reportService.getCategoryPerformance();
+            List<ReportDTO.CategoryPerformance> performance = reportService.getCategoryPerformance();
 
-            model.addAttribute("categories", performance);
+            model.addAttribute("categories", performance); // ✅ Đổi tên từ "performance" thành "categories"
             model.addAttribute("pageTitle", "Hiệu suất Danh mục");
 
             List<Map<String, String>> breadcrumbs = new ArrayList<>();
@@ -182,10 +184,9 @@ public class ReportController {
     @GetMapping("/reports/brand-performance")
     public String showBrandPerformance(Model model) {
         try {
-            List<ReportDTO.BrandPerformance> performance =
-                    reportService.getBrandPerformance();
+            List<ReportDTO.BrandPerformance> performance = reportService.getBrandPerformance();
 
-            model.addAttribute("brands", performance);
+            model.addAttribute("brands", performance); // ✅ Đổi tên từ "performance" thành "brands"
             model.addAttribute("pageTitle", "Hiệu suất Thương hiệu");
 
             List<Map<String, String>> breadcrumbs = new ArrayList<>();
@@ -198,6 +199,39 @@ public class ReportController {
         } catch (Exception e) {
             model.addAttribute("errorMessage", "Lỗi: " + e.getMessage());
             return "BrandPerformanceReport";
+        }
+    }
+
+
+    @GetMapping("/reports/customers")
+    public String showCustomerReport(Model model) {
+        try {
+            // Lấy thống kê
+            Map<String, Object> stats = customerReportService.getCustomerStatistics();
+            model.addAttribute("totalCustomers", stats.get("totalCustomers"));
+            model.addAttribute("vipCustomers", stats.get("vipCustomers"));
+            model.addAttribute("newCustomers", stats.get("newCustomers"));
+            model.addAttribute("returnRate", stats.get("returnRate"));
+
+            // Lấy top 10 khách hàng
+            List<CustomerReportDTO> topCustomers = customerReportService.getTopCustomers(10);
+            model.addAttribute("topCustomers", topCustomers);
+
+            // Breadcrumbs
+            List<Map<String, String>> breadcrumbs = new ArrayList<>();
+            breadcrumbs.add(Map.of("name", "Trang chủ", "url", "/admin"));
+            breadcrumbs.add(Map.of("name", "Báo cáo", "url", "/admin/reports"));
+            breadcrumbs.add(Map.of("name", "Khách hàng", "url", ""));
+            model.addAttribute("breadcrumbs", breadcrumbs);
+
+            model.addAttribute("pageTitle", "Báo cáo Khách hàng");
+            model.addAttribute("activePage", "reports");
+
+            return "CustomerReport";
+        } catch (Exception e) {
+            model.addAttribute("errorMessage", "Lỗi: " + e.getMessage());
+            model.addAttribute("topCustomers", new ArrayList<>());
+            return "CustomerReport";
         }
     }
 
@@ -265,5 +299,13 @@ public class ReportController {
     @GetMapping("/reports/comprehensive/export")
     public void exportComprehensive(HttpServletResponse response) throws IOException {
         reportService.exportComprehensiveReport(response);
+    }
+
+    @GetMapping("/reports/customers/export")
+    public void exportCustomerReport(HttpServletResponse response) throws IOException {
+        // Implementation sau
+        response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+        response.setHeader("Content-Disposition", "attachment; filename=customer_report.xlsx");
+        // ...
     }
 }

@@ -66,6 +66,18 @@ public class ReportDTO {
         private Double totalRevenue;
         private String formattedRevenue;
         private Double marketShare; // % of total revenue
+
+        // ✅ THÊM FIELD NÀY
+        private Double revenuePercentage; // Giống marketShare nhưng để dùng trong template
+
+        // Getter tự động tính revenuePercentage nếu chưa set
+        public Double getRevenuePercentage() {
+            if (revenuePercentage == null) {
+                return marketShare != null ? marketShare : 0.0;
+            }
+            return revenuePercentage;
+        }
+
     }
 
     @Getter
@@ -81,7 +93,21 @@ public class ReportDTO {
         private Long totalSold;
         private Double totalRevenue;
         private String formattedRevenue;
-        private Double marketShare; // % of total revenue
+        private Double marketShare;
+        private Double revenuePercentage;
+
+        // Getter cho brandLogo (alias của logoUrl)
+        public String getBrandLogo() {
+            return logoUrl;
+        }
+
+        // Getter tự động tính revenuePercentage nếu chưa set
+        public Double getRevenuePercentage() {
+            if (revenuePercentage == null) {
+                return marketShare != null ? marketShare : 0.0;
+            }
+            return revenuePercentage;
+        }// % of total revenue
     }
 
     @Getter
@@ -103,4 +129,6 @@ public class ReportDTO {
         private Double todayRevenue;
         private String formattedTodayRevenue;
     }
+
+
 }

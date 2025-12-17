@@ -82,3 +82,108 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 });
+
+// Toggle Submenu
+function toggleSubmenu(element) {
+    const submenu = element.nextElementSibling;
+    const icon = element.querySelector('.bi-chevron-down');
+
+    if (submenu && submenu.classList.contains('submenu')) {
+        submenu.classList.toggle('show');
+        element.classList.toggle('expanded');
+
+        if (icon) {
+            icon.style.transform = submenu.classList.contains('show') ? 'rotate(180deg)' : 'rotate(0deg)';
+        }
+    }
+}
+
+// Toggle Sidebar cho mobile
+function toggleSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    if (sidebar) {
+        sidebar.classList.toggle('show');
+    }
+}
+
+// Auto-expand submenu nếu đang ở trang con
+document.addEventListener('DOMContentLoaded', function() {
+    const currentPath = window.location.pathname;
+
+    // Tìm tất cả submenu items
+    const submenuItems = document.querySelectorAll('.submenu-item');
+
+    submenuItems.forEach(item => {
+        const href = item.getAttribute('href');
+
+        // Nếu URL hiện tại khớp với href của submenu item
+        if (href && currentPath.includes(href)) {
+            // Thêm class active cho submenu item
+            item.classList.add('active');
+
+            // Tìm parent submenu và mở nó
+            const parentSubmenu = item.closest('.submenu');
+            if (parentSubmenu) {
+                parentSubmenu.classList.add('show');
+
+                // Tìm menu item cha và expand nó
+                const parentMenuItem = parentSubmenu.previousElementSibling;
+                if (parentMenuItem && parentMenuItem.classList.contains('menu-item')) {
+                    parentMenuItem.classList.add('expanded');
+
+                    // Rotate chevron icon
+                    const icon = parentMenuItem.querySelector('.bi-chevron-down');
+                    if (icon) {
+                        icon.style.transform = 'rotate(180deg)';
+                    }
+                }
+            }
+        }
+    });
+
+    // Xử lý cho menu items không có submenu
+    const menuItems = document.querySelectorAll('.menu-item');
+    menuItems.forEach(item => {
+        const href = item.getAttribute('href');
+        if (href && currentPath.includes(href) && !item.querySelector('.bi-chevron-down')) {
+            item.classList.add('active');
+        }
+    });
+});
+
+// Close sidebar khi click outside trên mobile
+document.addEventListener('click', function(event) {
+    const sidebar = document.getElementById('sidebar');
+    const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
+
+    if (sidebar && sidebar.classList.contains('show')) {
+        if (!sidebar.contains(event.target) && event.target !== mobileMenuBtn) {
+            sidebar.classList.remove('show');
+        }
+    }
+});
+
+
+document.addEventListener("DOMContentLoaded", function () {
+    const currentPath = window.location.pathname;
+
+    // Tìm tất cả submenu item
+    document.querySelectorAll(".submenu-item").forEach(item => {
+        if (item.getAttribute("href") === currentPath) {
+
+            // active item
+            item.classList.add("active");
+
+            // mở submenu cha
+            const submenu = item.closest(".submenu");
+            if (submenu) {
+                submenu.style.display = "block";
+
+                const parentMenuItem = submenu.previousElementSibling;
+                if (parentMenuItem) {
+                    parentMenuItem.classList.add("open");
+                }
+            }
+        }
+    });
+});

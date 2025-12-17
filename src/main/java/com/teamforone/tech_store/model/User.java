@@ -47,6 +47,25 @@ public class User {
     @Column(name = "created_at")
     private Date createdAt;
 
+    // ✅ THÊM VÀO class User (sau dòng private Date updatedAt;)
+
+    @Column(name = "customer_type", columnDefinition = "ENUM('NEW','REGULAR','VIP') DEFAULT 'NEW'")
+    @Enumerated(EnumType.STRING)
+    private CustomerType customerType = CustomerType.NEW;
+
+    @Column(name = "total_orders")
+    private Integer totalOrders = 0;
+
+    @Column(name = "total_spent")
+    private Double totalSpent = 0.0;
+
+    // ✅ THÊM enum CustomerType bên trong class User
+    public enum CustomerType {
+        NEW,
+        REGULAR,
+        VIP
+    }
+
     @UpdateTimestamp
     @Column(name = "updated_at")
     private Date updatedAt;
@@ -62,4 +81,5 @@ public class User {
             return null;
         }
     }
+
 }
