@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -28,4 +29,20 @@ public interface CTProductRepository extends JpaRepository<CTProducts, CTProduct
     @Transactional
     @Modifying
     void deleteByProductId(String productId);
+    // ===== THÊM CÁC METHODS SAU ĐÂY =====
+
+    /**
+     * Tìm tất cả variants của một product
+     */
+    List<CTProducts> findByProductId(String productId);
+
+    /**
+     * Tìm variants có số lượng <= threshold (low stock)
+     */
+    List<CTProducts> findByQuantityLessThanEqual(Integer threshold);
+
+    /**
+     * Tìm variants có số lượng = quantity (out of stock)
+     */
+    List<CTProducts> findByQuantity(Integer quantity);
 }

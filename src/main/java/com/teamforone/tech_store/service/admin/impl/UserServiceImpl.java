@@ -2,8 +2,6 @@ package com.teamforone.tech_store.service.admin.impl;
 
 import com.teamforone.tech_store.dto.request.UserRequest;
 import com.teamforone.tech_store.model.User;
-
-
 import com.teamforone.tech_store.repository.admin.UserRepository;
 import com.teamforone.tech_store.service.admin.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,12 +13,12 @@ import java.util.Optional;
 
 @Service
 public class UserServiceImpl implements UserService {
-    @Autowired
+    // ✅ BỎ @Autowired trên field
     private final UserRepository userRepository;
-
-    @Autowired
     private final PasswordEncoder passwordEncoder;
 
+    // ✅ CHỈ CẦN @Autowired Ở ĐÂY (hoặc bỏ cũng được vì Spring 4.3+)
+    @Autowired
     public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
