@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản lý Biến thể - Admin Dashboard</title>
+
+    <!-- Bootstrap & icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2? family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Project CSS -->
+    <link rel="stylesheet" th:href="@{/css/Dashboard.css}" />
+    <link rel="stylesheet" th:href="@{/css/CTProduct.css}" />
+</head>
+<body>
+
+<!-- Include Sidebar -->
+<div th:replace="~{fragments/sidebar :: sidebar}"></div>
+
+<!-- Main Content -->
+<div class="main-content">
+    <!-- Include Topbar -->
+    <div th:replace="~{fragments/topbar :: topbar}"></div>
+
+    <!-- "Thêm Biến thể" button -->
+    <div class="topbar-actions">
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addVariantModal">
+            <i class="bi bi-plus-circle"></i> Thêm Biến thể
+        </button>
+    </div>
+
+    <!-- Content Card -->
+    <div class="content-card">
+        <!-- Filters -->
+        <div class="filter-section">
+            <form th:action="@{/admin/ct-products}" method="get">
+                <div class="row g-3">
+                    <div class="col-md-3">
+                        <label class="form-label">Sản phẩm</label>
+                        <select class="form-select" id="filterProduct" name="productFilter">
+                            <option value="">Tất cả sản phẩm</option>
+                            <option th:each="product : ${uniqueProducts}"
+                                    th:value="${product}"
+                                    th:text="${product}"
+                                    th:selected="${product == param.productFilter}">
+                            </option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">Màu sắc</label>
+                        <select class="form-select" id="filterColor" name="colorFilter">
+                            <option value="">Tất cả</option>
+                            <option th:each="color : ${uniqueColors}"
+                                    th:value="${color}"
+                                    th:text="${color}"
+                                    th:selected="${color == param.colorFilter}">
+                            </option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">Dung lượng</label>
+                        <select class="form-select" id="filterStorage" name="storageFilter">
+                            <option value="">Tất cả</option>
+                            <option th:each="storage : ${uniqueStorages}"
+                                    th:value="${storage}"
+                                    th:text="${storage}"
+                                    th:selected="${storage == param.storageFilter}">
+                            </option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">Tình trạng kho</label>
+                        <select class="form-select" id="filterStock" name="stockFilter">
+                            <option value="">Tất cả</option>
+                            <option value="in" th:selected="${param.stockFilter == 'in'}">Còn hàng</option>
+                            <option value="low" th:selected="${param.stockFilter == 'low'}">Sắp hết</option>
+                            <option value="out" th:selected="${param.stockFilter == 'out'}">Hết hàng</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Tìm kiếm</label>
+                        <div class="input-group">
+                            <input type="text"
+                                   class="form-control"
+                                   placeholder="Tìm kiếm..."
+                                   id="searchInput"
+                                   name="search"
+                                   th:value="${param.search}">
+                            <button class="btn btn-outline-secondary" type="submit" id="btnSearch">
+                                <i class="bi bi-search"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- Table -->
+        <div class="table-responsive">
+            <table class="table table-custom table-hover">
+                <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Sản phẩm</th>
+                    <th>Màu sắc</th>
+                    <th>Dung lượng</th>
+                    <th>Kích thước</th>
+                    <th>Giá gốc</th>
+                    <th>Giá sale</th>
+                    <th>Số lượng</th>
+                    <th>Trạng thái</th>
+                    <th>Thao tác</th>
+                </tr>
+                </thead>
+                <tbody id="variantTableBody">
+                <!-- Dynamic Data from Controller -->
+                <tr th:each="product, iterStat : ${ctProducts}">
+                    <td th:text="${iterStat. count}">1</td>
+                    <td><strong th:text="${product.productName}">Product Name</strong></td>
+                    <td>
+                        <span class="badge bg-dark" th:text="${product.colorName}">Color</span>
+                    </td>
+                    <td th:text="${product. romName}">256GB</td>
+                    <td th:text="${product.sizeName}">6. 7"</td>
+                    <td th:text="${#numbers.formatDecimal(product.price, 0, 'COMMA', 0, 'POINT') + '₫'}">34,990,000₫</td>
+                    <td>
+                        <strong class="text-danger"
+                                th:if="${product.salePrice != null}"
+                                th:text="${#numbers.formatDecimal(product.salePrice, 0, 'COMMA', 0, 'POINT') + '₫'}">
+                            32,990,000₫
+                        </strong>
+                        <span th:if="${product.salePrice == null}">-</span>
+                    </td>
+                    <td>
+                        <strong th:text="${product.quantity}"
+                                th:classappend="${product.quantity <= 10 and product.quantity > 0} ? 'text-warning' : (${product.quantity == 0} ? 'text-danger' : '')">
+                            50
+                        </strong>
+                    </td>
+                    <td>
+                        <span class="badge-stock"
+                              th:classappend="${product.quantity > 10} ? 'in-stock' : (${product.quantity > 0 and product.quantity <= 10} ? 'low-stock' : 'out-stock')"
+                              th:text="${product.quantity > 10} ? 'Còn hàng' : (${product.quantity > 0 and product.quantity <= 10} ?  'Sắp hết' : 'Hết hàng')">
+                            Còn hàng
+                        </span>
+                    </td>
+                    <td>
+                        <!-- Use data-id instead of onclick with string concatenation -->
+                        <button class="btn btn-sm btn-info btn-action btn-edit"
+                                th:data-id="${product.productId}">
+                            <i class="bi bi-pencil"></i>
+                        </button>
+                        <button class="btn btn-sm btn-danger btn-action btn-delete"
+                                th:data-id="${product.productId}">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+                <!-- Empty state -->
+                <tr th:if="${#lists.isEmpty(ctProducts)}">
+                    <td colspan="10" class="text-center py-4">
+                        <i class="bi bi-inbox" style="font-size: 3rem; color: #ccc;"></i>
+                        <p class="mt-2 text-muted">Không tìm thấy biến thể nào</p>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        <div class="pagination-custom">
+            <div th:text="'Hiển thị ' + ${#lists.size(ctProducts)} + ' trong tổng số ' + ${totalElements} + ' biến thể'">
+                Hiển thị 1-3 trong tổng số 3 biến thể
+            </div>
+            <nav>
+                <ul class="pagination mb-0">
+                    <li class="page-item disabled"><a class="page-link" href="#">Trước</a></li>
+                    <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                    <li class="page-item disabled"><a class="page-link" href="#">Sau</a></li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+<!-- Add/Edit Variant Modal -->
+<div class="modal fade" id="addVariantModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header modal-header-custom">
+                <h5 class="modal-title">
+                    <i class="bi bi-plus-circle"></i> Thêm Biến thể Sản phẩm
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="variantForm">
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <label class="form-label required">Sản phẩm</label>
+                            <select class="form-select" name="productId" required>
+                                <option value="">Chọn sản phẩm</option>
+                                <option th:each="product : ${products}"
+                                        th:value="${product.productId}"
+                                        th:text="${product.productName}">
+                                </option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label required">Màu sắc</label>
+                            <select class="form-select" name="colorId" required>
+                                <option value="">Chọn màu</option>
+                                <option th:each="color : ${colors}"
+                                        th:value="${color.id}"
+                                        th:text="${color.name}">
+                                </option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label required">Dung lượng</label>
+                            <select class="form-select" name="storageId" required>
+                                <option value="">Chọn dung lượng</option>
+                                <option th:each="storage : ${storages}"
+                                        th:value="${storage.id}"
+                                        th:text="${storage.rom}">
+                                </option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-12">
+                            <label class="form-label required">Kích thước màn hình</label>
+                            <select class="form-select" name="sizeId" required>
+                                <option value="">Chọn kích thước</option>
+                                <option th:each="size : ${sizes}"
+                                        th:value="${size. id}"
+                                        th:text="${size.name}">
+                                </option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label required">Giá gốc (₫)</label>
+                            <input type="number" class="form-control" name="price" min="0" required>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Giá khuyến mãi (₫)</label>
+                            <input type="number" class="form-control" name="salePrice" min="0">
+                        </div>
+
+                        <div class="col-md-12">
+                            <label class="form-label required">Số lượng tồn kho</label>
+                            <input type="number" class="form-control" name="quantity" min="0" value="0" required>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-primary" id="btnSaveVariant">
+                    <i class="bi bi-check-circle"></i> Lưu biến thể
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Dashboard JS -->
+<script th:src="@{/javascript/Dashboard.js}"></script>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3. 2/dist/js/bootstrap. bundle.min.js"></script>
+
+<!-- Page behaviour JS -->
+<script>
+    // Event delegation for edit buttons
+    document.getElementById('variantTableBody').addEventListener('click', function(e) {
+        const editBtn = e.target.closest('. btn-edit');
+        if (editBtn) {
+            const id = editBtn.getAttribute('data-id');
+            editVariant(id);
+        }
+
+        const deleteBtn = e.target.closest('.btn-delete');
+        if (deleteBtn) {
+            const id = deleteBtn.getAttribute('data-id');
+            deleteVariant(id);
+        }
+    });
+
+    function editVariant(id) {
+        const modal = new bootstrap.Modal(document.getElementById('addVariantModal'));
+        modal.show();
+        // TODO: load variant data into form if editing
+        console.log('Edit variant:', id);
+    }
+
+    function deleteVariant(id) {
+        if (confirm('Bạn có chắc chắn muốn xóa biến thể này?')) {
+            console.log('Delete variant:', id);
+            // TODO: call API to delete, then refresh list
+        }
+    }
+
+    function saveVariant() {
+        const form = document.getElementById('variantForm');
+        if (!form.checkValidity()) {
+            form.reportValidity();
+            return;
+        }
+        const formData = new FormData(form);
+        const data = Object.fromEntries(formData);
+        console.log('Saving variant:', data);
+        // TODO: call API to save then refresh list
+        const modal = bootstrap.Modal.getInstance(document.getElementById('addVariantModal'));
+        if (modal) modal.hide();
+        form.reset();
+    }
+
+    // Save button click
+    document.getElementById('btnSaveVariant').addEventListener('click', saveVariant);
+
+    // Search on Enter key
+    document.getElementById('searchInput').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            this.closest('form').submit();
+        }
+    });
+
+    // ===== COLOR FUNCTIONS =====
+    function getColorCode(colorName) {
+        const colorMap = {
+            'titan tự nhiên': '#E8DCC4',
+            'xanh dương': '#0000FF',
+            'đen': '#000000',
+            'bạc': '#C0C0C0',
+            'xám': '#808080',
+            'tím': '#800080',
+            'vàng gold': '#FFD700',
+            'trắng': '#FFFFFF',
+            'hồng': '#FFC0CB',
+            'xanh lá': '#00FF00',
+            // Màu mới
+            'titan xanh': '#A8B9C1',
+            'titan trắng': '#F5F5F0',
+            'titan đen': '#3A3A3C',
+            'vàng hồng': '#B76E79',
+            'xanh navy': '#191970',
+            'đỏ': '#FF0000',
+            'xanh lá đậm': '#006400',
+            'cam': '#FF8C00',
+            'nâu': '#8B4513',
+            'xanh lơ': '#87CEEB',
+            'tím nhạt': '#DDA0DD',
+            'đen bóng': '#0A0A0A',
+            'trắng ngọc trai': '#F8F6F0',
+            'xám không gian': '#4A4A4A',
+            'xanh biển': '#1E90FF'
+        };
+
+        const normalizedName = colorName.toLowerCase().trim();
+        return colorMap[normalizedName] || '#6c757d';
+    }
+
+    function getContrastColor(bgColor) {
+        const r = parseInt(bgColor.substr(1, 2), 16);
+        const g = parseInt(bgColor.substr(3, 2), 16);
+        const b = parseInt(bgColor.substr(5, 2), 16);
+        const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+        return brightness > 155 ?  '#000000' : '#FFFFFF';
+    }
+
+    // ===== APPLY COLORS =====
+    function applyColors() {
+        console.log('=== APPLYING COLORS ===');
+
+        const tbody = document. getElementById('variantTableBody');
+
+        if (! tbody) {
+            console.error('tbody NOT FOUND!');
+            return;
+        }
+
+        const rows = tbody.getElementsByTagName('tr');
+        console.log('Total rows:', rows. length);
+
+        for (let i = 0; i < rows.length; i++) {
+            const row = rows[i];
+            const cells = row.getElementsByTagName('td');
+
+            if (cells.length >= 3) {
+                const colorCell = cells[2];
+                const badges = colorCell.getElementsByClassName('badge');
+
+                if (badges.length > 0) {
+                    const badge = badges[0];
+                    const colorName = badge.textContent.trim();
+                    const bgColor = getColorCode(colorName);
+                    const textColor = getContrastColor(bgColor);
+
+                    console.log('  ' + colorName + ' -> ' + bgColor);
+
+                    badge.className = badge.className.replace('bg-dark', '').trim();
+                    badge.style.backgroundColor = bgColor;
+                    badge.style.color = textColor;
+
+                    if (textColor === '#000000') {
+                        badge.style.border = '1px solid #dee2e6';
+                    }
+                }
+            }
+        }
+
+        console.log('=== DONE ===');
+    }
+
+    // Run when ready
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', applyColors);
+    } else {
+        applyColors();
+    }
+</script>
+</body>
+</html>

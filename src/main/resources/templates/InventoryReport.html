@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Báo cáo Tồn kho - TechStore Admin</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+</head>
+<body>
+<div class="container-fluid">
+    <div class="row">
+        <div th:replace="~{fragments/sidebar :: sidebar}"></div>
+
+        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+            <nav aria-label="breadcrumb" class="mt-3">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item" th:each="breadcrumb : ${breadcrumbs}">
+                        <a th:if="${breadcrumb.url != ''}"
+                           th:href="@{${breadcrumb.url}}"
+                           th:text="${breadcrumb.name}"></a>
+                        <span th:unless="${breadcrumb.url != ''}"
+                              th:text="${breadcrumb.name}"></span>
+                    </li>
+                </ol>
+            </nav>
+
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                <h1 class="h2">
+                    <i class="bi bi-boxes text-info me-2"></i>
+                    Báo cáo Tồn kho
+                </h1>
+                <div class="btn-toolbar mb-2 mb-md-0">
+                    <a href="/admin/reports/inventory/export" class="btn btn-success">
+                        <i class="bi bi-file-earmark-excel me-1"></i>
+                        Xuất Excel
+                    </a>
+                </div>
+            </div>
+
+            <!-- Statistics Cards -->
+            <div class="row g-3 mb-4">
+                <div class="col-md-3">
+                    <div class="card">
+                        <div class="card-body">
+                            <h6 class="card-title text-muted">Tổng sản phẩm</h6>
+                            <h2 class="mb-0" th:text="${totalProducts}">0</h2>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card border-danger">
+                        <div class="card-body">
+                            <h6 class="card-title text-danger">
+                                <i class="bi bi-exclamation-triangle"></i> Hết hàng
+                            </h6>
+                            <h2 class="mb-0 text-danger" th:text="${outOfStock}">0</h2>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card border-warning">
+                        <div class="card-body">
+                            <h6 class="card-title text-warning">
+                                <i class="bi bi-exclamation-circle"></i> Sắp hết
+                            </h6>
+                            <h2 class="mb-0 text-warning" th:text="${lowStock}">0</h2>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card border-success">
+                        <div class="card-body">
+                            <h6 class="card-title text-success">
+                                <i class="bi bi-check-circle"></i> Còn hàng
+                            </h6>
+                            <h2 class="mb-0 text-success" th:text="${inStock}">0</h2>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Filter -->
+            <div class="card mb-3">
+                <div class="card-body">
+                    <form method="get" th:action="@{/admin/reports/inventory}" class="row g-3">
+                        <div class="col-md-4">
+                            <label class="form-label">Trạng thái tồn kho</label>
+                            <select name="status" class="form-select">
+                                <option value="">Tất cả</option>
+                                <option value="out" th:selected="${param.status != null && param.status[0] == 'out'}">
+                                    Hết hàng
+                                </option>
+                                <option value="low" th:selected="${param.status != null && param.status[0] == 'low'}">
+                                    Sắp hết
+                                </option>
+                                <option value="in" th:selected="${param.status != null && param.status[0] == 'in'}">
+                                    Còn hàng
+                                </option>
+                            </select>
+                        </div>
+                        <div class="col-md-4 d-flex align-items-end">
+                            <button type="submit" class="btn btn-primary me-2">
+                                <i class="bi bi-funnel"></i> Lọc
+                            </button>
+                            <a href="/admin/reports/inventory" class="btn btn-secondary">
+                                <i class="bi bi-arrow-clockwise"></i> Đặt lại
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Inventory Table -->
+            <div class="card">
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                            <tr>
+                                <th>Hình ảnh</th>
+                                <th>Tên sản phẩm</th>
+                                <th>Danh mục</th>
+                                <th>Thương hiệu</th>
+                                <th class="text-end">Tồn kho</th>
+                                <th class="text-center">Biến thể</th>
+                                <th class="text-center">Trạng thái</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="item : ${inventory}">
+                                <td>
+                                    <img th:if="${item.productImage != null && item.productImage != ''}"
+                                         th:src="${item.productImage}"
+                                         alt="Product"
+                                         style="width: 50px; height: 50px; object-fit: cover;">
+                                    <div th:unless="${item.productImage != null && item.productImage != ''}"
+                                         class="bg-secondary text-white d-flex align-items-center justify-content-center"
+                                         style="width: 50px; height: 50px;">
+                                        <i class="bi bi-image"></i>
+                                    </div>
+                                </td>
+                                <td><strong th:text="${item.productName}"></strong></td>
+                                <td th:text="${item.categoryName}"></td>
+                                <td th:text="${item.brandName}"></td>
+                                <td class="text-end">
+                                    <strong th:text="${#numbers.formatInteger(item.totalStock, 0, 'COMMA')}"></strong>
+                                </td>
+                                <td class="text-center">
+                                    <span class="badge bg-secondary" th:text="${item.variantCount}"></span>
+                                </td>
+                                <td class="text-center">
+                                            <span th:if="${item.stockStatus == 'OUT_OF_STOCK'}"
+                                                  class="badge bg-danger">
+                                                <i class="bi bi-x-circle"></i>
+                                                <span th:text="${item.stockStatusText}"></span>
+                                            </span>
+                                    <span th:if="${item.stockStatus == 'LOW_STOCK'}"
+                                          class="badge bg-warning text-dark">
+                                                <i class="bi bi-exclamation-triangle"></i>
+                                                <span th:text="${item.stockStatusText}"></span>
+                                            </span>
+                                    <span th:if="${item.stockStatus == 'IN_STOCK'}"
+                                          class="badge bg-success">
+                                                <i class="bi bi-check-circle"></i>
+                                                <span th:text="${item.stockStatusText}"></span>
+                                            </span>
+                                </td>
+                            </tr>
+                            <tr th:if="${#lists.isEmpty(inventory)}">
+                                <td colspan="7" class="text-center text-muted py-4">
+                                    <i class="bi bi-inbox" style="font-size: 3rem;"></i>
+                                    <p class="mt-2">Không có dữ liệu</p>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<body>
+
+<!-- Topbar Fragment -->
+<div th:fragment="topbar" class="topbar">
+    <div class="topbar-left">
+        <button class="mobile-menu-btn" onclick="toggleSidebar()">
+            <i class="bi bi-list"></i>
+        </button>
+        <div>
+            <h1 class="page-title" th:text="${pageTitle} ?: 'Dashboard'">Dashboard</h1>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="/admin">Trang chủ</a></li>
+                    <li class="breadcrumb-item active" aria-current="page" th:text="${pageTitle} ?: 'Dashboard'">Dashboard</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+
+    <div class="topbar-right">
+        <!-- Search -->
+        <div class="search-box">
+            <i class="bi bi-search"></i>
+            <input type="text" class="form-control" placeholder="Tìm kiếm sản phẩm, đơn hàng...">
+        </div>
+
+        <!-- Notifications -->
+        <div class="dropdown">
+            <div class="topbar-icon" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="bi bi-bell-fill"></i>
+                <span class="badge bg-danger">5</span>
+            </div>
+            <ul class="dropdown-menu dropdown-menu-end">
+                <li class="px-3 py-2"><strong>Thông báo</strong></li>
+                <li><hr class="dropdown-divider"></li>
+                <li>
+                    <a class="dropdown-item" href="#">
+                        <i class="bi bi-cart-check text-success"></i>
+                        <span>3 đơn hàng mới</span>
+                    </a>
+                </li>
+                <li>
+                    <a class="dropdown-item" href="#">
+                        <i class="bi bi-exclamation-triangle text-warning"></i>
+                        <span>12 sản phẩm sắp hết</span>
+                    </a>
+                </li>
+                <li>
+                    <a class="dropdown-item" href="#">
+                        <i class="bi bi-star text-info"></i>
+                        <span>8 đánh giá mới</span>
+                    </a>
+                </li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item text-center" href="#">Xem tất cả</a></li>
+            </ul>
+        </div>
+
+        <!-- Messages -->
+        <div class="dropdown">
+            <div class="topbar-icon" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="bi bi-chat-dots-fill"></i>
+                <span class="badge bg-success">2</span>
+            </div>
+            <ul class="dropdown-menu dropdown-menu-end">
+                <li class="px-3 py-2"><strong>Tin nhắn</strong></li>
+                <li><hr class="dropdown-divider"></li>
+                <li>
+                    <a class="dropdown-item" href="#">
+                        <i class="bi bi-person-circle"></i>
+                        <span>Khách hàng yêu cầu hỗ trợ</span>
+                    </a>
+                </li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item text-center" href="#">Xem tất cả</a></li>
+            </ul>
+        </div>
+
+        <!-- User Menu -->
+        <div class="dropdown">
+            <div class="user-menu" data-bs-toggle="dropdown" aria-expanded="false">
+                <div class="user-avatar">
+                    <span th:text="${#authentication.name?.substring(0,1)?.toUpperCase()}">A</span>
+                </div>
+                <div class="user-info">
+                    <div class="user-name" th:text="${#authentication.name}">Admin User</div>
+                    <div sec:authorize="isAuthenticated()">
+                        <span sec:authentication="authorities"></span>
+                    </div>
+                </div>
+                <i class="bi bi-chevron-down"></i>
+            </div>
+            <ul class="dropdown-menu dropdown-menu-end">
+                <li>
+                    <a class="dropdown-item" href="/admin/profile">
+                        <i class="bi bi-person"></i>
+                        <span>Hồ sơ của tôi</span>
+                    </a>
+                </li>
+                <li>
+                    <a class="dropdown-item" href="/admin/settings">
+                        <i class="bi bi-gear"></i>
+                        <span>Cài đặt</span>
+                    </a>
+                </li>
+                <li>
+                    <a class="dropdown-item" href="/admin/activity-log">
+                        <i class="bi bi-clock-history"></i>
+                        <span>Nhật ký hoạt động</span>
+                    </a>
+                </li>
+                <li><hr class="dropdown-divider"></li>
+                <li>
+                    <form th:action="@{/logout}" method="post">
+                        <button type="submit" class="dropdown-item">
+                            <i class="bi bi-box-arrow-right"></i>
+                            <span>Đăng xuất</span>
+                        </button>
+                    </form>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

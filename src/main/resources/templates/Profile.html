@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hồ sơ của tôi - Admin Dashboard</title>
+
+    <!-- Bootstrap 5.3 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Dashboard CSS -->
+    <link rel="stylesheet" th:href="@{/css/Dashboard.css}" />
+    <!-- Profile CSS -->
+    <link rel="stylesheet" th:href="@{/css/Profile.css}" />
+</head>
+<body>
+
+<!-- Sidebar -->
+<div class="sidebar" id="sidebar">
+    <!-- Toggle Button -->
+    <button class="sidebar-toggle" onclick="toggleSidebarCollapse()" title="Thu gọn/Mở rộng">
+        <i class="bi bi-chevron-left"></i>
+    </button>
+
+    <div class="sidebar-brand">
+        <i class="bi bi-shop-window"></i>
+        <span class="sidebar-brand-text">E-Commerce</span>
+    </div>
+
+    <div class="sidebar-menu">
+        <div class="menu-section-title">Main</div>
+
+        <!-- Dashboard -->
+        <a href="/admin/dashboard" class="menu-item">
+            <i class="bi bi-grid-fill"></i>
+            <span>Dashboard</span>
+        </a>
+
+        <div class="menu-section-title">Quản lý</div>
+
+        <!-- Quản lý sản phẩm -->
+        <div>
+            <div class="menu-item" onclick="toggleSubmenu(this)">
+                <i class="bi bi-box-seam-fill"></i>
+                <span>Sản phẩm</span>
+                <i class="bi bi-chevron-down"></i>
+            </div>
+            <div class="submenu">
+                <a href="/admin/products" class="submenu-item">Danh sách sản phẩm</a>
+                <a href="/admin/products/add" class="submenu-item">Thêm sản phẩm</a>
+                <a href="/admin/categories" class="submenu-item">Danh mục</a>
+                <a href="/admin/brands" class="submenu-item">Thương hiệu</a>
+                <a href="/admin/attributes" class="submenu-item">Thuộc tính</a>
+                <a href="/admin/products/import" class="submenu-item">Import/Export</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Main Content -->
+<div class="main-content">
+    <!-- Topbar -->
+    <div class="topbar">
+        <div class="topbar-left">
+            <button class="mobile-menu-btn" onclick="toggleSidebar()">
+                <i class="bi bi-list"></i>
+            </button>
+            <div>
+                <h1 class="page-title">Hồ sơ của tôi</h1>
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="/admin">Trang chủ</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">Hồ sơ</li>
+                    </ol>
+                </nav>
+            </div>
+        </div>
+
+        <div class="topbar-right">
+            <!-- Search -->
+            <div class="search-box">
+                <i class="bi bi-search"></i>
+                <input type="text" class="form-control" placeholder="Tìm kiếm...">
+            </div>
+
+            <!-- Notifications -->
+            <div class="dropdown">
+                <div class="topbar-icon" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="bi bi-bell-fill"></i>
+                    <span class="badge bg-danger">5</span>
+                </div>
+            </div>
+
+            <!-- User Menu -->
+            <div class="dropdown">
+                <div class="user-menu" data-bs-toggle="dropdown" aria-expanded="false">
+                    <div class="user-avatar">
+                        <span>N</span>
+                    </div>
+                    <div class="user-info">
+                        <div class="user-name">NvkhoaDev54</div>
+                    </div>
+                    <i class="bi bi-chevron-down"></i>
+                </div>
+                <ul class="dropdown-menu dropdown-menu-end">
+                    <li>
+                        <a class="dropdown-item active" href="/admin/profile">
+                            <i class="bi bi-person"></i>
+                            <span>Hồ sơ của tôi</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item" href="/admin/settings">
+                            <i class="bi bi-gear"></i>
+                            <span>Cài đặt</span>
+                        </a>
+                    </li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li>
+                        <form th:action="@{/logout}" method="post">
+                            <button type="submit" class="dropdown-item">
+                                <i class="bi bi-box-arrow-right"></i>
+                                <span>Đăng xuất</span>
+                            </button>
+                        </form>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Content Area -->
+    <div class="content-area">
+        <div class="row g-4">
+            <!-- Left Column - Profile Info -->
+            <div class="col-lg-4">
+                <!-- Profile Card -->
+                <div class="profile-card fade-in-up">
+                    <div class="profile-header">
+                        <div class="profile-avatar-wrapper">
+                            <div class="profile-avatar">
+                                <img src="https://i.pravatar.cc/150?img=1" alt="Avatar" id="avatarPreview">
+                                <div class="avatar-badge">
+                                    <i class="bi bi-patch-check-fill"></i>
+                                </div>
+                            </div>
+                            <button class="avatar-upload-btn" onclick="document.getElementById('avatarInput').click()">
+                                <i class="bi bi-camera-fill"></i>
+                            </button>
+                            <input type="file" id="avatarInput" accept="image/*" hidden onchange="handleAvatarChange(event)">
+                        </div>
+                        <h3 class="profile-name">NvkhoaDev54</h3>
+                        <p class="profile-role">Administrator</p>
+                        <div class="profile-badges">
+                            <span class="badge bg-success">
+                                <i class="bi bi-shield-check"></i>
+                                Verified
+                            </span>
+                            <span class="badge bg-info">
+                                <i class="bi bi-star-fill"></i>
+                                Pro Member
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="profile-stats">
+                        <div class="stat-item">
+                            <h4>856</h4>
+                            <p>Sản phẩm</p>
+                        </div>
+                        <div class="stat-item">
+                            <h4>2.4K</h4>
+                            <p>Đơn hàng</p>
+                        </div>
+                        <div class="stat-item">
+                            <h4>4.8</h4>
+                            <p>Đánh giá</p>
+                        </div>
+                    </div>
+
+                    <div class="profile-info">
+                        <div class="info-item">
+                            <i class="bi bi-envelope-fill"></i>
+                            <div>
+                                <small>Email</small>
+                                <p>nvkhoadev54@gmail.com</p>
+                            </div>
+                        </div>
+                        <div class="info-item">
+                            <i class="bi bi-phone-fill"></i>
+                            <div>
+                                <small>Số điện thoại</small>
+                                <p>+84 123 456 789</p>
+                            </div>
+                        </div>
+                        <div class="info-item">
+                            <i class="bi bi-geo-alt-fill"></i>
+                            <div>
+                                <small>Địa chỉ</small>
+                                <p>Hà Nội, Việt Nam</p>
+                            </div>
+                        </div>
+                        <div class="info-item">
+                            <i class="bi bi-calendar-fill"></i>
+                            <div>
+                                <small>Tham gia</small>
+                                <p>14/11/2025</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="profile-actions">
+                        <button class="btn btn-primary btn-block">
+                            <i class="bi bi-pencil"></i>
+                            Chỉnh sửa hồ sơ
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Quick Links -->
+                <div class="quick-links fade-in-up" style="animation-delay: 0.1s;">
+                    <h6 class="quick-links-title">
+                        <i class="bi bi-link-45deg"></i>
+                        Liên kết nhanh
+                    </h6>
+                    <a href="/admin/settings" class="quick-link-item">
+                        <i class="bi bi-gear"></i>
+                        <span>Cài đặt tài khoản</span>
+                        <i class="bi bi-chevron-right"></i>
+                    </a>
+                    <a href="/admin/security" class="quick-link-item">
+                        <i class="bi bi-shield-lock"></i>
+                        <span>Bảo mật</span>
+                        <i class="bi bi-chevron-right"></i>
+                    </a>
+                    <a href="/admin/activity-log" class="quick-link-item">
+                        <i class="bi bi-clock-history"></i>
+                        <span>Nhật ký hoạt động</span>
+                        <i class="bi bi-chevron-right"></i>
+                    </a>
+                    <a href="/admin/notifications" class="quick-link-item">
+                        <i class="bi bi-bell"></i>
+                        <span>Thông báo</span>
+                        <i class="bi bi-chevron-right"></i>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Right Column - Detailed Info -->
+            <div class="col-lg-8">
+                <!-- Tabs -->
+                <div class="profile-tabs fade-in-up">
+                    <ul class="nav nav-tabs" id="profileTabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="overview-tab" data-bs-toggle="tab"
+                                    data-bs-target="#overview" type="button" role="tab">
+                                <i class="bi bi-person"></i>
+                                Tổng quan
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="edit-tab" data-bs-toggle="tab"
+                                    data-bs-target="#edit" type="button" role="tab">
+                                <i class="bi bi-pencil"></i>
+                                Chỉnh sửa
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="security-tab" data-bs-toggle="tab"
+                                    data-bs-target="#security" type="button" role="tab">
+                                <i class="bi bi-shield-lock"></i>
+                                Bảo mật
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="activity-tab" data-bs-toggle="tab"
+                                    data-bs-target="#activity" type="button" role="tab">
+                                <i class="bi bi-activity"></i>
+                                Hoạt động
+                            </button>
+                        </li>
+                    </ul>
+
+                    <div class="tab-content" id="profileTabContent">
+                        <!-- Overview Tab -->
+                        <div class="tab-pane fade show active" id="overview" role="tabpanel">
+                            <!-- About -->
+                            <div class="profile-section">
+                                <div class="section-header">
+                                    <h5 class="section-title">
+                                        <i class="bi bi-person-circle"></i>
+                                        Giới thiệu
+                                    </h5>
+                                    <button class="btn btn-sm btn-outline-primary" onclick="editSection('about')">
+                                        <i class="bi bi-pencil"></i>
+                                        Chỉnh sửa
+                                    </button>
+                                </div>
+                                <div class="section-body">
+                                    <p class="text-muted">
+                                        Full-stack Developer với hơn 5 năm kinh nghiệm trong phát triển ứng dụng web và e-commerce.
+                                        Đam mê công nghệ và học hỏi những điều mới mỗi ngày.
+                                    </p>
+                                </div>
+                            </div>
+
+                            <!-- Personal Information -->
+                            <div class="profile-section">
+                                <div class="section-header">
+                                    <h5 class="section-title">
+                                        <i class="bi bi-info-circle"></i>
+                                        Thông tin cá nhân
+                                    </h5>
+                                    <button class="btn btn-sm btn-outline-primary" onclick="editSection('personal')">
+                                        <i class="bi bi-pencil"></i>
+                                        Chỉnh sửa
+                                    </button>
+                                </div>
+                                <div class="section-body">
+                                    <div class="info-grid">
+                                        <div class="info-row">
+                                            <span class="info-label">Họ và tên:</span>
+                                            <span class="info-value">Nguyễn Văn Khoa</span>
+                                        </div>
+                                        <div class="info-row">
+                                            <span class="info-label">Tên đăng nhập:</span>
+                                            <span class="info-value">NvkhoaDev54</span>
+                                        </div>
+                                        <div class="info-row">
+                                            <span class="info-label">Email:</span>
+                                            <span class="info-value">nvkhoadev54@gmail.com</span>
+                                        </div>
+                                        <div class="info-row">
+                                            <span class="info-label">Số điện thoại:</span>
+                                            <span class="info-value">+84 123 456 789</span>
+                                        </div>
+                                        <div class="info-row">
+                                            <span class="info-label">Ngày sinh:</span>
+                                            <span class="info-value">01/01/1995</span>
+                                        </div>
+                                        <div class="info-row">
+                                            <span class="info-label">Giới tính:</span>
+                                            <span class="info-value">Nam</span>
+                                        </div>
+                                        <div class="info-row">
+                                            <span class="info-label">Địa chỉ:</span>
+                                            <span class="info-value">123 Nguyễn Văn Linh, Hà Nội</span>
+                                        </div>
+                                        <div class="info-row">
+                                            <span class="info-label">Website:</span>
+                                            <span class="info-value">
+                                                <a href="https://nvkhoadev.com" target="_blank">nvkhoadev.com</a>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Work Information -->
+                            <div class="profile-section">
+                                <div class="section-header">
+                                    <h5 class="section-title">
+                                        <i class="bi bi-briefcase"></i>
+                                        Thông tin công việc
+                                    </h5>
+                                    <button class="btn btn-sm btn-outline-primary" onclick="editSection('work')">
+                                        <i class="bi bi-pencil"></i>
+                                        Chỉnh sửa
+                                    </button>
+                                </div>
+                                <div class="section-body">
+                                    <div class="info-grid">
+                                        <div class="info-row">
+                                            <span class="info-label">Chức vụ:</span>
+                                            <span class="info-value">Administrator</span>
+                                        </div>
+                                        <div class="info-row">
+                                            <span class="info-label">Phòng ban:</span>
+                                            <span class="info-value">IT Department</span>
+                                        </div>
+                                        <div class="info-row">
+                                            <span class="info-label">Ngày vào làm:</span>
+                                            <span class="info-value">14/11/2025</span>
+                                        </div>
+                                        <div class="info-row">
+                                            <span class="info-label">Loại nhân viên:</span>
+                                            <span class="info-value">Full-time</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Skills -->
+                            <div class="profile-section">
+                                <div class="section-header">
+                                    <h5 class="section-title">
+                                        <i class="bi bi-code-slash"></i>
+                                        Kỹ năng
+                                    </h5>
+                                    <button class="btn btn-sm btn-outline-primary" onclick="editSection('skills')">
+                                        <i class="bi bi-pencil"></i>
+                                        Chỉnh sửa
+                                    </button>
+                                </div>
+                                <div class="section-body">
+                                    <div class="skills-list">
+                                        <span class="skill-badge">Java</span>
+                                        <span class="skill-badge">Spring Boot</span>
+                                        <span class="skill-badge">JavaScript</span>
+                                        <span class="skill-badge">React</span>
+                                        <span class="skill-badge">MySQL</span>
+                                        <span class="skill-badge">MongoDB</span>
+                                        <span class="skill-badge">Docker</span>
+                                        <span class="skill-badge">AWS</span>
+                                        <span class="skill-badge">Git</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Edit Tab -->
+                        <div class="tab-pane fade" id="edit" role="tabpanel">
+                            <div class="profile-section">
+                                <div class="section-header">
+                                    <h5 class="section-title">
+                                        <i class="bi bi-pencil-square"></i>
+                                        Chỉnh sửa thông tin
+                                    </h5>
+                                </div>
+                                <div class="section-body">
+                                    <form id="editProfileForm">
+                                        <div class="row g-3">
+                                            <div class="col-md-6">
+                                                <label class="form-label">Họ</label>
+                                                <input type="text" class="form-control" value="Nguyễn Văn" required>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="form-label">Tên</label>
+                                                <input type="text" class="form-control" value="Khoa" required>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="form-label">Email</label>
+                                                <input type="email" class="form-control" value="nvkhoadev54@gmail.com" required>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="form-label">Số điện thoại</label>
+                                                <input type="tel" class="form-control" value="+84 123 456 789">
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="form-label">Ngày sinh</label>
+                                                <input type="date" class="form-control" value="1995-01-01">
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="form-label">Giới tính</label>
+                                                <select class="form-select">
+                                                    <option value="male" selected>Nam</option>
+                                                    <option value="female">Nữ</option>
+                                                    <option value="other">Khác</option>
+                                                </select>
+                                            </div>
+                                            <div class="col-12">
+                                                <label class="form-label">Địa chỉ</label>
+                                                <input type="text" class="form-control" value="123 Nguyễn Văn Linh, Hà Nội">
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="form-label">Thành phố</label>
+                                                <input type="text" class="form-control" value="Hà Nội">
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="form-label">Quốc gia</label>
+                                                <select class="form-select">
+                                                    <option value="VN" selected>Việt Nam</option>
+                                                    <option value="US">United States</option>
+                                                    <option value="UK">United Kingdom</option>
+                                                </select>
+                                            </div>
+                                            <div class="col-12">
+                                                <label class="form-label">Giới thiệu</label>
+                                                <textarea class="form-control" rows="4">Full-stack Developer với hơn 5 năm kinh nghiệm trong phát triển ứng dụng web và e-commerce. Đam mê công nghệ và học hỏi những điều mới mỗi ngày.</textarea>
+                                            </div>
+                                            <div class="col-12">
+                                                <label class="form-label">Website</label>
+                                                <input type="url" class="form-control" value="https://nvkhoadev.com">
+                                            </div>
+                                        </div>
+
+                                        <div class="form-actions">
+                                            <button type="button" class="btn btn-secondary">
+                                                <i class="bi bi-x-circle"></i>
+                                                Hủy
+                                            </button>
+                                            <button type="submit" class="btn btn-success">
+                                                <i class="bi bi-check-circle"></i>
+                                                Lưu thay đổi
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Security Tab -->
+                        <div class="tab-pane fade" id="security" role="tabpanel">
+                            <!-- Change Password -->
+                            <div class="profile-section">
+                                <div class="section-header">
+                                    <h5 class="section-title">
+                                        <i class="bi bi-key"></i>
+                                        Đổi mật khẩu
+                                    </h5>
+                                </div>
+                                <div class="section-body">
+                                    <form id="changePasswordForm">
+                                        <div class="row g-3">
+                                            <div class="col-12">
+                                                <label class="form-label">Mật khẩu hiện tại</label>
+                                                <div class="input-group">
+                                                    <input type="password" class="form-control" id="currentPassword" required>
+                                                    <button class="btn btn-outline-secondary" type="button" onclick="togglePasswordVisibility('currentPassword')">
+                                                        <i class="bi bi-eye"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            <div class="col-12">
+                                                <label class="form-label">Mật khẩu mới</label>
+                                                <div class="input-group">
+                                                    <input type="password" class="form-control" id="newPassword" required>
+                                                    <button class="btn btn-outline-secondary" type="button" onclick="togglePasswordVisibility('newPassword')">
+                                                        <i class="bi bi-eye"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            <div class="col-12">
+                                                <label class="form-label">Xác nhận mật khẩu mới</label>
+                                                <div class="input-group">
+                                                    <input type="password" class="form-control" id="confirmPassword" required>
+                                                    <button class="btn btn-outline-secondary" type="button" onclick="togglePasswordVisibility('confirmPassword')">
+                                                        <i class="bi bi-eye"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="form-actions">
+                                            <button type="submit" class="btn btn-primary">
+                                                <i class="bi bi-shield-check"></i>
+                                                Đổi mật khẩu
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+
+                            <!-- Two-Factor Authentication -->
+                            <div class="profile-section">
+                                <div class="section-header">
+                                    <h5 class="section-title">
+                                        <i class="bi bi-shield-lock"></i>
+                                        Xác thực hai yếu tố (2FA)
+                                    </h5>
+                                </div>
+                                <div class="section-body">
+                                    <div class="security-option">
+                                        <div class="security-option-info">
+                                            <h6>
+                                                <i class="bi bi-phone"></i>
+                                                Xác thực qua SMS
+                                            </h6>
+                                            <p class="text-muted">Nhận mã xác thực qua tin nhắn SMS</p>
+                                            <span class="badge bg-success">Đang bật</span>
+                                        </div>
+                                        <button class="btn btn-outline-danger">
+                                            <i class="bi bi-x-circle"></i>
+                                            Tắt
+                                        </button>
+                                    </div>
+
+                                    <div class="security-option">
+                                        <div class="security-option-info">
+                                            <h6>
+                                                <i class="bi bi-qr-code"></i>
+                                                Xác thực qua App
+                                            </h6>
+                                            <p class="text-muted">Sử dụng Google Authenticator hoặc các app tương tự</p>
+                                            <span class="badge bg-secondary">Chưa bật</span>
+                                        </div>
+                                        <button class="btn btn-outline-primary">
+                                            <i class="bi bi-plus-circle"></i>
+                                            Bật
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Sessions -->
+                            <div class="profile-section">
+                                <div class="section-header">
+                                    <h5 class="section-title">
+                                        <i class="bi bi-display"></i>
+                                        Phiên đăng nhập
+                                    </h5>
+                                </div>
+                                <div class="section-body">
+                                    <div class="session-list">
+                                        <div class="session-item current">
+                                            <div class="session-icon">
+                                                <i class="bi bi-laptop"></i>
+                                            </div>
+                                            <div class="session-info">
+                                                <h6>Windows - Chrome</h6>
+                                                <p>Hà Nội, Việt Nam • 14/11/2025 02:01:26</p>
+                                                <span class="badge bg-success">Phiên hiện tại</span>
+                                            </div>
+                                        </div>
+
+                                        <div class="session-item">
+                                            <div class="session-icon">
+                                                <i class="bi bi-phone"></i>
+                                            </div>
+                                            <div class="session-info">
+                                                <h6>iPhone - Safari</h6>
+                                                <p>Hà Nội, Việt Nam • 13/11/2025 18:30:00</p>
+                                            </div>
+                                            <button class="btn btn-sm btn-outline-danger">
+                                                <i class="bi bi-x-circle"></i>
+                                                Đăng xuất
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-actions">
+                                        <button class="btn btn-outline-danger">
+                                            <i class="bi bi-box-arrow-right"></i>
+                                            Đăng xuất tất cả các phiên khác
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Activity Tab -->
+                        <div class="tab-pane fade" id="activity" role="tabpanel">
+                            <div class="profile-section">
+                                <div class="section-header">
+                                    <h5 class="section-title">
+                                        <i class="bi bi-clock-history"></i>
+                                        Hoạt động gần đây
+                                    </h5>
+                                </div>
+                                <div class="section-body">
+                                    <div class="activity-timeline">
+                                        <div class="activity-item">
+                                            <div class="activity-icon bg-success">
+                                                <i class="bi bi-box-seam"></i>
+                                            </div>
+                                            <div class="activity-content">
+                                                <h6>Thêm sản phẩm mới</h6>
+                                                <p>Thêm sản phẩm "iPhone 15 Pro Max" vào hệ thống</p>
+                                                <span class="activity-time">
+                                                    <i class="bi bi-clock"></i>
+                                                    2 giờ trước
+                                                </span>
+                                            </div>
+                                        </div>
+
+                                        <div class="activity-item">
+                                            <div class="activity-icon bg-primary">
+                                                <i class="bi bi-pencil"></i>
+                                            </div>
+                                            <div class="activity-content">
+                                                <h6>Cập nhật thông tin</h6>
+                                                <p>Cập nhật giá sản phẩm "Samsung Galaxy S24"</p>
+                                                <span class="activity-time">
+                                                    <i class="bi bi-clock"></i>
+                                                    5 giờ trước
+                                                </span>
+                                            </div>
+                                        </div>
+
+                                        <div class="activity-item">
+                                            <div class="activity-icon bg-warning">
+                                                <i class="bi bi-upload"></i>
+                                            </div>
+                                            <div class="activity-content">
+                                                <h6>Import sản phẩm</h6>
+                                                <p>Import 1,234 sản phẩm từ file Excel</p>
+                                                <span class="activity-time">
+                                                    <i class="bi bi-clock"></i>
+                                                    1 ngày trước
+                                                </span>
+                                            </div>
+                                        </div>
+
+                                        <div class="activity-item">
+                                            <div class="activity-icon bg-info">
+                                                <i class="bi bi-person-check"></i>
+                                            </div>
+                                            <div class="activity-content">
+                                                <h6>Đăng nhập</h6>
+                                                <p>Đăng nhập từ địa chỉ IP 123.45.67.89</p>
+                                                <span class="activity-time">
+                                                    <i class="bi bi-clock"></i>
+                                                    2 ngày trước
+                                                </span>
+                                            </div>
+                                        </div>
+
+                                        <div class="activity-item">
+                                            <div class="activity-icon bg-danger">
+                                                <i class="bi bi-trash"></i>
+                                            </div>
+                                            <div class="activity-content">
+                                                <h6>Xóa sản phẩm</h6>
+                                                <p>Xóa sản phẩm "Old Product Name"</p>
+                                                <span class="activity-time">
+                                                    <i class="bi bi-clock"></i>
+                                                    3 ngày trước
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="text-center mt-4">
+                                        <button class="btn btn-outline-primary">
+                                            <i class="bi bi-arrow-clockwise"></i>
+                                            Xem thêm
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- jQuery -->
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<!-- Dashboard JS -->
+<script th:src="@{/javascript/Dashboard.js}"></script>
+<!-- Profile JS -->
+<script th:src="@{/javascript/Profile.js}"></script>
+
+</body>
+</html>

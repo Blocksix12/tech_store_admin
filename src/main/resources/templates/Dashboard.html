@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${pageTitle} ?: 'Admin Dashboard'">Admin Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/Dashboard.css}" />
+</head>
+<body>
+
+<div th:replace="~{fragments/sidebar :: sidebar}"></div>
+
+<div class="main-content">
+    <div th:replace="~{fragments/topbar :: topbar}"></div>
+
+    <div class="content-area">
+        <!-- Stats Cards với Links -->
+        <div class="row g-4 mb-4 fade-in-up">
+            <!-- Doanh thu -->
+            <div class="col-xl-3 col-md-6">
+                <a href="/admin/reports/revenue" class="text-decoration-none">
+                    <div class="stat-card">
+                        <div class="stat-card-header">
+                            <div>
+                                <div class="stat-label">Doanh thu tháng này</div>
+                                <div class="stat-value" th:text="${totalRevenue} ?: '0₫'">0₫</div>
+                                <div class="stat-change positive">
+                                    <i class="bi bi-arrow-up"></i>
+                                    <span>Xem báo cáo chi tiết</span>
+                                </div>
+                            </div>
+                            <div class="stat-icon primary">
+                                <i class="bi bi-currency-dollar"></i>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+
+            <!-- Đơn hàng -->
+            <div class="col-xl-3 col-md-6">
+                <a href="/admin/orders" class="text-decoration-none">
+                    <div class="stat-card">
+                        <div class="stat-card-header">
+                            <div>
+                                <div class="stat-label">Tổng đơn hàng</div>
+                                <div class="stat-value" th:text="${totalOrders} ?: '0'">0</div>
+                                <div class="stat-change positive">
+                                    <i class="bi bi-arrow-up"></i>
+                                    <span>Quản lý đơn hàng</span>
+                                </div>
+                            </div>
+                            <div class="stat-icon success">
+                                <i class="bi bi-cart-check"></i>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+
+            <!-- Khách hàng -->
+            <div class="col-xl-3 col-md-6">
+                <a href="/admin/users" class="text-decoration-none">
+                    <div class="stat-card">
+                        <div class="stat-card-header">
+                            <div>
+                                <div class="stat-label">Người dùng</div>
+                                <div class="stat-value" th:text="${totalCustomers} ?: '0'">0</div>
+                                <div class="stat-change positive">
+                                    <i class="bi bi-person-check"></i>
+                                    <span th:text="${activeUsers} + ' đang hoạt động'">0 đang hoạt động</span>
+                                </div>
+                            </div>
+                            <div class="stat-icon warning">
+                                <i class="bi bi-people"></i>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+
+            <!-- Sản phẩm -->
+            <div class="col-xl-3 col-md-6">
+                <a href="/admin/reports/inventory" class="text-decoration-none">
+                    <div class="stat-card">
+                        <div class="stat-card-header">
+                            <div>
+                                <div class="stat-label">Sản phẩm</div>
+                                <div class="stat-value" th:text="${totalProducts} ?: '0'">0</div>
+                                <div class="stat-change"
+                                     th:classappend="${outOfStockProducts > 0 or lowStockProducts > 0 ? 'neutral' : 'positive'}">
+                                    <i class="bi"
+                                       th:classappend="${outOfStockProducts > 0 or lowStockProducts > 0 ? 'bi-exclamation-triangle' : 'bi-check-circle'}"></i>
+                                    <span th:if="${outOfStockProducts > 0 or lowStockProducts > 0}"
+                                          th:text="${outOfStockProducts + lowStockProducts} + ' cần chú ý'">0 cần chú ý</span>
+                                    <span th:unless="${outOfStockProducts > 0 or lowStockProducts > 0}">
+                                        Tồn kho ổn định
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="stat-icon danger">
+                                <i class="bi bi-box-seam"></i>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        </div>
+
+        <!-- Quick Links Row -->
+        <div class="row g-4 mb-4">
+            <div class="col-md-4">
+                <a href="/admin/reports/inventory" class="text-decoration-none">
+                    <div class="card border-danger h-100">
+                        <div class="card-body text-center">
+                            <i class="bi bi-exclamation-triangle text-danger" style="font-size: 3rem;"></i>
+                            <h3 class="mt-3 text-danger" th:text="${outOfStockProducts} ?: '0'">0</h3>
+                            <p class="mb-0">Sản phẩm hết hàng</p>
+                            <small class="text-muted">Cần nhập kho ngay</small>
+                        </div>
+                    </div>
+                </a>
+            </div>
+
+            <div class="col-md-4">
+                <a href="/admin/reports/inventory" class="text-decoration-none">
+                    <div class="card border-warning h-100">
+                        <div class="card-body text-center">
+                            <i class="bi bi-exclamation-circle text-warning" style="font-size: 3rem;"></i>
+                            <h3 class="mt-3 text-warning" th:text="${lowStockProducts} ?: '0'">0</h3>
+                            <p class="mb-0">Sản phẩm sắp hết</p>
+                            <small class="text-muted">Tồn kho dưới 10</small>
+                        </div>
+                    </div>
+                </a>
+            </div>
+
+            <div class="col-md-4">
+                <a href="/admin/reports/best-selling" class="text-decoration-none">
+                    <div class="card border-success h-100">
+                        <div class="card-body text-center">
+                            <i class="bi bi-trophy text-success" style="font-size: 3rem;"></i>
+                            <h5 class="mt-3">Top sản phẩm</h5>
+                            <p class="mb-0">Xem sản phẩm bán chạy</p>
+                            <small class="text-muted">Phân tích chi tiết</small>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        </div>
+
+        <!-- Main Content Grid -->
+        <div class="row g-4">
+            <!-- Recent Orders -->
+            <div class="col-lg-8">
+                <div class="custom-table fade-in-up" style="animation-delay: 0.1s;">
+                    <div class="table-header">
+                        <h5 class="table-title">
+                            <i class="bi bi-receipt"></i>
+                            Đơn hàng gần đây
+                        </h5>
+                        <div class="table-actions">
+                            <a href="/admin/orders" class="btn btn-sm btn-primary">
+                                Xem tất cả
+                                <i class="bi bi-arrow-right"></i>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead>
+                            <tr>
+                                <th>Mã đơn</th>
+                                <th>Khách hàng</th>
+                                <th>Tổng tiền</th>
+                                <th>Trạng thái</th>
+                                <th>Ngày</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:if="${#lists.isEmpty(recentOrders)}">
+                                <td colspan="5" class="text-center text-muted py-5">
+                                    <i class="bi bi-inbox" style="font-size: 3rem;"></i>
+                                    <p class="mt-2">Chưa có đơn hàng mới</p>
+                                    <a href="/admin/orders" class="btn btn-sm btn-outline-primary">
+                                        Xem tất cả đơn hàng
+                                    </a>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sidebar Widgets -->
+            <div class="col-lg-4">
+                <!-- Top Products -->
+                <div class="chart-container mb-4 fade-in-up" style="animation-delay: 0.2s;">
+                    <h5 class="widget-title">
+                        <i class="bi bi-trophy-fill"></i>
+                        Sản phẩm bán chạy
+                    </h5>
+                    <div>
+                        <div class="product-item" th:each="product : ${topProducts}">
+                            <div class="product-info">
+                                <div>
+                                    <div class="product-name" th:text="${product.name}">Product Name</div>
+                                    <div class="product-meta" th:text="${product.variant}">Variant</div>
+                                </div>
+                                <div class="product-badge" th:text="${product.soldCount} + ' đã bán'">
+                                    0 đã bán
+                                </div>
+                            </div>
+                        </div>
+
+                        <div th:if="${#lists.isEmpty(topProducts)}" class="text-center py-4 text-muted">
+                            <i class="bi bi-inbox" style="font-size: 2rem;"></i>
+                            <p class="mt-2 mb-0">Chưa có dữ liệu bán hàng</p>
+                        </div>
+                    </div>
+                    <div class="d-grid mt-3">
+                        <a href="/admin/reports/best-selling" class="btn btn-outline-primary">
+                            Xem báo cáo chi tiết
+                            <i class="bi bi-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="chart-container fade-in-up" style="animation-delay: 0.3s;">
+                    <h5 class="widget-title">
+                        <i class="bi bi-lightning-fill"></i>
+                        Thao tác nhanh
+                    </h5>
+                    <div class="d-grid gap-2">
+                        <a href="/admin/products/add" class="btn btn-outline-primary">
+                            <i class="bi bi-plus-circle me-2"></i>
+                            Thêm sản phẩm
+                        </a>
+                        <a href="/admin/users/add" class="btn btn-outline-success">
+                            <i class="bi bi-person-plus me-2"></i>
+                            Thêm người dùng
+                        </a>
+                        <a href="/admin/reports" class="btn btn-outline-info">
+                            <i class="bi bi-graph-up me-2"></i>
+                            Xem báo cáo
+                        </a>
+                        <a href="/admin/settings" class="btn btn-outline-secondary">
+                            <i class="bi bi-gear me-2"></i>
+                            Cài đặt
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script th:src="@{/javascript/Dashboard.js}"></script>
+
+</body>
+</html>

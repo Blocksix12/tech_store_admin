@@ -4,10 +4,17 @@ import com.teamforone.tech_store.model.Color;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import java.util.Optional;
+import java.util.List;
 
 @Repository
 public interface ColorRepository extends JpaRepository<Color, String> {
-    Optional<Color> findByColorName(String colorName);
+
+    // Lấy tất cả màu sắc, sắp xếp theo tên
+    List<Color> findAllByOrderByColorNameAsc();
+
+    // Tìm màu theo tên
+    Color findByColorName(String colorName);
+
+    // Kiểm tra màu có tồn tại không
     boolean existsByColorName(String colorName);
 }
