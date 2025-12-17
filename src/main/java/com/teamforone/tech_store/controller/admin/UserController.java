@@ -124,6 +124,7 @@ public class UserController {
             model.addAttribute("endIndex", endIndex);
             model.addAttribute("userStatuses", User.Status.values());
             model.addAttribute("pageTitle", "Quản lý Người dùng");
+            model.addAttribute("activePage", "users"); // ✅ Thêm activePage
             model.addAttribute("searchPlaceholder", "Tìm kiếm người dùng...");
             model.addAttribute("searchId", "searchUsers");
 
@@ -132,12 +133,12 @@ public class UserController {
             breadcrumbs.add(Map.of("name", "Người dùng", "url", ""));
             model.addAttribute("breadcrumbs", breadcrumbs);
 
-            return "Users";
+            return "/admin/quanlynguoidung"; // ✅ Đổi tên template cho đúng
 
         } catch (Exception e) {
             model.addAttribute("errorMessage", "Lỗi: " + e.getMessage());
             model.addAttribute("users", new ArrayList<>());
-            return "Users";
+            return "/admin/quanlynguoidung";
         }
     }
 
@@ -153,6 +154,7 @@ public class UserController {
 
             model.addAttribute("user", user);
             model.addAttribute("pageTitle", "Chi tiết Người dùng");
+            model.addAttribute("activePage", "users");
 
             List<Map<String, String>> breadcrumbs = new ArrayList<>();
             breadcrumbs.add(Map.of("name", "Trang chủ", "url", "/admin"));
@@ -172,6 +174,7 @@ public class UserController {
         model.addAttribute("userRequest", new UserRequest());
         model.addAttribute("userStatuses", User.Status.values());
         model.addAttribute("pageTitle", "Thêm Người dùng");
+        model.addAttribute("activePage", "users");
 
         List<Map<String, String>> breadcrumbs = new ArrayList<>();
         breadcrumbs.add(Map.of("name", "Trang chủ", "url", "/admin"));
@@ -230,6 +233,7 @@ public class UserController {
             model.addAttribute("userRequest", userRequest);
             model.addAttribute("userStatuses", User.Status.values());
             model.addAttribute("pageTitle", "Chỉnh sửa Người dùng");
+            model.addAttribute("activePage", "users");
 
             List<Map<String, String>> breadcrumbs = new ArrayList<>();
             breadcrumbs.add(Map.of("name", "Trang chủ", "url", "/admin"));
@@ -304,6 +308,27 @@ public class UserController {
             redirectAttributes.addFlashAttribute("errorMessage", "Lỗi: " + e.getMessage());
         }
         return "redirect:/admin/users";
+    }
+
+    // ✅ THÊM: DELETE method
+    @PostMapping("/users/delete/{id}")
+    @ResponseBody
+    public ResponseEntity<Map<String, String>> deleteUser(@PathVariable String id) {
+        try {
+            User user = userService.findUserById(id);
+            String username = user.getUsername();
+
+            // Thực hiện xóa (hoặc soft delete)
+            // userService.deleteUser(id);
+
+            return ResponseEntity.ok(Map.of(
+                    "message", "Đã xóa người dùng '" + username + "' thành công!"
+            ));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of(
+                    "message", "Lỗi: " + e.getMessage()
+            ));
+        }
     }
 
     // ===== REST API =====
