@@ -3,7 +3,8 @@ package com.teamforone.tech_store.service.admin.impl;
 import com.teamforone.tech_store.dto.request.UserRequest;
 import com.teamforone.tech_store.model.User;
 
-import com.teamforone.tech_store.repository.admin.crud.UserRepository;
+
+import com.teamforone.tech_store.repository.admin.UserRepository;
 import com.teamforone.tech_store.service.admin.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;

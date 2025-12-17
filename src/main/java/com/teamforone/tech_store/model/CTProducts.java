@@ -13,7 +13,6 @@ import java.util.UUID;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@IdClass(CTProductId.class)
 @Table(name = "ctproducts")
 @IdClass(CTProductId.class)
 public class CTProducts {
