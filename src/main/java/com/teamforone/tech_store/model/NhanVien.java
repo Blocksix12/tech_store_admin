@@ -33,11 +33,7 @@ public class NhanVien implements UserDetails {
     private String password;
 
     @Column(name = "full_name", nullable = false)
-<<<<<<< HEAD
-    private String fullname;
-=======
     private String fullName;
->>>>>>> a4a014af87307103265b91d7afcd2e53131a4ebb
 
     @Column(name = "email", nullable = false, unique = true)
     private String email;
