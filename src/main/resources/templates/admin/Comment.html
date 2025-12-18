@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Quản lý bình luận</title>
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <link rel="stylesheet" th:href="@{/css/dashboard.css}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <link rel="stylesheet" th:href="@{/css/Comment.css}">
+    <link rel="stylesheet" th:href="@{/css/Sidebar.css}">
+</head>
+<body>
+<div class="wrapper">
+
+    <!-- Sidebar -->
+    <div th:replace="fragments/sidebar :: sidebar"></div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div th:replace="fragments/topbar :: topbar"></div>
+
+        <div class="content-area">
+            <h3 class="mb-4">Bình luận người dùng</h3>
+
+            <div class="table-responsive">
+                <table class="table table-hover table-bordered align-middle text-center">
+                    <thead class="table-dark">
+                    <tr>
+                        <th>#</th>
+                        <th>Người dùng</th>
+                        <th>Sản phẩm</th>
+                        <th>Đánh giá</th>
+                        <th>Nội dung</th>
+                        <th>Trạng thái</th>
+                        <th>Ngày bình luận</th>
+                        <th>Thao tác</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="comment, iterStat : ${comments}">
+                        <td th:text="${iterStat.index + 1}"></td>
+                        <td th:text="${comment.username}"></td>
+                        <td th:text="${comment.productName}"></td>
+                        <td>
+                            <span th:each="i : ${#numbers.sequence(1,5)}">
+                                <i th:classappend="${i <= comment.rating} ? 'bi bi-star-fill text-warning' : 'bi bi-star text-muted'"></i>
+                            </span>
+                            <span th:text="${comment.rating}"></span>/5
+                        </td>
+                        <td th:text="${comment.commentText}"></td>
+                        <td>
+                            <span th:switch="${comment.status.name()}">
+                                <span th:case="'PENDING'" class="badge bg-warning text-dark">Chờ duyệt</span>
+                                <span th:case="'APPROVED'" class="badge bg-success">Đã duyệt</span>
+                                <span th:case="'REJECTED'" class="badge bg-danger">Đã ẩn</span>
+                            </span>
+                        </td>
+                        <td th:text="${#dates.format(comment.createdAt,'dd/MM/yyyy HH:mm')}"></td>
+                        <td class="text-start">
+
+                            <!-- Xoá / Duyệt / Ẩn -->
+                            <form th:action="@{'/admin/comments/' + ${comment.commentId} + '/delete'}" method="post" style="display:inline;">
+                                <button type="button" class="btn btn-sm btn-outline-danger"
+                                        onclick="deleteComment('${comment.commentId}', this.form)">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </form>
+                            <form th:action="@{'/admin/comments/' + ${comment.commentId} + '/approve'}" method="post" style="display:inline;">
+                                <button type="submit" class="btn btn-sm btn-outline-success">
+                                    <i class="bi bi-check-circle"></i>
+                                </button>
+                            </form>
+                            <form th:action="@{'/admin/comments/' + ${comment.commentId} + '/hide'}" method="post" style="display:inline;">
+                                <button type="submit" class="btn btn-sm btn-outline-warning">
+                                    <i class="bi bi-eye-slash"></i>
+                                </button>
+                            </form>
+
+                            <!-- Trả lời -->
+                            <button type="button" class="btn btn-sm btn-outline-primary"
+                                    th:onclick="'toggleReplyForm(' + ${iterStat.index} + ')'">
+                                Trả lời
+                            </button>
+                            <div th:id="'reply-form-' + ${iterStat.index}" class="mt-2 p-2 border rounded bg-light" style="display:none;">
+                                <form th:action="@{'/admin/comments/' + ${comment.commentId} + '/reply'}" method="post">
+                                    <input type="hidden" name="adminId" th:value="${session.adminId}"/>
+                                    <textarea name="content" class="form-control mb-2" rows="2"></textarea>
+                                    <button type="submit" class="btn btn-primary btn-sm">Gửi</button>
+                                </form>
+                            </div>
+
+                            <!-- Xem phản hồi -->
+                            <button type="button" class="btn btn-sm btn-outline-secondary"
+                                    th:onclick="'toggleReplyList(' + ${iterStat.index} + ')'">Xem
+                            </button>
+                            <div th:id="'reply-list-' + ${iterStat.index}" class="mt-2 p-2 border rounded bg-white" style="display:none;">
+                                <div th:each="rep : ${comment.replies}">
+                                    <strong th:text="${rep.username}">Admin</strong>
+                                    <p th:text="${rep.commentText}"></p>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+
+                    <tr th:if="${#lists.isEmpty(comments)}">
+                        <td colspan="8" class="text-center py-3">Chưa có bình luận nào</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    function deleteComment(id, form) {
+        if (confirm("Bạn có chắc muốn xóa bình luận này?")) form.submit();
+    }
+    function toggleReplyForm(id) {
+        const el = document.getElementById('reply-form-' + id);
+        el.style.display = (el.style.display === 'none') ? 'block' : 'none';
+    }
+    function toggleReplyList(id) {
+        const el = document.getElementById('reply-list-' + id);
+        el.style.display = (el.style.display === 'none') ? 'block' : 'none';
+    }
+</script>
+</body>
+</html>

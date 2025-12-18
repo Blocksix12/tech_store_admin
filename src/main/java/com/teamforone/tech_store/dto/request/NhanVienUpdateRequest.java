@@ -6,7 +6,9 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.util.Date;
 import java.util.Set;
 
 @Data
@@ -22,4 +24,14 @@ public class NhanVienUpdateRequest {
     private String phoneNumber;
 
     private Set<String> roles;
+    private String avatar;
+    private boolean active;
+    private MultipartFile avatarFile;
+
+    private Date dateOfBirth;
+    private String gender; // "Nam", "Nữ", "Khác"
+    private String address;
+    private String bio;
+    private String website;
+
 }

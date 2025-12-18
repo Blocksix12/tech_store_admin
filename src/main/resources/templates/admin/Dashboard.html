@@ -1,0 +1,1526 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${pageTitle} ?: 'Admin Dashboard'">Admin Dashboard</title>
+
+    <!-- Bootstrap 5.3 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --sidebar-width: 280px;
+            --topbar-height: 70px;
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary: #64748b;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --info: #3b82f6;
+            --dark: #1e293b;
+            --light: #f8fafc;
+            --sidebar-bg: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
+            --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e8ecf1 100%);
+            color: #334155;
+            overflow-x: hidden;
+        }
+
+        /* ============================================
+           SIDEBAR STYLES - Modern & Elegant
+        ============================================ */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            width: var(--sidebar-width);
+            background: var(--sidebar-bg);
+            color: white;
+            overflow-y: auto;
+            overflow-x: hidden;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 1050;
+            box-shadow: var(--shadow-xl);
+        }
+
+        .sidebar::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .sidebar::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .sidebar::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 3px;
+        }
+
+        .sidebar::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .sidebar-brand {
+            height: var(--topbar-height);
+            padding: 0 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            background: rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(10px);
+        }
+
+        .sidebar-brand i {
+            font-size: 2rem;
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .sidebar-brand-text {
+            font-size: 1.4rem;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        .sidebar-menu {
+            padding: 20px 0;
+        }
+
+        .menu-section-title {
+            padding: 20px 24px 8px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .menu-item {
+            position: relative;
+            padding: 12px 24px;
+            margin: 4px 12px;
+            color: rgba(255, 255, 255, 0.75);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border-radius: 10px;
+            font-weight: 500;
+        }
+
+        .menu-item:hover {
+            background: rgba(255, 255, 255, 0.08);
+            color: white;
+            transform: translateX(4px);
+        }
+
+        .menu-item.active {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+        }
+
+        .menu-item.active::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 4px;
+            height: 24px;
+            background: white;
+            border-radius: 0 2px 2px 0;
+        }
+
+        .menu-item i {
+            font-size: 1.25rem;
+            width: 24px;
+            text-align: center;
+        }
+
+        .menu-item .badge {
+            padding: 3px 8px;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+
+        .menu-item .bi-chevron-down {
+            margin-left: auto;
+            transition: transform 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .menu-item.expanded .bi-chevron-down {
+            transform: rotate(180deg);
+        }
+
+        .submenu {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            background: rgba(0, 0, 0, 0.15);
+            margin: 4px 12px;
+            border-radius: 10px;
+        }
+
+        .submenu.show {
+            max-height: 600px;
+            padding: 8px 0;
+        }
+
+        .submenu-item {
+            padding: 10px 24px 10px 52px;
+            color: rgba(255, 255, 255, 0.65);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s ease;
+            font-size: 0.9rem;
+            position: relative;
+        }
+
+        .submenu-item::before {
+            content: '';
+            position: absolute;
+            left: 32px;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transition: all 0.2s ease;
+        }
+
+        .submenu-item:hover {
+            color: white;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .submenu-item:hover::before {
+            background: white;
+            transform: scale(1.3);
+        }
+
+        .submenu-item .badge {
+            margin-left: auto;
+        }
+
+        /* ============================================
+           MAIN CONTENT AREA
+        ============================================ */
+        .main-content {
+            margin-left: var(--sidebar-width);
+            min-height: 100vh;
+            transition: margin-left 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* ============================================
+           TOPBAR - Premium Design
+        ============================================ */
+        .topbar {
+            background: white;
+            height: var(--topbar-height);
+            padding: 0 32px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: var(--shadow-md);
+            position: sticky;
+            top: 0;
+            z-index: 1040;
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .topbar-left {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .page-title {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--dark);
+            margin: 0;
+            letter-spacing: -0.5px;
+        }
+
+        .breadcrumb {
+            background: none;
+            padding: 0;
+            margin: 0;
+            font-size: 0.9rem;
+        }
+
+        .search-box {
+            position: relative;
+            width: 350px;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 10px 16px 10px 44px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            background: #f8fafc;
+            font-size: 0.9rem;
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: white;
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+        }
+
+        .search-box i {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #94a3b8;
+            font-size: 1.1rem;
+        }
+
+        .topbar-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .topbar-icon {
+            position: relative;
+            width: 42px;
+            height: 42px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+            background: #f8fafc;
+            color: var(--secondary);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+
+        .topbar-icon:hover {
+            background: var(--primary);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .topbar-icon .badge {
+            position: absolute;
+            top: -4px;
+            right: -4px;
+            padding: 3px 6px;
+            font-size: 0.65rem;
+            border-radius: 10px;
+            font-weight: 700;
+            border: 2px solid white;
+        }
+
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 8px 12px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: #f8fafc;
+            border: 2px solid transparent;
+        }
+
+        .user-menu:hover {
+            background: white;
+            border-color: var(--primary);
+            box-shadow: var(--shadow-md);
+        }
+
+        .user-avatar {
+            width: 42px;
+            height: 42px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: white;
+            font-size: 1rem;
+            box-shadow: var(--shadow-md);
+        }
+
+        .user-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .user-name {
+            font-weight: 600;
+            color: var(--dark);
+            font-size: 0.9rem;
+        }
+
+        .user-role {
+            font-size: 0.75rem;
+            color: var(--secondary);
+        }
+
+        /* ============================================
+           CONTENT AREA - Cards & Stats
+        ============================================ */
+        .content-area {
+            padding: 32px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: var(--shadow-md);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary) 0%, var(--primary-dark) 100%);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-8px);
+            box-shadow: var(--shadow-xl);
+        }
+
+        .stat-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .stat-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 16px;
+        }
+
+        .stat-icon {
+            width: 56px;
+            height: 56px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.75rem;
+            box-shadow: var(--shadow-md);
+        }
+
+        .stat-icon.primary {
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            color: white;
+        }
+
+        .stat-icon.success {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+        }
+
+        .stat-icon.warning {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            color: white;
+        }
+
+        .stat-icon.danger {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: white;
+        }
+
+        .stat-value {
+            font-size: 2.25rem;
+            font-weight: 800;
+            color: var(--dark);
+            margin-bottom: 4px;
+            letter-spacing: -1px;
+        }
+
+        .stat-label {
+            color: var(--secondary);
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .stat-change {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 10px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-top: 12px;
+        }
+
+        .stat-change.positive {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+        }
+
+        .stat-change.negative {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger);
+        }
+
+        .stat-change.neutral {
+            background: rgba(249, 115, 22, 0.1);
+            color: var(--warning);
+        }
+
+        /* ============================================
+           TABLES - Modern Design
+        ============================================ */
+        .custom-table {
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: var(--shadow-md);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .table-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .table-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--dark);
+            margin: 0;
+        }
+
+        .table-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .table {
+            margin-bottom: 0;
+        }
+
+        .table thead {
+            background: #f8fafc;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .table thead th {
+            font-weight: 600;
+            color: var(--secondary);
+            padding: 16px 20px;
+            border: none;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .table tbody td {
+            padding: 16px 20px;
+            vertical-align: middle;
+            border-bottom: 1px solid #f1f5f9;
+            color: #475569;
+        }
+
+        .table tbody tr {
+            transition: all 0.2s ease;
+        }
+
+        .table tbody tr:hover {
+            background: #f8fafc;
+        }
+
+        .order-number {
+            font-weight: 700;
+            color: var(--dark);
+            font-family: 'Courier New', monospace;
+        }
+
+        .status-badge {
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .status-badge::before {
+            content: '';
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: currentColor;
+        }
+
+        .status-badge.pending {
+            background: rgba(249, 115, 22, 0.1);
+            color: var(--warning);
+        }
+
+        .status-badge.processing {
+            background: rgba(59, 130, 246, 0.1);
+            color: var(--info);
+        }
+
+        .status-badge.completed {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+        }
+
+        .status-badge.cancelled {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger);
+        }
+
+        /* ============================================
+           BUTTONS - Enhanced Design
+        ============================================ */
+        .btn {
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(99, 102, 241, 0.4);
+        }
+
+        .btn-outline-primary {
+            border: 2px solid var(--primary);
+            color: var(--primary);
+            background: transparent;
+        }
+
+        .btn-outline-primary:hover {
+            background: var(--primary);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 0.85rem;
+        }
+
+        /* ============================================
+           CHARTS & WIDGETS
+        ============================================ */
+        .chart-container {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: var(--shadow-md);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .widget-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--dark);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .widget-title i {
+            color: var(--primary);
+        }
+
+        .product-item {
+            padding: 16px;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            border: 1px solid #e2e8f0;
+            margin-bottom: 12px;
+        }
+
+        .product-item:hover {
+            background: #f8fafc;
+            border-color: var(--primary);
+            transform: translateX(4px);
+        }
+
+        .product-info {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .product-name {
+            font-weight: 600;
+            color: var(--dark);
+            margin-bottom: 4px;
+        }
+
+        .product-meta {
+            font-size: 0.85rem;
+            color: var(--secondary);
+        }
+
+        .product-badge {
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+        }
+
+        .alert {
+            border-radius: 12px;
+            border: none;
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .alert i {
+            font-size: 1.25rem;
+        }
+
+        .alert-warning {
+            background: rgba(249, 115, 22, 0.1);
+            color: #ea580c;
+        }
+
+        .alert-danger {
+            background: rgba(239, 68, 68, 0.1);
+            color: #dc2626;
+        }
+
+        /* ============================================
+           MOBILE RESPONSIVE
+        ============================================ */
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+
+            .sidebar.show {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+
+            .topbar {
+                padding: 0 16px;
+            }
+
+            .search-box {
+                display: none;
+            }
+
+            .page-title {
+                font-size: 1.25rem;
+            }
+
+            .content-area {
+                padding: 16px;
+            }
+
+            .stat-card {
+                margin-bottom: 16px;
+            }
+
+            .user-info {
+                display: none;
+            }
+        }
+
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--dark);
+            width: 42px;
+            height: 42px;
+            border-radius: 10px;
+            background: #f8fafc;
+            transition: all 0.3s ease;
+        }
+
+        .mobile-menu-btn:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        @media (max-width: 768px) {
+            .mobile-menu-btn {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+        }
+
+        /* ============================================
+           ANIMATIONS
+        ============================================ */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fade-in-up {
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        /* Dropdown Menu */
+        .dropdown-menu {
+            border-radius: 12px;
+            border: none;
+            box-shadow: var(--shadow-xl);
+            padding: 8px;
+            min-width: 220px;
+        }
+
+        .dropdown-item {
+            border-radius: 8px;
+            padding: 10px 16px;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .dropdown-item:hover {
+            background: #f8fafc;
+            color: var(--primary);
+        }
+
+        .dropdown-divider {
+            margin: 8px 0;
+            border-color: #e2e8f0;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Sidebar -->
+<div class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+        <i class="bi bi-shop-window"></i>
+        <span class="sidebar-brand-text">E-Commerce</span>
+    </div>
+
+    <div class="sidebar-menu">
+        <div class="menu-section-title">Main</div>
+
+        <!-- Dashboard -->
+        <a href="/admin/dashboard" class="menu-item active">
+            <i class="bi bi-grid-fill"></i>
+            <span>Dashboard</span>
+        </a>
+
+        <div class="menu-section-title">Quản lý</div>
+
+        <!-- Quản lý sản phẩm -->
+        <div>
+            <div class="menu-item" onclick="toggleSubmenu(this)">
+                <i class="bi bi-box-seam-fill"></i>
+                <span>Sản phẩm</span>
+                <i class="bi bi-chevron-down"></i>
+            </div>
+            <div class="submenu">
+                <a href="/admin/products" class="submenu-item">Danh sách sản phẩm</a>
+                <a href="/admin/products/add" class="submenu-item">Thêm sản phẩm</a>
+                <a href="/admin/categories" class="submenu-item">Danh mục</a>
+                <a href="/admin/brands" class="submenu-item">Thương hiệu</a>
+                <a href="/admin/attributes" class="submenu-item">Thuộc tính</a>
+                <a href="/admin/products/import" class="submenu-item">Import/Export</a>
+            </div>
+        </div>
+
+        <!-- Quản lý tồn kho -->
+        <div>
+            <div class="menu-item" onclick="toggleSubmenu(this)">
+                <i class="bi bi-boxes"></i>
+                <span>Tồn kho</span>
+                <i class="bi bi-chevron-down"></i>
+            </div>
+            <div class="submenu">
+                <a href="/admin/inventory" class="submenu-item">Quản lý kho</a>
+                <a href="/admin/inventory/warehouses" class="submenu-item">Kho hàng</a>
+                <a href="/admin/inventory/stock-in" class="submenu-item">Nhập kho</a>
+                <a href="/admin/inventory/stock-out" class="submenu-item">Xuất kho</a>
+                <a href="/admin/inventory/transfer" class="submenu-item">Điều chuyển</a>
+                <a href="/admin/inventory/alerts" class="submenu-item">
+                    Cảnh báo tồn kho
+                    <span class="badge bg-danger">12</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Quản lý đơn hàng -->
+        <div>
+            <div class="menu-item" onclick="toggleSubmenu(this)">
+                <i class="bi bi-cart-check-fill"></i>
+                <span>Đơn hàng</span>
+                <i class="bi bi-chevron-down"></i>
+            </div>
+            <div class="submenu">
+                <a href="/admin/quanlidonhang" class="submenu-item">Danh sách đơn hàng</a>
+                <a href="/admin/orders/pending" class="submenu-item">
+                    Chờ xử lý
+                    <span class="badge bg-warning text-dark">5</span>
+                </a>
+                <a href="/admin/orders/processing" class="submenu-item">Đang xử lý</a>
+                <a href="/admin/orders/shipped" class="submenu-item">Đang giao</a>
+                <a href="/admin/orders/refunds" class="submenu-item">Hoàn trả</a>
+            </div>
+        </div>
+
+        <!-- Quản lý khách hàng -->
+        <div>
+            <div class="menu-item" onclick="toggleSubmenu(this)">
+                <i class="bi bi-people-fill"></i>
+                <span>Khách hàng</span>
+                <i class="bi bi-chevron-down"></i>
+            </div>
+            <div class="submenu">
+                <a href="/admin/customers" class="submenu-item">Danh sách khách hàng</a>
+                <a href="/admin/customers/groups" class="submenu-item">Nhóm khách hàng</a>
+                <a href="/admin/customers/reviews" class="submenu-item">Đánh giá</a>
+                <a href="/admin/users/roles" class="submenu-item">Phân quyền</a>
+            </div>
+        </div>
+
+        <div class="menu-section-title">Marketing & Content</div>
+
+        <!-- Marketing -->
+        <div>
+            <div class="menu-item" onclick="toggleSubmenu(this)">
+                <i class="bi bi-megaphone-fill"></i>
+                <span>Marketing</span>
+                <i class="bi bi-chevron-down"></i>
+            </div>
+            <div class="submenu">
+                <a href="/admin/promotions" class="submenu-item">Khuyến mãi</a>
+                <a href="/admin/coupons" class="submenu-item">Mã giảm giá</a>
+                <a href="/admin/campaigns" class="submenu-item">Chiến dịch</a>
+                <a href="/admin/emails" class="submenu-item">Email Marketing</a>
+            </div>
+        </div>
+
+        <!-- CMS -->
+        <div>
+            <div class="menu-item" onclick="toggleSubmenu(this)">
+                <i class="bi bi-file-earmark-text-fill"></i>
+                <span>Nội dung</span>
+                <i class="bi bi-chevron-down"></i>
+            </div>
+            <div class="submenu">
+                <a href="/admin/pages" class="submenu-item">Trang tĩnh</a>
+                <a href="/admin/blog" class="submenu-item">Blog/Tin tức</a>
+                <a href="/admin/banners" class="submenu-item">Banner & Slider</a>
+                <a href="/admin/seo" class="submenu-item">SEO</a>
+            </div>
+        </div>
+
+        <!-- Phản hồi & Đánh giá -->
+        <a href="/admin/reviews" class="menu-item">
+            <i class="bi bi-star-fill"></i>
+            <span>Phản hồi & Đánh giá</span>
+            <span class="badge bg-info">8</span>
+        </a>
+
+        <div class="menu-section-title">Analytics</div>
+
+        <!-- Báo cáo -->
+        <div>
+            <div class="menu-item" onclick="toggleSubmenu(this)">
+                <i class="bi bi-graph-up-arrow"></i>
+                <span>Báo cáo</span>
+                <i class="bi bi-chevron-down"></i>
+            </div>
+            <div class="submenu">
+                <a href="/admin/reports/sales" class="submenu-item">Doanh thu</a>
+                <a href="/admin/reports/products" class="submenu-item">Sản phẩm</a>
+                <a href="/admin/reports/customers" class="submenu-item">Khách hàng</a>
+                <a href="/admin/reports/inventory" class="submenu-item">Tồn kho</a>
+                <a href="/admin/reports/export" class="submenu-item">Export báo cáo</a>
+            </div>
+        </div>
+
+        <div class="menu-section-title">System</div>
+
+        <!-- Cài đặt -->
+        <div>
+            <div class="menu-item" onclick="toggleSubmenu(this)">
+                <i class="bi bi-gear-fill"></i>
+                <span>Cài đặt</span>
+                <i class="bi bi-chevron-down"></i>
+            </div>
+            <div class="submenu">
+                <a href="/admin/settings/general" class="submenu-item">Cài đặt chung</a>
+                <a href="/admin/settings/shipping" class="submenu-item">Vận chuyển</a>
+                <a href="/admin/settings/payment" class="submenu-item">Thanh toán</a>
+                <a href="/admin/settings/email" class="submenu-item">Email SMTP</a>
+                <a href="/admin/settings/users" class="submenu-item">Quản trị viên</a>
+                <a href="/admin/settings/audit-logs" class="submenu-item">Audit Logs</a>
+            </div>
+        </div>
+
+        <!-- 2FA Security -->
+        <a href="/admin/2fa" class="menu-item">
+            <i class="bi bi-shield-check"></i>
+            <span>Xác thực 2FA</span>
+        </a>
+    </div>
+</div>
+
+<!-- Main Content -->
+<div class="main-content">
+    <!-- Topbar -->
+    <div class="topbar">
+        <div class="topbar-left">
+            <button class="mobile-menu-btn" onclick="toggleSidebar()">
+                <i class="bi bi-list"></i>
+            </button>
+            <div>
+                <h1 class="page-title" th:text="${pageTitle} ?: 'Dashboard'">Dashboard</h1>
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="/admin">Trang chủ</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">Dashboard</li>
+                    </ol>
+                </nav>
+            </div>
+        </div>
+
+        <div class="topbar-right">
+            <!-- Search -->
+            <div class="search-box">
+                <i class="bi bi-search"></i>
+                <input type="text" class="form-control" placeholder="Tìm kiếm sản phẩm, đơn hàng...">
+            </div>
+
+            <!-- Notifications -->
+            <div class="dropdown">
+                <div class="topbar-icon" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="bi bi-bell-fill"></i>
+                    <span class="badge bg-danger">5</span>
+                </div>
+                <ul class="dropdown-menu dropdown-menu-end">
+                    <li class="px-3 py-2"><strong>Thông báo</strong></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li>
+                        <a class="dropdown-item" href="#">
+                            <i class="bi bi-cart-check text-success"></i>
+                            <span>3 đơn hàng mới</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item" href="#">
+                            <i class="bi bi-exclamation-triangle text-warning"></i>
+                            <span>12 sản phẩm sắp hết</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item" href="#">
+                            <i class="bi bi-star text-info"></i>
+                            <span>8 đánh giá mới</span>
+                        </a>
+                    </li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item text-center" href="#">Xem tất cả</a></li>
+                </ul>
+            </div>
+
+            <!-- Messages -->
+            <div class="dropdown">
+                <div class="topbar-icon" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="bi bi-chat-dots-fill"></i>
+                    <span class="badge bg-success">2</span>
+                </div>
+                <ul class="dropdown-menu dropdown-menu-end">
+                    <li class="px-3 py-2"><strong>Tin nhắn</strong></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li>
+                        <a class="dropdown-item" href="#">
+                            <i class="bi bi-person-circle"></i>
+                            <span>Khách hàng yêu cầu hỗ trợ</span>
+                        </a>
+                    </li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item text-center" href="#">Xem tất cả</a></li>
+                </ul>
+            </div>
+
+            <!-- User Menu -->
+            <div class="dropdown">
+                <div class="user-menu" data-bs-toggle="dropdown" aria-expanded="false">
+                    <div class="user-avatar">A</div>
+                    <div class="user-info">
+                        <div class="user-name">Admin User</div>
+                        <div class="user-role">Administrator</div>
+                    </div>
+                    <i class="bi bi-chevron-down"></i>
+                </div>
+                <ul class="dropdown-menu dropdown-menu-end">
+                    <li>
+                        <a class="dropdown-item" href="/admin/profile">
+                            <i class="bi bi-person"></i>
+                            <span>Hồ sơ của tôi</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item" href="/admin/settings">
+                            <i class="bi bi-gear"></i>
+                            <span>Cài đặt</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item" href="/admin/activity-log">
+                            <i class="bi bi-clock-history"></i>
+                            <span>Nhật ký hoạt động</span>
+                        </a>
+                    </li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li>
+                        <a class="dropdown-item" href="/logout">
+                            <i class="bi bi-box-arrow-right"></i>
+                            <span>Đăng xuất</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Content Area -->
+    <div class="content-area">
+        <!-- Stats Cards -->
+        <div class="row g-4 mb-4 fade-in-up">
+            <div class="col-xl-3 col-md-6">
+                <div class="stat-card">
+                    <div class="stat-card-header">
+                        <div>
+                            <div class="stat-label">Doanh thu tháng này</div>
+                            <div class="stat-value">156.000.000₫</div>
+                            <div class="stat-change positive">
+                                <i class="bi bi-arrow-up"></i>
+                                <span>12.5% vs tháng trước</span>
+                            </div>
+                        </div>
+                        <div class="stat-icon primary">
+                            <i class="bi bi-currency-dollar"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xl-3 col-md-6">
+                <div class="stat-card">
+                    <div class="stat-card-header">
+                        <div>
+                            <div class="stat-label">Đơn hàng hôm nay</div>
+                            <div class="stat-value">1.245</div>
+                            <div class="stat-change positive">
+                                <i class="bi bi-arrow-up"></i>
+                                <span>8.2% vs hôm qua</span>
+                            </div>
+                        </div>
+                        <div class="stat-icon success">
+                            <i class="bi bi-cart-check"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xl-3 col-md-6">
+                <div class="stat-card">
+                    <div class="stat-card-header">
+                        <div>
+                            <div class="stat-label">Khách hàng</div>
+                            <div class="stat-value">3.782</div>
+                            <div class="stat-change positive">
+                                <i class="bi bi-arrow-up"></i>
+                                <span>152 khách hàng mới</span>
+                            </div>
+                        </div>
+                        <div class="stat-icon warning">
+                            <i class="bi bi-people"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xl-3 col-md-6">
+                <div class="stat-card">
+                    <div class="stat-card-header">
+                        <div>
+                            <div class="stat-label">Sản phẩm</div>
+                            <div class="stat-value">856</div>
+                            <div class="stat-change neutral">
+                                <i class="bi bi-exclamation-triangle"></i>
+                                <span>23 sản phẩm cần nhập</span>
+                            </div>
+                        </div>
+                        <div class="stat-icon danger">
+                            <i class="bi bi-box-seam"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content Grid -->
+        <div class="row g-4">
+            <!-- Recent Orders -->
+            <div class="col-lg-8">
+                <div class="custom-table fade-in-up" style="animation-delay: 0.1s;">
+                    <div class="table-header">
+                        <h5 class="table-title">
+                            <i class="bi bi-receipt"></i>
+                            Đơn hàng gần đây
+                        </h5>
+                        <div class="table-actions">
+                            <button class="btn btn-sm btn-outline-primary">
+                                <i class="bi bi-funnel"></i>
+                                Lọc
+                            </button>
+                            <a href="/admin/orders" class="btn btn-sm btn-primary">
+                                Xem tất cả
+                                <i class="bi bi-arrow-right"></i>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead>
+                            <tr>
+                                <th>Mã đơn</th>
+                                <th>Khách hàng</th>
+                                <th>Sản phẩm</th>
+                                <th>Tổng tiền</th>
+                                <th>Trạng thái</th>
+                                <th>Ngày</th>
+                                <th>Thao tác</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr>
+                                <td><span class="order-number">#ORD-12345</span></td>
+                                <td>
+                                    <div>
+                                        <div class="fw-bold">Nguyễn Văn A</div>
+                                        <small class="text-muted">nguyen.a@email.com</small>
+                                    </div>
+                                </td>
+                                <td><small>3 sản phẩm</small></td>
+                                <td><strong>1.250.000₫</strong></td>
+                                <td><span class="status-badge processing">Đang xử lý</span></td>
+                                <td>03/11/2025</td>
+                                <td>
+                                    <div class="btn-group btn-group-sm">
+                                        <button class="btn btn-sm btn-outline-primary"><i class="bi bi-eye"></i></button>
+                                        <button class="btn btn-sm btn-outline-success"><i class="bi bi-printer"></i></button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><span class="order-number">#ORD-12344</span></td>
+                                <td>
+                                    <div>
+                                        <div class="fw-bold">Trần Thị B</div>
+                                        <small class="text-muted">tran.b@email.com</small>
+                                    </div>
+                                </td>
+                                <td><small>5 sản phẩm</small></td>
+                                <td><strong>2.890.000₫</strong></td>
+                                <td><span class="status-badge completed">Hoàn thành</span></td>
+                                <td>02/11/2025</td>
+                                <td>
+                                    <div class="btn-group btn-group-sm">
+                                        <button class="btn btn-sm btn-outline-primary"><i class="bi bi-eye"></i></button>
+                                        <button class="btn btn-sm btn-outline-success"><i class="bi bi-printer"></i></button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><span class="order-number">#ORD-12343</span></td>
+                                <td>
+                                    <div>
+                                        <div class="fw-bold">Lê Văn C</div>
+                                        <small class="text-muted">le.c@email.com</small>
+                                    </div>
+                                </td>
+                                <td><small>2 sản phẩm</small></td>
+                                <td><strong>890.000₫</strong></td>
+                                <td><span class="status-badge pending">Chờ xử lý</span></td>
+                                <td>01/11/2025</td>
+                                <td>
+                                    <div class="btn-group btn-group-sm">
+                                        <button class="btn btn-sm btn-outline-primary"><i class="bi bi-eye"></i></button>
+                                        <button class="btn btn-sm btn-outline-success"><i class="bi bi-printer"></i></button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><span class="order-number">#ORD-12342</span></td>
+                                <td>
+                                    <div>
+                                        <div class="fw-bold">Phạm Thị D</div>
+                                        <small class="text-muted">pham.d@email.com</small>
+                                    </div>
+                                </td>
+                                <td><small>1 sản phẩm</small></td>
+                                <td><strong>450.000₫</strong></td>
+                                <td><span class="status-badge completed">Hoàn thành</span></td>
+                                <td>31/10/2025</td>
+                                <td>
+                                    <div class="btn-group btn-group-sm">
+                                        <button class="btn btn-sm btn-outline-primary"><i class="bi bi-eye"></i></button>
+                                        <button class="btn btn-sm btn-outline-success"><i class="bi bi-printer"></i></button>
+                                    </div>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sidebar Widgets -->
+            <div class="col-lg-4">
+                <!-- Top Products -->
+                <div class="chart-container mb-4 fade-in-up" style="animation-delay: 0.2s;">
+                    <h5 class="widget-title">
+                        <i class="bi bi-trophy-fill"></i>
+                        Sản phẩm bán chạy
+                    </h5>
+                    <div>
+                        <div class="product-item">
+                            <div class="product-info">
+                                <div>
+                                    <div class="product-name">iPhone 15 Pro Max</div>
+                                    <div class="product-meta">256GB - Titan Tự Nhiên</div>
+                                </div>
+                                <div class="product-badge">245 đã bán</div>
+                            </div>
+                        </div>
+                        <div class="product-item">
+                            <div class="product-info">
+                                <div>
+                                    <div class="product-name">Samsung Galaxy S24 Ultra</div>
+                                    <div class="product-meta">512GB - Titanium Gray</div>
+                                </div>
+                                <div class="product-badge">198 đã bán</div>
+                            </div>
+                        </div>
+                        <div class="product-item">
+                            <div class="product-info">
+                                <div>
+                                    <div class="product-name">MacBook Pro M3</div>
+                                    <div class="product-meta">16GB RAM - 512GB SSD</div>
+                                </div>
+                                <div class="product-badge">152 đã bán</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="d-grid mt-3">
+                        <a href="/admin/reports/products" class="btn btn-outline-primary">
+                            Xem báo cáo chi tiết
+                            <i class="bi bi-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Inventory Alerts -->
+                <div class="chart-container fade-in-up" style="animation-delay: 0.3s;">
+                    <h5 class="widget-title">
+                        <i class="bi bi-exclamation-triangle-fill"></i>
+                        Cảnh báo tồn kho
+                    </h5>
+                    <div class="alert alert-warning">
+                        <i class="bi bi-exclamation-triangle-fill"></i>
+                        <div>
+                            <strong>23 sản phẩm</strong>
+                            <div class="small">Sắp hết hàng</div>
+                        </div>
+                    </div>
+                    <div class="alert alert-danger">
+                        <i class="bi bi-x-circle-fill"></i>
+                        <div>
+                            <strong>5 sản phẩm</strong>
+                            <div class="small">Đã hết hàng</div>
+                        </div>
+                    </div>
+                    <div class="d-grid">
+                        <a href="/admin/inventory/alerts" class="btn btn-outline-primary">
+                            Quản lý tồn kho
+                            <i class="bi bi-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    // Toggle submenu with smooth animation
+    function toggleSubmenu(element) {
+        const submenu = element.nextElementSibling;
+        const allSubmenus = document.querySelectorAll('.submenu');
+        const allMenuItems = document.querySelectorAll('.menu-item[onclick]');
+
+        // Close other submenus
+        allSubmenus.forEach(sm => {
+            if (sm !== submenu && sm.classList.contains('show')) {
+                sm.classList.remove('show');
+            }
+        });
+
+        // Remove expanded class from other menu items
+        allMenuItems.forEach(mi => {
+            if (mi !== element && mi.classList.contains('expanded')) {
+                mi.classList.remove('expanded');
+            }
+        });
+
+        // Toggle current submenu
+        submenu.classList.toggle('show');
+        element.classList.toggle('expanded');
+    }
+
+    // Toggle sidebar on mobile
+    function toggleSidebar() {
+        const sidebar = document.getElementById('sidebar');
+        sidebar.classList.toggle('show');
+    }
+
+    // Close sidebar when clicking outside on mobile
+    document.addEventListener('click', function(event) {
+        const sidebar = document.getElementById('sidebar');
+        const menuBtn = document.querySelector('.mobile-menu-btn');
+
+        if (window.innerWidth <= 768 &&
+            sidebar.classList.contains('show') &&
+            !sidebar.contains(event.target) &&
+            !menuBtn?.contains(event.target)) {
+            sidebar.classList.remove('show');
+        }
+    });
+
+    // Add smooth scroll behavior
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+            const target = document.querySelector(this.getAttribute('href'));
+            if (target) {
+                target.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            }
+        });
+    });
+
+    // Animate stats on page load
+    window.addEventListener('load', function() {
+        const statValues = document.querySelectorAll('.stat-value');
+        statValues.forEach((stat, index) => {
+            setTimeout(() => {
+                stat.style.opacity = '0';
+                stat.style.transform = 'translateY(10px)';
+
+                setTimeout(() => {
+                    stat.style.transition = 'all 0.6s ease';
+                    stat.style.opacity = '1';
+                    stat.style.transform = 'translateY(0)';
+                }, 50);
+            }, index * 100);
+        });
+    });
+
+    // Handle dropdown menus
+    document.addEventListener('DOMContentLoaded', function() {
+        const dropdowns = document.querySelectorAll('[data-bs-toggle="dropdown"]');
+        dropdowns.forEach(dropdown => {
+            dropdown.addEventListener('click', function(e) {
+                e.stopPropagation();
+            });
+        });
+    });
+</script>
+</body>
+</html>

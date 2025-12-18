@@ -13,8 +13,8 @@ import java.util.UUID;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "ctproducts")
 @IdClass(CTProductId.class)
+@Table(name = "ctproducts")
 public class CTProducts {
     @Id
     @Column(name = "product_id", nullable = false)
@@ -24,14 +24,13 @@ public class CTProducts {
     @Column(name = "colorID", nullable = false)
     private String colorId;
 
+    @Id
+    @Column(name = "storageID", nullable = false)
+    private String storageId;
 
     @Id
     @Column(name = "sizeID", nullable = false)
     private String sizeId;
-
-    @Id
-    @Column(name = "storageID", nullable = false)
-    private String storageId;
 
     @Column(name = "price", nullable = false)
     private Double price;
@@ -52,10 +51,10 @@ public class CTProducts {
     private Color color;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "sizeID", insertable = false, updatable = false)
-    private DisplaySize size;
-
-    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "storageID", insertable = false, updatable = false)
     private Storage storage;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "sizeID", insertable = false, updatable = false)
+    private DisplaySize size;
 }

@@ -8,6 +8,7 @@ import com.teamforone.tech_store.service.admin.CategoryService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -31,6 +32,7 @@ public class CategoryController {
     }
 
     @GetMapping("/categories")
+    @PreAuthorize("hasAnyRole('STAFF','MANAGER','ADMIN')")
     public String getAllCategories(
             @RequestParam(required = false) String status,
             Model model,
@@ -211,6 +213,7 @@ public class CategoryController {
     }
 
     @PostMapping("/categories/add")
+    @PreAuthorize("hasAnyRole('MANAGER','ADMIN')")
     public String addCategory(@Valid @ModelAttribute CategoryRequest categoryRequest,
                               BindingResult result,
                               Model model,
@@ -263,6 +266,7 @@ public class CategoryController {
 
     // POST - Xử lý cập nhật
     @PostMapping("/categories/update/{id}")
+    @PreAuthorize("hasAnyRole('MANAGER','ADMIN')")
     public String updateCategory(@PathVariable String id,
                                  @Valid @ModelAttribute CategoryRequest categoryRequest,
                                  BindingResult result,
@@ -318,6 +322,7 @@ public class CategoryController {
 
     // POST - Xử lý xóa
     @PostMapping("/categories/delete/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN')")
     public String deleteCategory(@PathVariable String id,
                                  RedirectAttributes redirectAttributes) {
         try {
@@ -355,6 +360,7 @@ public class CategoryController {
     }
 
     @GetMapping("/categories/{id}")
+    @PreAuthorize("hasAnyRole('STAFF','MANAGER','ADMIN')")
     public Categories findCategoryById(@PathVariable String id) {
         return categoryService.findCategoryById(id);
     }

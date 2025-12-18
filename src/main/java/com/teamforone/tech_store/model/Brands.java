@@ -34,7 +34,7 @@ public class Brands {
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
     @Builder.Default
-    private BrandStatus status = BrandStatus. ACTIVE;
+    private BrandStatus status = BrandStatus.ACTIVE;
 
     @Column(name = "description", columnDefinition = "TEXT")
     private String description;

@@ -3,6 +3,7 @@ package com.teamforone.tech_store.config;
 import com.teamforone.tech_store.service.admin.impl.JwtService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -29,72 +30,78 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtService jwtService;
     private final UserDetailsService userDetailsService;
 
-    // ✅ Các path cần kiểm tra JWT (sync với SecurityConfiguration)
-    private static final String[] SECURED_PATHS = {
-            "/admin/api/",
-            "/admin/permissions/",
-            "/admin/roles/"
-    };
-
     @Override
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
                                     FilterChain filterChain)
             throws ServletException, IOException {
 
-        String requestPath = request.getRequestURI();
+        String token = resolveToken(request);
 
-        // ✅ CHỈ kiểm tra JWT cho secured API paths
-        boolean isSecuredPath = Arrays.stream(SECURED_PATHS)
-                .anyMatch(requestPath::startsWith);
-
-        if (!isSecuredPath) {
-            // Bỏ qua JWT cho các trang HTML views và public endpoints
+        if (!StringUtils.hasText(token)) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        // ✅ Kiểm tra Authorization header
-        String authHeader = request.getHeader("Authorization");
-
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+        if (!jwtService.verifyToken(token)
+                || SecurityContextHolder.getContext().getAuthentication() != null) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        try {
-            String token = authHeader.substring(7);
-            String username = jwtService.extractUsername(token);
+        // 🔑 Extract từ JWT
+        String username = jwtService.extractUsername(token);
+        String userId   = jwtService.extractUserId(token);
+        String userType = jwtService.extractUserType(token);
+        String role     = jwtService.extractRole(token);
 
-            if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-                UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+        // 🔐 Load UserDetails (BẮT BUỘC)
+        UserDetails userDetails =
+                userDetailsService.loadUserByUsername(username);
 
-                if (jwtService.verifyToken(token)) {
-                    // Lấy roles từ token
-                    String rolesString = jwtService.extractRoles(token);
-                    List<GrantedAuthority> authorities;
+        // 🔐 Authority
+        List<GrantedAuthority> authorities = List.of(
+                new SimpleGrantedAuthority("ROLE_" + role)
+        );
 
-                    if (StringUtils.hasText(rolesString)) {
-                        authorities = Arrays.stream(rolesString.split(","))
-                                .map(String::trim)
-                                .map(SimpleGrantedAuthority::new)
-                                .collect(Collectors.toList());
-                    } else {
-                        authorities = Collections.emptyList();
-                    }
+        // ✅ CustomAuthenticationToken
+        CustomAuthenticationToken authToken =
+                new CustomAuthenticationToken(
+                        userDetails,
+                        null,
+                        authorities,
+                        userId,
+                        userType
+                );
 
-                    UsernamePasswordAuthenticationToken authToken =
-                            new UsernamePasswordAuthenticationToken(userDetails, null, authorities);
+        authToken.setDetails(
+                new WebAuthenticationDetailsSource().buildDetails(request)
+        );
 
-                    authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                    SecurityContextHolder.getContext().setAuthentication(authToken);
-                }
-            }
-        } catch (Exception e) {
-            // Log lỗi nhưng không block request
-            System.err.println("JWT validation error: " + e.getMessage());
-        }
+        SecurityContextHolder.getContext().setAuthentication(authToken);
 
         filterChain.doFilter(request, response);
     }
+
+    /**
+     * 🔑 Cookie → Header
+     */
+    private String resolveToken(HttpServletRequest request) {
+
+        if (request.getCookies() != null) {
+            for (Cookie cookie : request.getCookies()) {
+                if ("access_token".equals(cookie.getName())) {
+                    return cookie.getValue();
+                }
+            }
+        }
+
+        String bearer = request.getHeader("Authorization");
+        if (StringUtils.hasText(bearer) && bearer.startsWith("Bearer ")) {
+            return bearer.substring(7);
+        }
+
+        return null;
+    }
+
 }

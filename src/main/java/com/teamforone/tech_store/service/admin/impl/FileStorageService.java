@@ -2,18 +2,22 @@ package com.teamforone.tech_store.service.admin.impl;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.UUID;
 
 @Service
 public class FileStorageService {
     @Value("${file.upload-dir}")
     private String uploadDir;
+    private final Path uploadRoot = Paths.get("images");
 
     public String saveFile(MultipartFile file) throws IOException {
         if (file.isEmpty()) {
@@ -74,5 +78,34 @@ public class FileStorageService {
             return false;
         }
     }
+
+    public String store(MultipartFile file, String subdir) throws IOException {
+        if (file.isEmpty()) {
+            throw new IllegalArgumentException("File is empty");
+        }
+
+        String original = StringUtils.cleanPath(file.getOriginalFilename());
+        String ext = "";
+        int i = original.lastIndexOf('.');
+        if (i >= 0) ext = original.substring(i);
+
+        String fname = UUID.randomUUID() + ext;
+
+        // 🔥 DÙNG uploadDir
+        Path baseDir = Paths.get(uploadDir);
+        Path dir = baseDir.resolve(subdir);
+
+        if (!Files.exists(dir)) {
+            Files.createDirectories(dir);
+        }
+
+        Path dest = dir.resolve(fname);
+        try (InputStream in = file.getInputStream()) {
+            Files.copy(in, dest, StandardCopyOption.REPLACE_EXISTING);
+        }
+
+        return "/images/" + subdir + "/" + fname;
+    }
+
 
 }

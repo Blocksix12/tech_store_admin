@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phân quyền nhân viên - Admin Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/Dashboard.css}" />
+    <style>
+        .employee-card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            overflow: hidden;
+        }
+
+        .employee-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 30px;
+            text-align: center;
+            color: white;
+        }
+
+        .employee-avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            border: 4px solid white;
+            margin: 0 auto 15px;
+            object-fit: cover;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .employee-name {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .employee-username {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .role-card {
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            padding: 20px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .role-card:hover {
+            border-color: #667eea;
+            background: #f8f9ff;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
+        }
+
+        .role-card.selected {
+            border-color: #667eea;
+            background: linear-gradient(135deg, #f8f9ff 0%, #f0f2ff 100%);
+            box-shadow: 0 4px 20px rgba(102, 126, 234, 0.2);
+        }
+
+        .role-card.selected::after {
+            content: '\F26B';
+            font-family: 'bootstrap-icons';
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            color: #667eea;
+            font-size: 24px;
+            animation: checkmark 0.3s ease;
+        }
+
+        @keyframes checkmark {
+            0% { transform: scale(0); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+
+        .role-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            margin-bottom: 15px;
+        }
+
+        .role-admin .role-icon {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .role-manager .role-icon {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+        }
+
+        .role-staff .role-icon {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+        }
+
+        .role-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 8px;
+        }
+
+        .role-description {
+            font-size: 14px;
+            color: #6c757d;
+            line-height: 1.5;
+            margin-bottom: 15px;
+        }
+
+        .permission-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 12px;
+        }
+
+        .permission-badge {
+            background: #e9ecef;
+            color: #495057;
+            font-size: 11px;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-weight: 500;
+        }
+
+        .role-card.selected .permission-badge {
+            background: #667eea;
+            color: white;
+        }
+
+        .current-roles-section {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .current-role-item {
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .btn-remove-role {
+            padding: 4px 12px;
+            font-size: 12px;
+            border-radius: 6px;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 12px;
+            margin-top: 30px;
+        }
+
+        .action-buttons .btn {
+            flex: 1;
+            padding: 14px;
+            font-size: 16px;
+            font-weight: 600;
+            border-radius: 12px;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Include Sidebar -->
+<div th:replace="~{fragments/sidebar :: sidebar}"></div>
+
+<!-- Main Content -->
+<div class="main-content">
+    <!-- Include Topbar -->
+    <div th:replace="~{fragments/topbar :: topbar}"></div>
+
+    <!-- Content Area -->
+    <div class="content-area">
+        <!-- Header -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h2 class="mb-1"><i class="bi bi-person-badge me-2"></i>Phân quyền nhân viên</h2>
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb mb-0">
+                        <li class="breadcrumb-item"><a href="/admin">Trang chủ</a></li>
+                        <li class="breadcrumb-item"><a href="/admin/nhanvien">Nhân viên</a></li>
+                        <li class="breadcrumb-item active">Phân quyền</li>
+                    </ol>
+                </nav>
+            </div>
+            <a th:href="@{/admin/nhanvien}" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left me-1"></i>Quay lại
+            </a>
+        </div>
+
+        <!-- Alert Messages -->
+        <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="bi bi-check-circle-fill me-2"></i>
+            <span th:text="${success}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+
+        <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+            <span th:text="${error}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+
+        <div class="row">
+            <!-- Left Column - Employee Info -->
+            <div class="col-lg-4">
+                <div class="employee-card">
+                    <div class="employee-header">
+                        <img th:src="${nhanVien.avatarUrl != null ? nhanVien.avatarUrl : '/images/default-avatar.png'}"
+                             th:alt="${nhanVien.fullName}"
+                             class="employee-avatar">
+                        <div class="employee-name" th:text="${nhanVien.fullName}">Tên nhân viên</div>
+                        <div class="employee-username">@<span th:text="${nhanVien.username}">username</span></div>
+                    </div>
+
+                    <div class="p-4">
+                        <h6 class="mb-3"><i class="bi bi-info-circle me-2"></i>Thông tin</h6>
+                        <div class="mb-2">
+                            <small class="text-muted">Email:</small>
+                            <div th:text="${nhanVien.email}">email@example.com</div>
+                        </div>
+                        <div class="mb-2">
+                            <small class="text-muted">Số điện thoại:</small>
+                            <div th:text="${nhanVien.phone}">0123456789</div>
+                        </div>
+                        <div class="mb-2">
+                            <small class="text-muted">Trạng thái:</small>
+                            <div>
+                                <span th:if="${nhanVien.status.name() == 'ACTIVE'}" class="badge bg-success">
+                                    <i class="bi bi-check-circle"></i> Hoạt động
+                                </span>
+                                <span th:unless="${nhanVien.status.name() == 'ACTIVE'}" class="badge bg-danger">
+                                    <i class="bi bi-x-circle"></i> Bị khóa
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Current Roles Section -->
+                <div class="current-roles-section mt-4" th:if="${nhanVien.roles != null and !nhanVien.roles.isEmpty()}">
+                    <h6 class="mb-3"><i class="bi bi-shield-check me-2"></i>Vai trò hiện tại</h6>
+                    <div th:each="role : ${nhanVien.roles}" class="current-role-item">
+                        <div>
+                            <div class="fw-bold" th:text="${role.roleNameDisplay}">Role Name</div>
+                            <small class="text-muted" th:text="${role.description}">Description</small>
+                        </div>
+                        <form th:action="@{/admin/nhanvien/{id}/roles/remove/{roleId}(id=${nhanVien.id}, roleId=${role.roleID})}"
+                              method="post" style="display: inline;">
+                            <button type="submit" class="btn btn-outline-danger btn-remove-role"
+                                    onclick="return confirm('Xóa vai trò này?')">
+                                <i class="bi bi-x-lg"></i>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column - Role Assignment -->
+            <div class="col-lg-8">
+                <div class="card shadow-sm border-0">
+                    <div class="card-body p-4">
+                        <h5 class="mb-4"><i class="bi bi-plus-circle me-2"></i>Thêm vai trò mới</h5>
+
+                        <form th:action="@{/admin/nhanvien/{id}/roles/assign(id=${nhanVien.id})}"
+                              method="post" id="assignRoleForm">
+
+                            <div class="row g-4">
+                                <!-- Role Cards -->
+                                <div th:each="role : ${availableRoles}" class="col-md-6">
+                                    <div class="role-card"
+                                         th:classappend="${role.roleName.name() == 'ADMIN'} ? 'role-admin' :
+                                                        (${role.roleName.name() == 'MANAGER'} ? 'role-manager' : 'role-staff')"
+                                         onclick="toggleRole(this, '[[${role.roleID}]]')">
+                                        <div class="role-icon">
+                                            <i th:class="${role.roleName.name() == 'ADMIN'} ? 'bi bi-shield-fill-check' :
+                                                         (${role.roleName.name() == 'MANAGER'} ? 'bi bi-person-badge' : 'bi bi-person')"></i>
+                                        </div>
+                                        <div class="role-title" th:text="${role.roleNameDisplay}">Role Name</div>
+                                        <div class="role-description" th:text="${role.description}">Role Description</div>
+
+                                        <!-- Permissions -->
+                                        <div class="permission-list" th:if="${role.permissions != null and !role.permissions.isEmpty()}">
+                                            <span class="permission-badge"
+                                                  th:each="permission, pStat : ${role.permissions}"
+                                                  th:if="${pStat.index < 4}"
+                                                  th:text="${permission.name}">
+                                                Permission
+                                            </span>
+                                            <span class="permission-badge"
+                                                  th:if="${role.permissions.size() > 4}"
+                                                  th:text="'+' + ${role.permissions.size() - 4}">
+                                                +2
+                                            </span>
+                                        </div>
+
+                                        <input type="checkbox"
+                                               th:name="roleIds"
+                                               th:value="${role.roleID}"
+                                               style="display: none;">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Action Buttons -->
+                            <div class="action-buttons">
+                                <a th:href="@{/admin/nhanvien}" class="btn btn-outline-secondary">
+                                    <i class="bi bi-x-lg me-2"></i>Hủy bỏ
+                                </a>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="bi bi-check-lg me-2"></i>Lưu thay đổi
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script th:src="@{/javascript/Dashboard.js}"></script>
+
+<script>
+    function toggleRole(card, roleId) {
+        const checkbox = card.querySelector('input[type="checkbox"]');
+        const isSelected = card.classList.contains('selected');
+
+        if (isSelected) {
+            card.classList.remove('selected');
+            checkbox.checked = false;
+        } else {
+            card.classList.add('selected');
+            checkbox.checked = true;
+        }
+    }
+
+    // Prevent form submission if no role selected
+    document.getElementById('assignRoleForm').addEventListener('submit', function(e) {
+        const checkedBoxes = document.querySelectorAll('input[name="roleIds"]:checked');
+        if (checkedBoxes.length === 0) {
+            e.preventDefault();
+            alert('Vui lòng chọn ít nhất một vai trò!');
+        }
+    });
+</script>
+
+</body>
+</html>

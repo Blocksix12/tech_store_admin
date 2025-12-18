@@ -18,122 +18,29 @@
 </head>
 <body>
 
-<!-- Sidebar -->
-<div class="sidebar" id="sidebar">
-    <!-- Toggle Button -->
-    <button class="sidebar-toggle" onclick="toggleSidebarCollapse()" title="Thu gọn/Mở rộng">
-        <i class="bi bi-chevron-left"></i>
-    </button>
-
-    <div class="sidebar-brand">
-        <i class="bi bi-shop-window"></i>
-        <span class="sidebar-brand-text">E-Commerce</span>
-    </div>
-
-    <div class="sidebar-menu">
-        <div class="menu-section-title">Main</div>
-
-        <!-- Dashboard -->
-        <a href="/admin/dashboard" class="menu-item">
-            <i class="bi bi-grid-fill"></i>
-            <span>Dashboard</span>
-        </a>
-
-        <div class="menu-section-title">Quản lý</div>
-
-        <!-- Quản lý sản phẩm -->
-        <div>
-            <div class="menu-item" onclick="toggleSubmenu(this)">
-                <i class="bi bi-box-seam-fill"></i>
-                <span>Sản phẩm</span>
-                <i class="bi bi-chevron-down"></i>
-            </div>
-            <div class="submenu">
-                <a href="/admin/products" class="submenu-item">Danh sách sản phẩm</a>
-                <a href="/admin/products/add" class="submenu-item">Thêm sản phẩm</a>
-                <a href="/admin/categories" class="submenu-item">Danh mục</a>
-                <a href="/admin/brands" class="submenu-item">Thương hiệu</a>
-                <a href="/admin/attributes" class="submenu-item">Thuộc tính</a>
-                <a href="/admin/products/import" class="submenu-item">Import/Export</a>
-            </div>
-        </div>
-    </div>
-</div>
+<!-- Include Sidebar -->
+<div th:replace="~{fragments/sidebar :: sidebar}"></div>
 
 <!-- Main Content -->
 <div class="main-content">
-    <!-- Topbar -->
-    <div class="topbar">
-        <div class="topbar-left">
-            <button class="mobile-menu-btn" onclick="toggleSidebar()">
-                <i class="bi bi-list"></i>
-            </button>
-            <div>
-                <h1 class="page-title">Hồ sơ của tôi</h1>
-                <nav aria-label="breadcrumb">
-                    <ol class="breadcrumb">
-                        <li class="breadcrumb-item"><a href="/admin">Trang chủ</a></li>
-                        <li class="breadcrumb-item active" aria-current="page">Hồ sơ</li>
-                    </ol>
-                </nav>
-            </div>
-        </div>
+    <!-- Include Topbar -->
+    <div th:replace="~{fragments/topbar :: topbar}"></div>
 
-        <div class="topbar-right">
-            <!-- Search -->
-            <div class="search-box">
-                <i class="bi bi-search"></i>
-                <input type="text" class="form-control" placeholder="Tìm kiếm...">
-            </div>
+    <!-- Error/Success Messages -->
+    <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+        <span th:text="${error}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
 
-            <!-- Notifications -->
-            <div class="dropdown">
-                <div class="topbar-icon" data-bs-toggle="dropdown" aria-expanded="false">
-                    <i class="bi bi-bell-fill"></i>
-                    <span class="badge bg-danger">5</span>
-                </div>
-            </div>
-
-            <!-- User Menu -->
-            <div class="dropdown">
-                <div class="user-menu" data-bs-toggle="dropdown" aria-expanded="false">
-                    <div class="user-avatar">
-                        <span>N</span>
-                    </div>
-                    <div class="user-info">
-                        <div class="user-name">NvkhoaDev54</div>
-                    </div>
-                    <i class="bi bi-chevron-down"></i>
-                </div>
-                <ul class="dropdown-menu dropdown-menu-end">
-                    <li>
-                        <a class="dropdown-item active" href="/admin/profile">
-                            <i class="bi bi-person"></i>
-                            <span>Hồ sơ của tôi</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a class="dropdown-item" href="/admin/settings">
-                            <i class="bi bi-gear"></i>
-                            <span>Cài đặt</span>
-                        </a>
-                    </li>
-                    <li><hr class="dropdown-divider"></li>
-                    <li>
-                        <form th:action="@{/logout}" method="post">
-                            <button type="submit" class="dropdown-item">
-                                <i class="bi bi-box-arrow-right"></i>
-                                <span>Đăng xuất</span>
-                            </button>
-                        </form>
-                    </li>
-                </ul>
-            </div>
-        </div>
+    <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="bi bi-check-circle-fill me-2"></i>
+        <span th:text="${success}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     </div>
 
     <!-- Content Area -->
-    <div class="content-area">
+    <div class="content-area" th:if="${profile != null}">
         <div class="row g-4">
             <!-- Left Column - Profile Info -->
             <div class="col-lg-4">
@@ -142,41 +49,55 @@
                     <div class="profile-header">
                         <div class="profile-avatar-wrapper">
                             <div class="profile-avatar">
-                                <img src="https://i.pravatar.cc/150?img=1" alt="Avatar" id="avatarPreview">
+                                <img th:src="${profile.avatarUrl != null ? profile.avatarUrl : 'https://ui-avatars.com/api/?name=' + profile.fullName + '&background=4f46e5&color=fff&size=150'}"
+                                     th:alt="${profile.fullName}"
+                                     id="avatarPreview">
                                 <div class="avatar-badge">
                                     <i class="bi bi-patch-check-fill"></i>
                                 </div>
                             </div>
+                            <form id="avatarForm" th:action="@{/admin/profile/update-avatar}" method="post" enctype="multipart/form-data" style="display: none;">
+                                <input type="hidden" name="maNhanVien" th:value="${profile.id}">
+                                <input type="file" id="avatarInput" name="avatar" accept="image/*" onchange="document.getElementById('avatarForm').submit();">
+                            </form>
                             <button class="avatar-upload-btn" onclick="document.getElementById('avatarInput').click()">
                                 <i class="bi bi-camera-fill"></i>
                             </button>
-                            <input type="file" id="avatarInput" accept="image/*" hidden onchange="handleAvatarChange(event)">
                         </div>
-                        <h3 class="profile-name">NvkhoaDev54</h3>
-                        <p class="profile-role">Administrator</p>
+                        <h3 class="profile-name" th:text="${profile.fullName}">User Name</h3>
+                        <p class="profile-role" th:text="${profile.rolesDisplay}">Nhân viên</p>
+
                         <div class="profile-badges">
                             <span class="badge bg-success">
                                 <i class="bi bi-shield-check"></i>
                                 Verified
                             </span>
-                            <span class="badge bg-info">
+                            <span class="badge bg-info" th:if="${profile.isAdmin()}">
                                 <i class="bi bi-star-fill"></i>
-                                Pro Member
+                                Administrator
+                            </span>
+                            <span class="badge bg-warning" th:if="${profile.isManager()}">
+                                <i class="bi bi-briefcase-fill"></i>
+                                Manager
+                            </span>
+                            <span class="badge bg-warning" th:if="${profile.isStaff()}">
+                                <i class="bi bi-briefcase-fill"></i>
+                                Staff
                             </span>
                         </div>
                     </div>
 
                     <div class="profile-stats">
                         <div class="stat-item">
-                            <h4>856</h4>
+                            <h4>-</h4>
                             <p>Sản phẩm</p>
                         </div>
                         <div class="stat-item">
-                            <h4>2.4K</h4>
+                            <h4>-</h4>
                             <p>Đơn hàng</p>
                         </div>
                         <div class="stat-item">
-                            <h4>4.8</h4>
+                            <h4>-</h4>
                             <p>Đánh giá</p>
                         </div>
                     </div>
@@ -186,34 +107,34 @@
                             <i class="bi bi-envelope-fill"></i>
                             <div>
                                 <small>Email</small>
-                                <p>nvkhoadev54@gmail.com</p>
+                                <p th:text="${profile.email}">email@example.com</p>
                             </div>
                         </div>
                         <div class="info-item">
                             <i class="bi bi-phone-fill"></i>
                             <div>
                                 <small>Số điện thoại</small>
-                                <p>+84 123 456 789</p>
+                                <p th:text="${profile.phone != null ? profile.phone : 'Chưa cập nhật'}">Chưa cập nhật</p>
                             </div>
                         </div>
                         <div class="info-item">
                             <i class="bi bi-geo-alt-fill"></i>
                             <div>
                                 <small>Địa chỉ</small>
-                                <p>Hà Nội, Việt Nam</p>
+                                <p th:text="${profile.address != null ? profile.address : 'Chưa cập nhật'}">Chưa cập nhật</p>
                             </div>
                         </div>
                         <div class="info-item">
                             <i class="bi bi-calendar-fill"></i>
                             <div>
                                 <small>Tham gia</small>
-                                <p>14/11/2025</p>
+                                <p th:text="${profile.createdAt != null ? #dates.format(profile.createdAt, 'dd/MM/yyyy') : '-'}">-</p>
                             </div>
                         </div>
                     </div>
 
                     <div class="profile-actions">
-                        <button class="btn btn-primary btn-block">
+                        <button class="btn btn-primary btn-block" onclick="document.getElementById('edit-tab').click()">
                             <i class="bi bi-pencil"></i>
                             Chỉnh sửa hồ sơ
                         </button>
@@ -294,15 +215,14 @@
                                         <i class="bi bi-person-circle"></i>
                                         Giới thiệu
                                     </h5>
-                                    <button class="btn btn-sm btn-outline-primary" onclick="editSection('about')">
+                                    <button class="btn btn-sm btn-outline-primary" onclick="document.getElementById('edit-tab').click()">
                                         <i class="bi bi-pencil"></i>
                                         Chỉnh sửa
                                     </button>
                                 </div>
                                 <div class="section-body">
-                                    <p class="text-muted">
-                                        Full-stack Developer với hơn 5 năm kinh nghiệm trong phát triển ứng dụng web và e-commerce.
-                                        Đam mê công nghệ và học hỏi những điều mới mỗi ngày.
+                                    <p class="text-muted" th:text="${profile.bio != null ? profile.bio : 'Chưa có thông tin giới thiệu'}">
+                                        Chưa có thông tin giới thiệu
                                     </p>
                                 </div>
                             </div>
@@ -314,7 +234,7 @@
                                         <i class="bi bi-info-circle"></i>
                                         Thông tin cá nhân
                                     </h5>
-                                    <button class="btn btn-sm btn-outline-primary" onclick="editSection('personal')">
+                                    <button class="btn btn-sm btn-outline-primary" onclick="document.getElementById('edit-tab').click()">
                                         <i class="bi bi-pencil"></i>
                                         Chỉnh sửa
                                     </button>
@@ -322,37 +242,37 @@
                                 <div class="section-body">
                                     <div class="info-grid">
                                         <div class="info-row">
-                                            <span class="info-label">Họ và tên:</span>
-                                            <span class="info-value">Nguyễn Văn Khoa</span>
+                                            <span class="info-label">Mã nhân viên:</span>
+                                            <span class="info-value" th:text="${profile.id}">-</span>
                                         </div>
                                         <div class="info-row">
-                                            <span class="info-label">Tên đăng nhập:</span>
-                                            <span class="info-value">NvkhoaDev54</span>
+                                            <span class="info-label">Họ và tên:</span>
+                                            <span class="info-value" th:text="${profile.fullName}">-</span>
                                         </div>
                                         <div class="info-row">
                                             <span class="info-label">Email:</span>
-                                            <span class="info-value">nvkhoadev54@gmail.com</span>
+                                            <span class="info-value" th:text="${profile.email}">-</span>
                                         </div>
                                         <div class="info-row">
                                             <span class="info-label">Số điện thoại:</span>
-                                            <span class="info-value">+84 123 456 789</span>
+                                            <span class="info-value" th:text="${profile.phone != null ? profile.phone : 'Chưa cập nhật'}">-</span>
                                         </div>
                                         <div class="info-row">
                                             <span class="info-label">Ngày sinh:</span>
-                                            <span class="info-value">01/01/1995</span>
+                                            <span class="info-value" th:text="${profile.dateOfBirth != null ? #dates.format(profile.dateOfBirth, 'dd/MM/yyyy') : 'Chưa cập nhật'}">-</span>
                                         </div>
                                         <div class="info-row">
                                             <span class="info-label">Giới tính:</span>
-                                            <span class="info-value">Nam</span>
+                                            <span class="info-value" th:text="${profile.gender != null ? profile.gender : 'Chưa cập nhật'}">-</span>
                                         </div>
                                         <div class="info-row">
                                             <span class="info-label">Địa chỉ:</span>
-                                            <span class="info-value">123 Nguyễn Văn Linh, Hà Nội</span>
+                                            <span class="info-value" th:text="${profile.address != null ? profile.address : 'Chưa cập nhật'}">-</span>
                                         </div>
-                                        <div class="info-row">
+                                        <div class="info-row" th:if="${profile.website != null}">
                                             <span class="info-label">Website:</span>
                                             <span class="info-value">
-                                                <a href="https://nvkhoadev.com" target="_blank">nvkhoadev.com</a>
+                                                <a th:href="${profile.website}" target="_blank" th:text="${profile.website}">-</a>
                                             </span>
                                         </div>
                                     </div>
@@ -366,56 +286,24 @@
                                         <i class="bi bi-briefcase"></i>
                                         Thông tin công việc
                                     </h5>
-                                    <button class="btn btn-sm btn-outline-primary" onclick="editSection('work')">
-                                        <i class="bi bi-pencil"></i>
-                                        Chỉnh sửa
-                                    </button>
                                 </div>
                                 <div class="section-body">
                                     <div class="info-grid">
                                         <div class="info-row">
-                                            <span class="info-label">Chức vụ:</span>
-                                            <span class="info-value">Administrator</span>
-                                        </div>
-                                        <div class="info-row">
-                                            <span class="info-label">Phòng ban:</span>
-                                            <span class="info-value">IT Department</span>
+                                            <span class="info-label">Vai trò:</span>
+                                            <span class="info-value" th:text="${profile.rolesDisplay}">-</span>
                                         </div>
                                         <div class="info-row">
                                             <span class="info-label">Ngày vào làm:</span>
-                                            <span class="info-value">14/11/2025</span>
+                                            <span class="info-value" th:text="${profile.createdAt != null ? #dates.format(profile.createdAt, 'dd/MM/yyyy') : '-'}">-</span>
                                         </div>
                                         <div class="info-row">
-                                            <span class="info-label">Loại nhân viên:</span>
-                                            <span class="info-value">Full-time</span>
+                                            <span class="info-label">Trạng thái:</span>
+                                            <span class="info-value">
+                                                <span th:if="${profile.status}" class="badge bg-success">Đang hoạt động</span>
+                                                <span th:unless="${profile.status}" class="badge bg-danger">Ngừng hoạt động</span>
+                                            </span>
                                         </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Skills -->
-                            <div class="profile-section">
-                                <div class="section-header">
-                                    <h5 class="section-title">
-                                        <i class="bi bi-code-slash"></i>
-                                        Kỹ năng
-                                    </h5>
-                                    <button class="btn btn-sm btn-outline-primary" onclick="editSection('skills')">
-                                        <i class="bi bi-pencil"></i>
-                                        Chỉnh sửa
-                                    </button>
-                                </div>
-                                <div class="section-body">
-                                    <div class="skills-list">
-                                        <span class="skill-badge">Java</span>
-                                        <span class="skill-badge">Spring Boot</span>
-                                        <span class="skill-badge">JavaScript</span>
-                                        <span class="skill-badge">React</span>
-                                        <span class="skill-badge">MySQL</span>
-                                        <span class="skill-badge">MongoDB</span>
-                                        <span class="skill-badge">Docker</span>
-                                        <span class="skill-badge">AWS</span>
-                                        <span class="skill-badge">Git</span>
                                     </div>
                                 </div>
                             </div>
@@ -431,67 +319,94 @@
                                     </h5>
                                 </div>
                                 <div class="section-body">
-                                    <form id="editProfileForm">
+                                    <form id="editProfileForm"
+                                          th:action="@{/admin/profile/update}"
+                                          method="post"
+                                          th:object="${profile}">
+
+
                                         <div class="row g-3">
-                                            <div class="col-md-6">
-                                                <label class="form-label">Họ</label>
-                                                <input type="text" class="form-control" value="Nguyễn Văn" required>
+
+
+                                            <!-- Họ và tên -->
+                                            <div class="col-12">
+                                                <label class="form-label">Họ và tên <span class="text-danger">*</span></label>
+                                                <input type="text" class="form-control"
+                                                       th:field="*{fullName}" required>
                                             </div>
+
+
+                                            <!-- Email -->
                                             <div class="col-md-6">
-                                                <label class="form-label">Tên</label>
-                                                <input type="text" class="form-control" value="Khoa" required>
+                                                <label class="form-label">Email <span class="text-danger">*</span></label>
+                                                <input type="email" class="form-control"
+                                                       th:field="*{email}" required>
                                             </div>
-                                            <div class="col-md-6">
-                                                <label class="form-label">Email</label>
-                                                <input type="email" class="form-control" value="nvkhoadev54@gmail.com" required>
-                                            </div>
+
+
+                                            <!-- Phone -->
                                             <div class="col-md-6">
                                                 <label class="form-label">Số điện thoại</label>
-                                                <input type="tel" class="form-control" value="+84 123 456 789">
+                                                <input type="tel" class="form-control"
+                                                       th:field="*{phone}">
                                             </div>
+
+
+                                            <!-- Date of Birth -->
                                             <div class="col-md-6">
                                                 <label class="form-label">Ngày sinh</label>
-                                                <input type="date" class="form-control" value="1995-01-01">
+                                                <input type="date" class="form-control"
+                                                       th:field="*{dateOfBirth}">
                                             </div>
+
+
+                                            <!-- Gender -->
                                             <div class="col-md-6">
                                                 <label class="form-label">Giới tính</label>
-                                                <select class="form-select">
-                                                    <option value="male" selected>Nam</option>
-                                                    <option value="female">Nữ</option>
-                                                    <option value="other">Khác</option>
+                                                <select class="form-select" th:field="*{gender}">
+                                                    <option value="">-- Chọn giới tính --</option>
+                                                    <option value="Nam">Nam</option>
+                                                    <option value="Nữ">Nữ</option>
+                                                    <option value="Khác">Khác</option>
                                                 </select>
                                             </div>
+
+
+                                            <!-- Address -->
                                             <div class="col-12">
                                                 <label class="form-label">Địa chỉ</label>
-                                                <input type="text" class="form-control" value="123 Nguyễn Văn Linh, Hà Nội">
+                                                <input type="text" class="form-control"
+                                                       th:field="*{address}">
                                             </div>
-                                            <div class="col-md-6">
-                                                <label class="form-label">Thành phố</label>
-                                                <input type="text" class="form-control" value="Hà Nội">
-                                            </div>
-                                            <div class="col-md-6">
-                                                <label class="form-label">Quốc gia</label>
-                                                <select class="form-select">
-                                                    <option value="VN" selected>Việt Nam</option>
-                                                    <option value="US">United States</option>
-                                                    <option value="UK">United Kingdom</option>
-                                                </select>
-                                            </div>
+
+
+                                            <!-- Bio -->
                                             <div class="col-12">
                                                 <label class="form-label">Giới thiệu</label>
-                                                <textarea class="form-control" rows="4">Full-stack Developer với hơn 5 năm kinh nghiệm trong phát triển ứng dụng web và e-commerce. Đam mê công nghệ và học hỏi những điều mới mỗi ngày.</textarea>
+                                                <textarea class="form-control" rows="4"
+                                                          th:field="*{bio}"></textarea>
                                             </div>
+
+
+                                            <!-- Website -->
                                             <div class="col-12">
                                                 <label class="form-label">Website</label>
-                                                <input type="url" class="form-control" value="https://nvkhoadev.com">
+                                                <input type="url" class="form-control"
+                                                       th:field="*{website}" placeholder="https://example.com">
                                             </div>
+
+
                                         </div>
 
-                                        <div class="form-actions">
-                                            <button type="button" class="btn btn-secondary">
+
+                                        <div class="form-actions mt-4">
+                                            <button type="button" class="btn btn-secondary"
+                                                    onclick="document.getElementById('overview-tab').click()">
                                                 <i class="bi bi-x-circle"></i>
                                                 Hủy
                                             </button>
+
+
                                             <button type="submit" class="btn btn-success">
                                                 <i class="bi bi-check-circle"></i>
                                                 Lưu thay đổi
@@ -513,12 +428,12 @@
                                     </h5>
                                 </div>
                                 <div class="section-body">
-                                    <form id="changePasswordForm">
+                                    <form id="changePasswordForm" th:action="@{/admin/profile/change-password}" method="post">
                                         <div class="row g-3">
                                             <div class="col-12">
                                                 <label class="form-label">Mật khẩu hiện tại</label>
                                                 <div class="input-group">
-                                                    <input type="password" class="form-control" id="currentPassword" required>
+                                                    <input type="password" class="form-control" id="currentPassword" name="currentPassword" required>
                                                     <button class="btn btn-outline-secondary" type="button" onclick="togglePasswordVisibility('currentPassword')">
                                                         <i class="bi bi-eye"></i>
                                                     </button>
@@ -527,7 +442,7 @@
                                             <div class="col-12">
                                                 <label class="form-label">Mật khẩu mới</label>
                                                 <div class="input-group">
-                                                    <input type="password" class="form-control" id="newPassword" required>
+                                                    <input type="password" class="form-control" id="newPassword" name="newPassword" required>
                                                     <button class="btn btn-outline-secondary" type="button" onclick="togglePasswordVisibility('newPassword')">
                                                         <i class="bi bi-eye"></i>
                                                     </button>
@@ -536,7 +451,7 @@
                                             <div class="col-12">
                                                 <label class="form-label">Xác nhận mật khẩu mới</label>
                                                 <div class="input-group">
-                                                    <input type="password" class="form-control" id="confirmPassword" required>
+                                                    <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" required>
                                                     <button class="btn btn-outline-secondary" type="button" onclick="togglePasswordVisibility('confirmPassword')">
                                                         <i class="bi bi-eye"></i>
                                                     </button>
@@ -563,6 +478,7 @@
                                     </h5>
                                 </div>
                                 <div class="section-body">
+                                    <!-- SMS 2FA -->
                                     <div class="security-option">
                                         <div class="security-option-info">
                                             <h6>
@@ -570,14 +486,51 @@
                                                 Xác thực qua SMS
                                             </h6>
                                             <p class="text-muted">Nhận mã xác thực qua tin nhắn SMS</p>
-                                            <span class="badge bg-success">Đang bật</span>
+                                            <span class="badge bg-success" id="sms2faStatus" style="display: none;">
+                    <i class="bi bi-check-circle"></i>
+                    Đã kích hoạt
+                </span>
+                                            <span class="badge bg-secondary" id="sms2faStatusOff">
+                    Chưa kích hoạt
+                </span>
                                         </div>
-                                        <button class="btn btn-outline-danger">
+                                        <button class="btn btn-outline-primary" id="enableSms2faBtn" onclick="showEnableSms2faModal()">
+                                            <i class="bi bi-plus-circle"></i>
+                                            Bật
+                                        </button>
+                                        <button class="btn btn-outline-danger" id="disableSms2faBtn" style="display: none;" onclick="disableSms2fa()">
                                             <i class="bi bi-x-circle"></i>
                                             Tắt
                                         </button>
                                     </div>
 
+                                    <!-- Email 2FA -->
+                                    <div class="security-option">
+                                        <div class="security-option-info">
+                                            <h6>
+                                                <i class="bi bi-envelope"></i>
+                                                Xác thực qua Email
+                                            </h6>
+                                            <p class="text-muted">Nhận mã xác thực qua email của bạn</p>
+                                            <span class="badge bg-success" id="email2faStatus" style="display: none;">
+                    <i class="bi bi-check-circle"></i>
+                    Đã kích hoạt
+                </span>
+                                            <span class="badge bg-secondary" id="email2faStatusOff">
+                    Chưa kích hoạt
+                </span>
+                                        </div>
+                                        <button class="btn btn-outline-primary" id="enableEmail2faBtn" onclick="showEnableEmail2faModal()">
+                                            <i class="bi bi-plus-circle"></i>
+                                            Bật
+                                        </button>
+                                        <button class="btn btn-outline-danger" id="disableEmail2faBtn" style="display: none;" onclick="disableEmail2fa()">
+                                            <i class="bi bi-x-circle"></i>
+                                            Tắt
+                                        </button>
+                                    </div>
+
+                                    <!-- App Authenticator 2FA -->
                                     <div class="security-option">
                                         <div class="security-option-info">
                                             <h6>
@@ -585,12 +538,137 @@
                                                 Xác thực qua App
                                             </h6>
                                             <p class="text-muted">Sử dụng Google Authenticator hoặc các app tương tự</p>
-                                            <span class="badge bg-secondary">Chưa bật</span>
+                                            <span class="badge bg-secondary">Chưa khả dụng</span>
                                         </div>
-                                        <button class="btn btn-outline-primary">
+                                        <button class="btn btn-outline-primary" disabled>
                                             <i class="bi bi-plus-circle"></i>
                                             Bật
                                         </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Modal: Kích hoạt SMS 2FA -->
+                            <div class="modal fade" id="enableSms2faModal" tabindex="-1">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title">
+                                                <i class="bi bi-phone"></i>
+                                                Kích hoạt xác thực SMS
+                                            </h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <div id="step1" class="step-content">
+                                                <div class="alert alert-info">
+                                                    <i class="bi bi-info-circle"></i>
+                                                    Nhập số điện thoại của bạn để nhận mã xác thực
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label class="form-label">Số điện thoại</label>
+                                                    <input type="tel" class="form-control" id="phoneInput"
+                                                           placeholder="+84xxxxxxxxx"
+                                                           th:value="${profile.phone}">
+                                                    <small class="text-muted">Định dạng: +84xxxxxxxxx</small>
+                                                </div>
+                                                <div id="sendSmsError" class="alert alert-danger" style="display: none;"></div>
+                                            </div>
+
+                                            <div id="step2" class="step-content" style="display: none;">
+                                                <div class="alert alert-success">
+                                                    <i class="bi bi-check-circle"></i>
+                                                    Mã xác thực đã được gửi đến số điện thoại của bạn
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label class="form-label">Nhập mã xác thực (6 số)</label>
+                                                    <input type="text" class="form-control text-center" id="verificationCode"
+                                                           maxlength="6" placeholder="000000"
+                                                           style="font-size: 24px; letter-spacing: 10px;">
+                                                    <small class="text-muted">Mã có hiệu lực trong 5 phút</small>
+                                                </div>
+                                                <div id="verifyError" class="alert alert-danger" style="display: none;"></div>
+                                                <div class="text-center">
+                                                    <button class="btn btn-link" onclick="resendSmsCode()">
+                                                        <i class="bi bi-arrow-clockwise"></i>
+                                                        Gửi lại mã
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                                            <button type="button" class="btn btn-primary" id="sendSmsBtn" onclick="sendSmsCode()">
+                                                <i class="bi bi-send"></i>
+                                                Gửi mã
+                                            </button>
+                                            <button type="button" class="btn btn-success" id="verifyBtn" style="display: none;" onclick="verifySmsCode()">
+                                                <i class="bi bi-check-circle"></i>
+                                                Xác nhận
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Modal: Kích hoạt Email 2FA -->
+                            <div class="modal fade" id="enableEmail2faModal" tabindex="-1">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title">
+                                                <i class="bi bi-envelope"></i>
+                                                Kích hoạt xác thực Email
+                                            </h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <div id="emailStep1" class="step-content">
+                                                <div class="alert alert-info">
+                                                    <i class="bi bi-info-circle"></i>
+                                                    Mã xác thực sẽ được gửi đến email của bạn
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label class="form-label">Email</label>
+                                                    <input type="email" class="form-control" id="emailInput"
+                                                           th:value="${profile.email}" readonly>
+                                                    <small class="text-muted">Mã sẽ được gửi đến email này</small>
+                                                </div>
+                                                <div id="sendEmailError" class="alert alert-danger" style="display: none;"></div>
+                                            </div>
+
+                                            <div id="emailStep2" class="step-content" style="display: none;">
+                                                <div class="alert alert-success">
+                                                    <i class="bi bi-check-circle"></i>
+                                                    Mã xác thực đã được gửi đến email của bạn
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label class="form-label">Nhập mã xác thực (6 số)</label>
+                                                    <input type="text" class="form-control text-center" id="emailVerificationCode"
+                                                           maxlength="6" placeholder="000000"
+                                                           style="font-size: 24px; letter-spacing: 10px;">
+                                                    <small class="text-muted">Mã có hiệu lực trong 10 phút</small>
+                                                </div>
+                                                <div id="verifyEmailError" class="alert alert-danger" style="display: none;"></div>
+                                                <div class="text-center">
+                                                    <button class="btn btn-link" onclick="resendEmailCode()">
+                                                        <i class="bi bi-arrow-clockwise"></i>
+                                                        Gửi lại mã
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                                            <button type="button" class="btn btn-primary" id="sendEmailBtn" onclick="sendEmailCode()">
+                                                <i class="bi bi-send"></i>
+                                                Gửi mã
+                                            </button>
+                                            <button type="button" class="btn btn-success" id="verifyEmailBtn" style="display: none;" onclick="verifyEmailCode()">
+                                                <i class="bi bi-check-circle"></i>
+                                                Xác nhận
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -611,28 +689,14 @@
                                             </div>
                                             <div class="session-info">
                                                 <h6>Windows - Chrome</h6>
-                                                <p>Hà Nội, Việt Nam • 14/11/2025 02:01:26</p>
+                                                <p>Hà Nội, Việt Nam • <span th:text="${#dates.format(#dates.createNow(), 'dd/MM/yyyy HH:mm:ss')}">-</span></p>
                                                 <span class="badge bg-success">Phiên hiện tại</span>
                                             </div>
-                                        </div>
-
-                                        <div class="session-item">
-                                            <div class="session-icon">
-                                                <i class="bi bi-phone"></i>
-                                            </div>
-                                            <div class="session-info">
-                                                <h6>iPhone - Safari</h6>
-                                                <p>Hà Nội, Việt Nam • 13/11/2025 18:30:00</p>
-                                            </div>
-                                            <button class="btn btn-sm btn-outline-danger">
-                                                <i class="bi bi-x-circle"></i>
-                                                Đăng xuất
-                                            </button>
                                         </div>
                                     </div>
 
                                     <div class="form-actions">
-                                        <button class="btn btn-outline-danger">
+                                        <button class="btn btn-outline-danger" disabled>
                                             <i class="bi bi-box-arrow-right"></i>
                                             Đăng xuất tất cả các phiên khác
                                         </button>
@@ -657,76 +721,48 @@
                                                 <i class="bi bi-box-seam"></i>
                                             </div>
                                             <div class="activity-content">
-                                                <h6>Thêm sản phẩm mới</h6>
-                                                <p>Thêm sản phẩm "iPhone 15 Pro Max" vào hệ thống</p>
+                                                <h6>Đăng nhập hệ thống</h6>
+                                                <p>Đăng nhập thành công vào hệ thống</p>
                                                 <span class="activity-time">
                                                     <i class="bi bi-clock"></i>
-                                                    2 giờ trước
+                                                    Vừa xong
                                                 </span>
                                             </div>
                                         </div>
 
                                         <div class="activity-item">
                                             <div class="activity-icon bg-primary">
-                                                <i class="bi bi-pencil"></i>
+                                                <i class="bi bi-person-check"></i>
                                             </div>
                                             <div class="activity-content">
-                                                <h6>Cập nhật thông tin</h6>
-                                                <p>Cập nhật giá sản phẩm "Samsung Galaxy S24"</p>
+                                                <h6>Xem hồ sơ</h6>
+                                                <p>Truy cập trang hồ sơ cá nhân</p>
                                                 <span class="activity-time">
                                                     <i class="bi bi-clock"></i>
-                                                    5 giờ trước
-                                                </span>
-                                            </div>
-                                        </div>
-
-                                        <div class="activity-item">
-                                            <div class="activity-icon bg-warning">
-                                                <i class="bi bi-upload"></i>
-                                            </div>
-                                            <div class="activity-content">
-                                                <h6>Import sản phẩm</h6>
-                                                <p>Import 1,234 sản phẩm từ file Excel</p>
-                                                <span class="activity-time">
-                                                    <i class="bi bi-clock"></i>
-                                                    1 ngày trước
+                                                    Hôm nay
                                                 </span>
                                             </div>
                                         </div>
 
                                         <div class="activity-item">
                                             <div class="activity-icon bg-info">
-                                                <i class="bi bi-person-check"></i>
+                                                <i class="bi bi-calendar-event"></i>
                                             </div>
                                             <div class="activity-content">
-                                                <h6>Đăng nhập</h6>
-                                                <p>Đăng nhập từ địa chỉ IP 123.45.67.89</p>
+                                                <h6>Tạo tài khoản</h6>
+                                                <p th:text="'Tham gia hệ thống vào ' + ${profile.createdAt != null ? #dates.format(profile.createdAt, 'dd/MM/yyyy') : 'N/A'}">Tham gia hệ thống</p>
                                                 <span class="activity-time">
                                                     <i class="bi bi-clock"></i>
-                                                    2 ngày trước
-                                                </span>
-                                            </div>
-                                        </div>
-
-                                        <div class="activity-item">
-                                            <div class="activity-icon bg-danger">
-                                                <i class="bi bi-trash"></i>
-                                            </div>
-                                            <div class="activity-content">
-                                                <h6>Xóa sản phẩm</h6>
-                                                <p>Xóa sản phẩm "Old Product Name"</p>
-                                                <span class="activity-time">
-                                                    <i class="bi bi-clock"></i>
-                                                    3 ngày trước
+                                                    <span th:text="${profile.createdAt != null ? #dates.format(profile.createdAt, 'dd/MM/yyyy') : '-'}">-</span>
                                                 </span>
                                             </div>
                                         </div>
                                     </div>
 
                                     <div class="text-center mt-4">
-                                        <button class="btn btn-outline-primary">
+                                        <button class="btn btn-outline-primary" disabled>
                                             <i class="bi bi-arrow-clockwise"></i>
-                                            Xem thêm
+                                            Chức năng đang phát triển
                                         </button>
                                     </div>
                                 </div>
@@ -747,6 +783,22 @@
 <script th:src="@{/javascript/Dashboard.js}"></script>
 <!-- Profile JS -->
 <script th:src="@{/javascript/Profile.js}"></script>
+
+<script>
+    // Auto-open tab based on URL parameter
+    document.addEventListener('DOMContentLoaded', function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const tab = urlParams.get('tab');
+
+        if (tab === 'security') {
+            document.getElementById('security-tab').click();
+        } else if (tab === 'edit') {
+            document.getElementById('edit-tab').click();
+        } else if (tab === 'activity') {
+            document.getElementById('activity-tab').click();
+        }
+    });
+</script>
 
 </body>
 </html>

@@ -138,7 +138,7 @@ public class ProductServiceImpl implements ProductService {
 
                 // Tạo CTProduct entity
                 CTProducts ctProduct = new CTProducts();
-                ctProduct. setProductId(savedProduct.getId());  // ✅ Sử dụng ID từ product đã lưu
+                ctProduct.setProductId(savedProduct.getId());  // ✅ Sử dụng ID từ product đã lưu
                 ctProduct.setColorId(variantRequest.getColorId());
                 ctProduct.setStorageId(variantRequest.getStorageId());
                 ctProduct.setSizeId(variantRequest.getSizeId());

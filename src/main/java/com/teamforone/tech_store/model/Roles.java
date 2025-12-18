@@ -39,6 +39,7 @@ public class Roles {
     public enum RoleName {
         ADMIN,
         STAFF,
+        USER,
         MANAGER;
 
         public static RoleName toEnum(String value) {
@@ -46,6 +47,28 @@ public class Roles {
                 if (item.toString().equalsIgnoreCase(value)) return item;
             }
             return null;
+        }
+    }
+
+    @Override
+    public String toString() {
+        return this.roleName != null ? this.roleName.name() : "UNKNOWN";
+    }
+
+    // Thêm method helper để dễ sử dụng trong Thymeleaf
+    public String getRoleNameDisplay() {
+        if (this.roleName == null) {
+            return "Chưa xác định";
+        }
+        switch (this.roleName) {
+            case ADMIN:
+                return "Quản trị viên";
+            case MANAGER:
+                return "Quản lý";
+            case STAFF:
+                return "Nhân viên";
+            default:
+                return this.roleName.name();
         }
     }
 }

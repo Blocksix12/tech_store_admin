@@ -1,6 +1,5 @@
 package com.teamforone.tech_store.config;
 
-
 import com.teamforone.tech_store.repository.admin.RBAC.NhanVienRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;

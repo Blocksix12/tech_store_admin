@@ -9,7 +9,7 @@ import lombok.*;
 @Builder
 public class StorageDTO {
     private String id;
-    private String name; // Format: "RAM/ROM" (e.g., "8GB/128GB")
+    private String name;
     private String ram;
     private String rom;
 }

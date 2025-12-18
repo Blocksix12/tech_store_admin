@@ -10,6 +10,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping(path = "/auth/admin")
@@ -17,7 +19,7 @@ public class NhanVienController {
     private final NhanVienService nhanVienService;
 
     @PostMapping("/register")
-    public ResponseEntity<Response> register(@RequestBody @Valid RegisterRequest request) {
+    public ResponseEntity<Response> register(@RequestBody @Valid RegisterRequest request) throws IOException {
         Response response = nhanVienService.createNhanVien(request);
         return ResponseEntity
                 .status(response.getStatus())
@@ -25,7 +27,7 @@ public class NhanVienController {
     }
 
     @PutMapping("/update/{id}")
-    public ResponseEntity<Response> updateNhanVien(@PathVariable String id, @RequestBody @Valid NhanVienUpdateRequest request) {
+    public ResponseEntity<Response> updateNhanVien(@PathVariable String id, @RequestBody @Valid NhanVienUpdateRequest request) throws IOException {
         Response response = nhanVienService.updateNhanVien(id, request);
         return ResponseEntity.status(response.getStatus())
                 .body(response);

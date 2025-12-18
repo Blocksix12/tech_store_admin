@@ -1,6 +1,7 @@
 package com.teamforone.tech_store.service.admin.impl;
 
 import com.teamforone.tech_store.model.NhanVien;
+import com.teamforone.tech_store.model.User;
 import com.teamforone.tech_store.repository.admin.RBAC.NhanVienRepository;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -35,13 +36,26 @@ public class JwtService {
     private long refreshExpiration;
 
     private final NhanVienRepository nhanVienRepository;
-    public String generateToken(UserDetails userDetails) {
+    public String generateToken(UserDetails userDetails, String userType) {
         Map<String, Object> claims = new HashMap<>();
-        // Thêm roles vào claims
-        String roles = userDetails.getAuthorities().stream()
-                .map(GrantedAuthority::getAuthority)
-                .collect(Collectors.joining(","));
-        claims.put("roles", roles);
+
+        if (userDetails instanceof User user) {
+            claims.put("id", user.getId());
+            claims.put("type", "USER");
+            claims.put("role", "USER");
+
+        } else if (userDetails instanceof NhanVien nv) {
+            claims.put("id", nv.getId());
+            claims.put("type", "NHAN_VIEN");
+
+            String role = nv.getRoles().stream()
+                    .findFirst()
+                    .map(r -> r.getRoleName().name())
+                    .orElse("STAFF");
+
+            claims.put("role", role);
+        }
+
         return buildToken(claims, userDetails, expiration);
     }
 
@@ -96,21 +110,26 @@ public class JwtService {
         return Keys.hmacShaKeyFor(keyBytes);
     }
 
-    public String extractRoles(String token) {
-        return extractClaim(token, claims -> claims.get("roles", String.class));
+    public String extractUserId(String token) {
+        return extractClaim(token, claims -> claims.get("id", String.class));
     }
+
+    public String extractRole(String token) {
+        return extractClaim(token, claims -> claims.get("role", String.class));
+    }
+
+    public String extractUserType(String token) {
+        return extractClaim(token, claims -> claims.get("type", String.class));
+    }
+
 
     public boolean verifyToken(String token) {
-        if(isTokenExpired(token)){
-            return false;
-        }
+        if (isTokenExpired(token)) return false;
 
         String username = extractUsername(token);
-        if(!StringUtils.hasText(username)){
-            return false;
-        }
+        if (!StringUtils.hasText(username)) return false;
 
-        Optional<NhanVien> nhanVien = nhanVienRepository.findByUsername(username);
-        return nhanVien.isPresent();
+        return nhanVienRepository.findByUsername(username).isPresent();
     }
+
 }
