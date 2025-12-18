@@ -6,12 +6,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
 import org.hibernate.annotations.UuidGenerator;
 
 import java.util.Date;
-import java.util.UUID;
 
 @Entity
 @Getter
@@ -25,20 +22,25 @@ public class CartItem {
     @Column(name = "item_id", columnDefinition = "CHAR(36)")
     private String cartItemID;
 
-    @JoinColumn(name = "cart_id", nullable = false, columnDefinition = "CHAR(36)")
-    private String cart;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "cart_id", nullable = false)
+    private Cart cart;
 
-    @JoinColumn(name = "product_id", nullable = false, columnDefinition = "CHAR(36)")
-    private String product;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "product_id", nullable = false)
+    private Product product;
 
-    @JoinColumn(name = "colorID", nullable = false, columnDefinition = "CHAR(36)")
-    private String color;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "colorID", nullable = false)
+    private Color color;
 
-    @JoinColumn(name = "sizeID", nullable = false, columnDefinition = "CHAR(36)")
-    private String displaySize;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "sizeID", nullable = false)
+    private DisplaySize displaySize;
 
-    @JoinColumn(name = "storageID", nullable = false, columnDefinition = "CHAR(36)")
-    private String storage;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "storageID", nullable = false)
+    private Storage storage;
 
     @Column(name = "quantity", nullable = false, columnDefinition = "INT DEFAULT 1")
     private int quantity;

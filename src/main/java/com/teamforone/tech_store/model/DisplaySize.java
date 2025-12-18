@@ -10,7 +10,6 @@ import org.hibernate.annotations.UuidGenerator;
 
 import java.math.BigDecimal;
 import java.util.Date;
-import java.util.UUID;
 
 @Entity
 @Getter
@@ -22,7 +21,7 @@ public class DisplaySize {
     @Id
     @UuidGenerator
     @Column(name = "sizeID", columnDefinition = "CHAR(36)")
-    private String displaySizeID;
+    private String sizeID;
 
     @Column(name = "size_inch", precision = 4, scale = 2, nullable = false)
     private BigDecimal sizeInch;

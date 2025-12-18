@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${pageTitle} ?: 'Quản lý người dùng'">Quản lý người dùng</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link th:href="@{/css/Dashboard.css}" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link th:href="@{/css/admin-layout.css}" rel="stylesheet">
+    <link th:href="@{/css/user-management.css}" rel="stylesheet">
+</head>
+<body>
+
+<div th:replace="~{fragments/sidebar :: sidebar}"></div>
+
+<div class="main-content">
+    <div th:replace="~{fragments/topbar :: topbar}"></div>
+
+    <div class="content-area">
+        <!-- Alert Messages -->
+        <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="bi bi-check-circle-fill me-2"></i>
+            <span th:text="${successMessage}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+
+        <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="bi bi-x-circle-fill me-2"></i>
+            <span th:text="${errorMessage}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+
+<!-- Include Sidebar -->
+<div th:replace="~{layout/sidebar :: sidebar}"></div>
+
+<!-- Main Content -->
+<div class="main-content">
+    <!-- Include Topbar -->
+    <div th:replace="~{layout/topbar :: topbar}"></div>
+
+    <!-- Content Area -->
+    <div class="content-area">
+        <!-- Stats Cards -->
+        <div class="row g-4 mb-4 fade-in-up">
+            <div class="col-xl-3 col-md-6" th:each="stat : ${stats}">
+                <div class="stat-card">
+                    <div class="stat-card-header">
+                        <div>
+                            <div class="stat-label" th:text="${stat.label}">Label</div>
+                            <div class="stat-value" th:text="${stat.value}">0</div>
+                            <div class="stat-change" th:classappend="${stat.changeClass}">
+                                <i th:class="${stat.changeIcon}"></i>
+                                <span th:text="${stat.changeText}">0%</span>
+                            </div>
+                        </div>
+                        <div class="stat-icon" th:classappend="${stat.iconClass}">
+                            <i th:class="${stat.icon}"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- User Table -->
+        <div class="custom-table fade-in-up">
+        <div class="custom-table fade-in-up" style="animation-delay: 0.1s;">
+            <div class="table-header">
+                <h5 class="table-title">
+                    <i class="bi bi-people-fill"></i>
+                    Danh sách người dùng
+                </h5>
+                <div class="table-actions">
+                    <div class="search-box">
+                        <i class="bi bi-search"></i>
+                        <input type="text" id="searchInput" class="form-control" placeholder="Tìm kiếm người dùng...">
+                    </div>
+                    <a th:href="@{/admin/users/add}" class="btn btn-primary">
+                        <i class="bi bi-plus-circle"></i>
+                        Thêm người dùng
+                    </a>
+                    <button class="btn btn-outline-primary" onclick="filterUsers()">
+                        <i class="bi bi-funnel"></i>
+                        Lọc
+                    </button>
+                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#userModal">
+                        <i class="bi bi-plus-circle"></i>
+                        Thêm người dùng
+                    </button>
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead>
+                    <tr>
+                        <th>Người dùng</th>
+                        <th>Username</th>
+                        <th>Email</th>
+                        <th>Số điện thoại</th>
+                        <th>Trạng thái</th>
+                        <th>Ngày tạo</th>
+                        <th>Thao tác</th>
+                    </tr>
+                    </thead>
+                    <tbody id="userTableBody">
+                    <tr th:each="user : ${users}">
+                        <td>
+                            <div class="user-info-cell">
+                                <div class="user-avatar" th:text="${#strings.substring(user.fullname, 0, 1).toUpperCase()}">U</div>
+                                <div class="user-details">
+                                    <div class="user-name" th:text="${user.fullname}">Nguyễn Văn A</div>
+                                    <small class="user-id" th:text="'ID: ' + ${user.id}">ID: 1</small>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="username-text" th:text="${user.username}">username</span>
+                        </td>
+                        <td>
+                            <span class="email-text" th:text="${user.email}">email@example.com</span>
+                        </td>
+                        <td>
+                            <span class="phone-text" th:text="${user.phone}">0123456789</span>
+                        </td>
+                        <td>
+                            <span class="status-badge"
+                                  th:classappend="${user.status.name() == 'ACTIVE' ? 'active' : 'locked'}"
+                                  th:text="${user.status.name() == 'ACTIVE' ? 'Hoạt động' : 'Bị khóa'}">
+                                Hoạt động
+                            </span>
+                                <span class="status-badge"
+                                      th:classappend="${user.status.name == 'ACTIVE' ? 'active' : 'locked'}"
+                                      th:text="${user.status.name == 'ACTIVE' ? 'Hoạt động' : 'Bị khóa'}">
+                                    Hoạt động
+                                </span>
+                        </td>
+                        <td>
+                            <span class="date-text" th:text="${user.createdAt != null ? #dates.format(user.createdAt, 'dd/MM/yyyy') : 'N/A'}">01/01/2024</span>
+                        </td>
+                        <td>
+                            <div class="btn-group btn-group-sm">
+                                <a th:href="@{/admin/users/edit/{id}(id=${user.id})}"
+                                   class="btn btn-sm btn-outline-primary">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                <form th:action="@{/admin/users/lock/{id}(id=${user.id})}"
+                                      method="post"
+                                      style="display: inline;"
+                                      th:if="${user.status.name() == 'ACTIVE'}">
+                                    <button type="submit" class="btn btn-sm btn-outline-warning"
+                                            onclick="return confirm('Bạn có chắc muốn khóa người dùng này?')">
+                                        <i class="bi bi-lock"></i>
+                                    </button>
+                                </form>
+                                <form th:action="@{/admin/users/unlock/{id}(id=${user.id})}"
+                                      method="post"
+                                      style="display: inline;"
+                                      th:if="${user.status.name() == 'LOCKED'}">
+                                    <button type="submit" class="btn btn-sm btn-outline-success"
+                                            onclick="return confirm('Bạn có chắc muốn mở khóa người dùng này?')">
+                                        <i class="bi bi-unlock"></i>
+                                    </button>
+                                </form>
+                                <!-- SỬA: Dùng data-user-id thay vì th:onclick với String -->
+                                <button class="btn btn-sm btn-outline-primary"
+                                        th:data-user-id="${user.id}"
+                                        onclick="editUser(this.dataset.userId)">
+                                    <i class="bi bi-pencil"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-danger"
+                                        th:data-user-id="${user.id}"
+                                        onclick="deleteUser(this.dataset.userId)">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(users)}">
+                        <td colspan="7" class="text-center py-5 text-muted">
+                            <i class="bi bi-inbox" style="font-size: 3rem; opacity: 0.3;"></i>
+                            <p class="mt-2">Không có người dùng nào</p>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            <div class="table-footer">
+                <div class="pagination-info">
+                    Hiển thị <strong th:text="${startIndex}">1</strong>-<strong th:text="${endIndex}">10</strong>
+                    trong tổng số <strong th:text="${totalUsers}">0</strong> người dùng
+                </div>
+                <nav aria-label="Page navigation" th:if="${totalPages > 1}">
+                    <ul class="pagination mb-0">
+                        <li class="page-item" th:classappend="${currentPage == 1} ? 'disabled'">
+                            <a class="page-link" th:href="@{/admin/users(page=${currentPage - 1}, size=${pageSize})}">
+                                <i class="bi bi-chevron-left"></i>
+                            </a>
+                        </li>
+                        <li class="page-item" th:each="i : ${#numbers.sequence(1, totalPages)}"
+                            th:classappend="${i == currentPage} ? 'active'">
+                            <a class="page-link" th:href="@{/admin/users(page=${i}, size=${pageSize})}" th:text="${i}">1</a>
+                        </li>
+                        <li class="page-item" th:classappend="${currentPage == totalPages} ? 'disabled'">
+                            <a class="page-link" th:href="@{/admin/users(page=${currentPage + 1}, size=${pageSize})}">
+                                <i class="bi bi-chevron-right"></i>
+                            </a>
+                    Hiển thị <strong>1-10</strong> trong tổng số <strong th:text="${users.size()}">0</strong> người dùng
+                </div>
+                <nav aria-label="Page navigation">
+                    <ul class="pagination mb-0">
+                        <li class="page-item disabled">
+                            <a class="page-link" href="#"><i class="bi bi-chevron-left"></i></a>
+                        </li>
+                        <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                        <li class="page-item"><a class="page-link" href="#">2</a></li>
+                        <li class="page-item"><a class="page-link" href="#">3</a></li>
+                        <li class="page-item">
+                            <a class="page-link" href="#"><i class="bi bi-chevron-right"></i></a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script th:src="@{/javascript/Dashboard.js}"></script>
+<script>
+    // Simple search functionality
+    document.getElementById('searchInput').addEventListener('input', function(e) {
+        const searchTerm = e.target.value.toLowerCase();
+        const tableRows = document.querySelectorAll('#userTableBody tr');
+
+        tableRows.forEach(row => {
+            const text = row.textContent.toLowerCase();
+            if (text.includes(searchTerm)) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    });
+</script>
+<!-- Include User Modal -->
+<div th:replace="~{fragments/userModal :: userModal}"></div>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- Custom JS -->
+<script th:src="@{/js/admin-layout.js}"></script>
+<script th:src="@{/js/user-management.js}"></script>
+
+</body>
+</html>
