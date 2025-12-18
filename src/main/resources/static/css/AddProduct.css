@@ -1,0 +1,391 @@
+/* Scoped Add Product Page Styles for the provided HTML
+   - Targets only elements inside .main-content #productForm so sidebar/topbar are not affected
+   - Improves visual balance, tightens spacing, makes right column sticky on large screens
+   - Matches classes/ids used in your HTML (productForm, form-section, image-upload-box, image-preview, etc.)
+*/
+
+/* Page container: center and limit width so form doesn't stretch too wide */
+.main-content #productForm {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 12px;
+}
+
+/* Basic card/section styling */
+.main-content #productForm .form-section {
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 20px;
+    box-shadow: 0 6px 18px rgba(35,47,62,0.06);
+    overflow: visible;
+    position: relative;
+    z-index: 1;
+}
+
+/* Section header */
+.main-content #productForm .section-header {
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    background: linear-gradient(180deg, #fbfcfd 0%, #f5f7fb 100%);
+    border-bottom: 1px solid #eef0f3;
+    border-radius: 10px;
+}
+.main-content #productForm .section-title {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #22303f;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.main-content #productForm .section-title i { color: #5663f2; }
+
+/* Form grid balance: left ~68%, right ~32% on large screens */
+@media (min-width: 992px) {
+    .main-content #productForm .row.g-4 {
+        align-items: flex-start;
+    }
+    .main-content #productForm .col-lg-8 {
+        flex: 0 0 68%;
+        max-width: 68%;
+    }
+    .main-content #productForm .col-lg-4 {
+        flex: 0 0 32%;
+        max-width: 32%;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    /* Remove sticky from all sections by default */
+    .main-content #productForm .col-lg-4 > .form-section {
+        position: static;
+        top: auto;
+    }
+
+    /* Make only the Actions section sticky (the one with buttons) */
+    .main-content #productForm .col-lg-4 > .form-section:has(.d-grid) {
+        position: sticky;
+        top: 96px;
+        z-index: 10;
+    }
+}
+
+/* Inputs and selects: slightly taller and rounded for balance */
+.main-content #productForm .form-control,
+.main-content #productForm .form-select,
+.main-content #productForm textarea {
+    min-height: 44px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    border: 1px solid #e6e9ef;
+    transition: border-color 0.18s ease, box-shadow 0.18s ease;
+    background: #fff;
+}
+.main-content #productForm .form-control:focus,
+.main-content #productForm .form-select:focus,
+.main-content #productForm textarea:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 4px rgba(102,126,234,0.08);
+    outline: none;
+}
+
+/* Increase z-index when select is focused to prevent overlapping */
+.main-content #productForm .form-select:focus {
+    position: relative;
+    z-index: 100;
+}
+
+/* Form label style */
+.main-content #productForm .form-label {
+    font-weight: 600;
+    color: #2c3e50;
+    font-size: 0.95rem;
+    margin-bottom: 6px;
+}
+.main-content #productForm .form-label.required::after {
+    content: " *";
+    color: #dc3545;
+}
+
+/* Image upload box */
+.main-content #productForm .image-upload-box {
+    position: relative;
+    border: 2px dashed #e6e9ef;
+    border-radius: 12px;
+    min-height: 240px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 18px;
+    background: #fafbfd;
+    transition: border-color 0.18s ease, background 0.18s ease;
+}
+.main-content #productForm .image-upload-box:hover {
+    border-color: #667eea;
+    background: #f0f3ff;
+}
+.main-content #productForm .image-upload-box.dragover {
+    border-color: #4f46e5;
+    background: #e8ecff;
+}
+
+/* Upload label and icons */
+.main-content #productForm .image-upload-label {
+    cursor: pointer;
+    text-align: center;
+    color: #2c3e50;
+    width: 100%;
+}
+.main-content #productForm .image-upload-label i {
+    font-size: 44px;
+    color: #667eea;
+    margin-bottom: 8px;
+    display: block;
+}
+.main-content #productForm .image-upload-label p {
+    font-weight: 600;
+    margin-bottom: 6px;
+}
+
+/* Image preview (overlay) */
+.main-content #productForm .image-preview {
+    display: none;
+    position: absolute;
+    inset: 0;
+    border-radius: 12px;
+    overflow: hidden;
+    align-items: center;
+    justify-content: center;
+    background: #fff;
+}
+.main-content #productForm .image-preview.active { display: flex; }
+.main-content #productForm #previewImg {
+    max-width: 100%;
+    max-height: 220px;
+    object-fit: contain;
+    box-shadow: 0 6px 18px rgba(35,47,62,0.06);
+    border-radius: 8px;
+}
+
+/* Preview actions */
+.main-content #productForm .preview-actions {
+    position: absolute;
+    bottom: 12px;
+    display: flex;
+    gap: 8px;
+}
+.main-content #productForm .preview-actions .btn-sm {
+    padding: 6px 10px;
+    border-radius: 8px;
+}
+
+/* Right column buttons and actions */
+.main-content #productForm .d-grid .btn {
+    border-radius: 10px;
+    font-weight: 700;
+    padding: 10px 16px;
+}
+.main-content #productForm .btn-primary {
+    background: linear-gradient(135deg,#667eea,#4f46e5);
+    border: none;
+    box-shadow: 0 8px 20px rgba(79,70,229,0.12);
+}
+.main-content #productForm .btn-outline-secondary {
+    border-radius: 10px;
+}
+
+/* Small stat items in right column */
+.main-content #productForm .stat-item-small {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 12px;
+    border-top: 1px solid #f1f3f5;
+    font-size: 0.95rem;
+}
+.main-content #productForm .stat-label-small { color: #6c757d; }
+.main-content #productForm .stat-value-small { font-weight: 700; color: #22303f; }
+
+/* Gallery grid */
+.main-content #productForm .gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 12px;
+}
+.main-content #productForm .gallery-upload-box,
+.main-content #productForm .gallery-item {
+    aspect-ratio: 1;
+    border: 2px dashed #e6e9ef;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    background: #fafbfd;
+}
+.main-content #productForm .gallery-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Variants list */
+.main-content #productForm .variant-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 12px;
+    border-radius: 10px;
+    background: #fbfcfd;
+    border: 1px solid #eef0f3;
+}
+.main-content #productForm .variant-image {
+    width: 80px;
+    height: 80px;
+    border-radius: 8px;
+    object-fit: cover;
+    border: 1px solid #e9eef8;
+}
+
+/* SEO preview */
+.main-content #productForm .seo-preview {
+    background: #fbfcfd;
+    border: 1px solid #eef0f3;
+    border-radius: 10px;
+    padding: 12px;
+}
+.main-content #productForm .seo-url,
+.main-content #productForm .seo-title {
+    color: #0b63c9;
+    font-weight: 600;
+}
+
+/* Inputs and selects: slightly taller and rounded for balance */
+.main-content #productForm .form-control,
+.main-content #productForm .form-select,
+.main-content #productForm textarea {
+    min-height: 44px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    border: 1px solid #e6e9ef;
+    transition: border-color 0.18s ease, box-shadow 0.18s ease;
+    background: #fff;
+}
+
+/* Add dropdown arrow to select - ALWAYS visible */
+.main-content #productForm .form-select {
+    background-color: #fff ! important;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e") !important;
+    background-repeat: no-repeat !important;
+    background-position: right 0.75rem center !important;
+    background-size: 16px 12px !important;
+    padding-right: 2.5rem !important;
+    -webkit-appearance: none !important;
+    -moz-appearance: none ! important;
+    appearance: none ! important;
+    position: relative;
+}
+
+.main-content #productForm .form-control:focus,
+.main-content #productForm .form-select:focus,
+.main-content #productForm textarea:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 4px rgba(102,126,234,0.08);
+    outline: none;
+}
+
+/* Change arrow color when focused */
+.main-content #productForm .form-select:focus {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23667eea' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e") !important;
+}
+
+/* Increase z-index when select is focused to prevent overlapping */
+.main-content #productForm .form-select:focus {
+    position: relative;
+    z-index: 100;
+}
+
+/* Force dropdown options to appear BELOW the select */
+.main-content #productForm .form-select {
+    overflow: visible ! important;
+}
+
+/* If using a wrapper, ensure it doesn't clip the dropdown */
+.main-content #productForm .form-section {
+    overflow: visible !important;
+}
+
+/* Ensure Select2 dropdowns (if used) have proper z-index */
+.select2-container--open {
+    z-index: 999 !important;
+}
+
+.select2-dropdown {
+    z-index: 1000 !important;
+}
+
+/* Responsive adjustments */
+@media (max-width: 991px) {
+    .main-content #productForm {
+        padding: 0 18px;
+        max-width: 100%;
+    }
+    .main-content #productForm .col-lg-8,
+    .main-content #productForm .col-lg-4 {
+        flex: 0 0 100%;
+        max-width: 100%;
+    }
+    /* Deactivate sticky behavior on smaller screens */
+    .main-content #productForm .col-lg-4 > .form-section {
+        position: static ! important;
+        top: auto ! important;
+    }
+}
+
+/* Print tweaks - only hide action buttons on print, not topbar/sidebar */
+@media print {
+    .main-content #productForm .d-grid .btn,
+    .main-content #productForm .preview-actions {
+        display: none !important;
+    }
+    .main-content #productForm {
+        max-width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+}
+
+.variant-card {
+    animation: fadeIn 0.3s ease;
+}
+
+.variant-card . card {
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.variant-card .card:hover {
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    border-color: #0d6efd;
+}
+
+.variant-card .card-header {
+    border-bottom: 1px solid #e0e0e0;
+    padding: 0.75rem 1rem;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

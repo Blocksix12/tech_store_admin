@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản lý Thương hiệu - Admin Dashboard</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link href="https://fonts.googleapis.com/css2? family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/Dashboard.css}" />
+    <link rel="stylesheet" th:href="@{/css/Brands.css}" />
+</head>
+<body>
+
+<!-- Toast Container -->
+<div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 9999;">
+    <div th:if="${successMessage}"
+         class="toast align-items-center text-white bg-success border-0 show"
+         role="alert" data-bs-autohide="true" data-bs-delay="5000">
+        <div class="d-flex">
+            <div class="toast-body">
+                <i class="bi bi-check-circle-fill me-2"></i>
+                <span th:text="${successMessage}">Success</span>
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+        </div>
+    </div>
+
+    <div th:if="${errorMessage}"
+         class="toast align-items-center text-white bg-danger border-0 show"
+         role="alert" data-bs-autohide="true" data-bs-delay="5000">
+        <div class="d-flex">
+            <div class="toast-body">
+                <i class="bi bi-x-circle-fill me-2"></i>
+                <span th:text="${errorMessage}">Error</span>
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+        </div>
+    </div>
+</div>
+
+<!-- Include Sidebar -->
+<div th:replace="~{fragments/sidebar :: sidebar}"></div>
+
+<!-- Main Content -->
+<div class="main-content">
+    <!-- Include Topbar -->
+    <div th:replace="~{fragments/topbar :: topbar}"></div>
+
+    <!-- Content Area -->
+    <div class="content-area">
+        <div class="row g-4">
+            <!-- Stats Cards -->
+            <div class="col-xl-4 col-md-6">
+                <div class="stat-card fade-in-up">
+                    <div class="stat-card-header">
+                        <div>
+                            <div class="stat-label">Tổng thương hiệu</div>
+                            <div class="stat-value" th:text="${totalBrands}">0</div>
+                            <div class="stat-change positive">
+                                <i class="bi bi-award"></i>
+                                <span>Thương hiệu</span>
+                            </div>
+                        </div>
+                        <div class="stat-icon primary">
+                            <i class="bi bi-award"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xl-4 col-md-6">
+                <div class="stat-card fade-in-up" style="animation-delay: 0.1s;">
+                    <div class="stat-card-header">
+                        <div>
+                            <div class="stat-label">Đang hoạt động</div>
+                            <div class="stat-value" th:text="${activeBrands}">0</div>
+                            <div class="stat-change positive">
+                                <i class="bi bi-check-circle"></i>
+                                <span>Thương hiệu</span>
+                            </div>
+                        </div>
+                        <div class="stat-icon success">
+                            <i class="bi bi-check-circle-fill"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xl-4 col-md-6">
+                <div class="stat-card fade-in-up" style="animation-delay: 0.2s;">
+                    <div class="stat-card-header">
+                        <div>
+                            <div class="stat-label">Ngừng hoạt động</div>
+                            <div class="stat-value" th:text="${inactiveBrands}">0</div>
+                            <div class="stat-change negative">
+                                <i class="bi bi-x-circle"></i>
+                                <span>Thương hiệu</span>
+                            </div>
+                        </div>
+                        <div class="stat-icon danger">
+                            <i class="bi bi-x-circle-fill"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filter & View Toggle -->
+        <div class="filters-bar fade-in-up mt-4" style="animation-delay: 0.4s;">
+            <div class="filters-row">
+                <div class="filters-left">
+                    <!-- Filter by Status -->
+                    <div class="filter-group">
+                        <label>Trạng thái</label>
+                        <select class="form-select" id="filterStatus" onchange="filterByStatus(this. value)">
+                            <option value="">Tất cả</option>
+                            <option th:each="status : ${brandStatuses}"
+                                    th:value="${status}"
+                                    th:text="${status.displayName}">Status</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-group">
+                        <label>Sắp xếp</label>
+                        <select class="form-select" id="sortBy">
+                            <option value="name">Tên A-Z</option>
+                            <option value="name_desc">Tên Z-A</option>
+                            <option value="newest">Mới nhất</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="view-actions">
+                    <div class="btn-group" role="group">
+                        <button type="button" class="btn btn-outline-primary active" id="viewGrid" onclick="changeView('grid')">
+                            <i class="bi bi-grid-3x3-gap-fill"></i>
+                        </button>
+                        <button type="button" class="btn btn-outline-primary" id="viewList" onclick="changeView('list')">
+                            <i class="bi bi-list-ul"></i>
+                        </button>
+                    </div>
+                    <a th:href="@{/admin/brands/add}" class="btn btn-primary">
+                        <i class="bi bi-plus-lg"></i> Thêm thương hiệu
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Brands Grid View -->
+        <div class="brands-grid mt-4 fade-in-up" id="brandsGridView" style="animation-delay: 0.5s;">
+            <!-- Loop through brands -->
+            <div th:each="brand : ${brandsWithStats}"
+                 class="brand-card"
+                 th:data-brand-id="${brand.brandId}"
+                 th:data-brand-name="${brand.brandName}"
+                 th:data-brand-status="${brand.status}">
+                <div class="brand-card-header">
+                    <div class="brand-logo">
+                        <img th:if="${brand.logoUrl != null and ! brand.logoUrl.isEmpty()}"
+                             th:src="${brand.logoUrl}"
+                             th:alt="${brand.brandName}"
+                             alt="Brand Logo">
+                        <img th:unless="${brand.logoUrl != null and !brand.logoUrl.isEmpty()}"
+                             src="https://via.placeholder.com/100x100/667eea/ffffff?text=Logo"
+                             th:alt="${brand.brandName}"
+                             alt="Brand Logo">
+                    </div>
+                    <div class="brand-actions">
+                        <a th:href="@{/admin/brands/edit/{id}(id=${brand.brandId})}"
+                           class="btn btn-sm btn-outline-primary"
+                           title="Chỉnh sửa">
+                            <i class="bi bi-pencil"></i>
+                        </a>
+
+                        <!-- Show activate button if inactive -->
+                        <form th:if="${brand.status. name() == 'INACTIVE'}"
+                              th:action="@{/admin/brands/activate/{id}(id=${brand.brandId})}"
+                              method="post"
+                              style="display: inline;">
+                            <button type="submit"
+                                    class="btn btn-sm btn-outline-success"
+                                    title="Kích hoạt">
+                                <i class="bi bi-check-circle"></i>
+                            </button>
+                        </form>
+
+                        <!-- Show deactivate button if active -->
+                        <button type="button"
+                                th:if="${brand.status.name() == 'ACTIVE'}"
+                                class="btn btn-sm btn-outline-danger btn-delete-brand"
+                                title="Vô hiệu hóa"
+                                th:data-brand-id="${brand.brandId}"
+                                th:data-brand-name="${brand.brandName}">
+                            <i class="bi bi-x-circle"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="brand-card-body">
+                    <h5 class="brand-name" th:text="${brand.brandName}">Brand Name</h5>
+                    <p class="brand-origin" th:if="${brand.country != null and !brand.country.isEmpty()}">
+                        <i class="bi bi-geo-alt"></i>
+                        <span th:text="${brand.country}">Country</span>
+                    </p>
+                    <p class="brand-description" th:text="${brand.description ?: ('Thương hiệu ' + brand.brandName)}">
+                        Mô tả thương hiệu
+                    </p>
+                    <div class="brand-stats">
+                        <div class="brand-stat-item">
+                            <i class="bi bi-box-seam text-primary"></i>
+                            <div>
+                                <span class="stat-label">Sản phẩm</span>
+                                <span class="stat-value" th:text="${brand.productCount ?: 0}">0</span>
+                            </div>
+                        </div>
+                        <div class="brand-stat-item">
+                            <i class="bi bi-cash-coin text-success"></i>
+                            <div>
+                                <span class="stat-label">Doanh thu</span>
+                                <span class="stat-value" th:text="${brand.formattedRevenue ?: '0₫'}">0₫</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="brand-footer">
+                        <span class="badge"
+                              th:classappend="${brand.status.badgeClass}"
+                              th:text="${brand.status.displayName}">Status</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Empty State -->
+            <div th:if="${#lists.isEmpty(brandsWithStats)}" class="col-12">
+                <div class="brands-empty">
+                    <i class="bi bi-award"></i>
+                    <h5>Chưa có thương hiệu nào</h5>
+                    <p>Bắt đầu thêm thương hiệu mới cho cửa hàng của bạn</p>
+                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#brandModal">
+                        <i class="bi bi-plus-lg"></i> Thêm thương hiệu đầu tiên
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Brands List View -->
+        <div class="custom-table mt-4 fade-in-up" id="brandsListView" style="display: none;">
+            <div class="table-header">
+                <h5 class="table-title">
+                    <i class="bi bi-list-ul"></i>
+                    Danh sách thương hiệu
+                </h5>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead>
+                    <tr>
+                        <th style="width: 60px;">STT</th>
+                        <th>Tên thương hiệu</th>
+                        <th>Quốc gia</th>
+                        <th>Số Sản Phẩm</th>
+                        <th>Tổng Doanh Thu</th>
+                        <th>Trạng thái</th>
+                        <th style="width: 150px;">Thao tác</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="brand, iterStat : ${brandsWithStats}"
+                        th:data-brand-name="${brand.brandName}"
+                        th:data-brand-status="${brand.status}"
+                        th:data-product-count="${brand.productCount}"
+                        th:data-revenue="${brand.totalRevenue}">
+                        <td th:text="${iterStat.count}">1</td>
+                        <td>
+                            <strong th:text="${brand.brandName}">Brand Name</strong>
+                            <div class="small text-muted" th:text="'ID: ' + ${brand.brandId}">ID</div>
+                        </td>
+                        <td th:text="${brand.country ?: '-'}">-</td>
+                        <td>
+                            <span class="badge bg-primary" th:text="${brand.productCount ?: 0}">0</span>
+                        </td>
+                        <td>
+                            <strong th:text="${brand.formattedRevenue ?: '0₫'}">0₫</strong>
+                        </td>
+                        <td>
+                            <span class="badge"
+                                  th:classappend="${brand.status.badgeClass}"
+                                  th:text="${brand.status.displayName}">Status</span>
+                        </td>
+                        <td>
+                            <div class="btn-group btn-group-sm">
+                                <a th:href="@{/admin/brands/edit/{id}(id=${brand.brandId})}"
+                                   class="btn btn-outline-primary"
+                                   title="Chỉnh sửa">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+
+                                <!-- Activate button -->
+                                <!-- Show deactivate button if active -->
+                                <a th:href="@{/admin/brands/delete/{id}(id=${brand.brandId})}"
+                                   th:if="${brand.status.name() == 'INACTIVE'}"
+                                   class="btn btn-outline-success"
+                                   title="Kích hoạt">
+                                    <i class="bi bi-check-circle"></i>
+                                </a>
+
+                                <!-- Delete button - ACTIVE -->
+                                <a th:href="@{/admin/brands/delete/{id}(id=${brand.brandId})}"
+                                   th:if="${brand.status.name() == 'ACTIVE'}"
+                                   class="btn btn-outline-danger"
+                                   title="Xóa">
+                                    <i class="bi bi-trash"></i>
+                                </a>
+
+                                <!-- Delete button - DISCONTINUED -->
+                                <a th:href="@{/admin/brands/delete/{id}(id=${brand.brandId})}"
+                                   th:if="${brand.status.name() == 'DISCONTINUED'}"
+                                   class="btn btn-outline-danger"
+                                   title="Xóa">
+                                    <i class="bi bi-trash"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(brandsWithStats)}">
+                        <td colspan="5" class="text-center py-4">
+                            <i class="bi bi-inbox fs-1 text-muted"></i>
+                            <p class="text-muted mt-2">Chưa có thương hiệu nào</p>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Pagination -->
+        <div class="pagination-wrapper mt-4" th:if="${! #lists.isEmpty(brandsWithStats)}">
+            <div class="pagination-info">
+                Hiển thị <strong th:text="${#lists.size(brandsWithStats)}">0</strong> thương hiệu
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Brand Modal -->
+<div class="modal fade" id="brandModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form th:action="@{/admin/brands/add}"
+                  th:object="${brandRequest}"
+                  method="post">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="bi bi-award-fill"></i> Thêm thương hiệu mới
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="brandName" class="form-label">
+                            Tên thương hiệu <span class="text-danger">*</span>
+                        </label>
+                        <input type="text"
+                               class="form-control"
+                               id="brandName"
+                               name="brandName"
+                               th:field="*{brandName}"
+                               placeholder="Nhập tên thương hiệu"
+                               required
+                               autofocus>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="bi bi-x-lg"></i> Hủy
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-save"></i> Lưu thương hiệu
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script th:src="@{/javascript/Dashboard.js}"></script>
+
+<script>
+    function toggleSidebar() {
+        document.getElementById('sidebar')?.classList.toggle('collapsed');
+    }
+
+    function toggleSubmenu(element) {
+        element.classList.toggle('open');
+        element.nextElementSibling?.classList.toggle('show');
+    }
+
+    function changeView(viewType) {
+        const gridView = document.getElementById('brandsGridView');
+        const listView = document.getElementById('brandsListView');
+        const gridBtn = document.getElementById('viewGrid');
+        const listBtn = document. getElementById('viewList');
+
+        if (viewType === 'grid') {
+            gridView.style. display = 'grid';
+            listView.style.display = 'none';
+            gridBtn.classList.add('active');
+            listBtn.classList.remove('active');
+            localStorage.setItem('brandsView', 'grid');
+        } else {
+            gridView.style.display = 'none';
+            listView.style.display = 'block';
+            gridBtn.classList.remove('active');
+            listBtn.classList.add('active');
+            localStorage.setItem('brandsView', 'list');
+        }
+    }
+
+    function filterByStatus(status) {
+        if (status) {
+            window.location.href = `/admin/brands?status=${status}`;
+        } else {
+            window. location.href = '/admin/brands';
+        }
+    }
+
+    function searchBrands(searchTerm) {
+        const searchLower = searchTerm.toLowerCase(). trim();
+        const gridCards = document.querySelectorAll('#brandsGridView .brand-card');
+        const listRows = document.querySelectorAll('#brandsListView tbody tr[data-brand-name]');
+
+        let visibleCount = 0;
+
+        gridCards.forEach(card => {
+            const brandName = card.getAttribute('data-brand-name')?.toLowerCase() || '';
+            if (! searchTerm || brandName.includes(searchLower)) {
+                card. style.display = '';
+                visibleCount++;
+            } else {
+                card.style.display = 'none';
+            }
+        });
+
+        listRows.forEach(row => {
+            const brandName = row.getAttribute('data-brand-name')?. toLowerCase() || '';
+            row.style.display = (! searchTerm || brandName.includes(searchLower)) ? '' : 'none';
+        });
+
+        showEmptyState(visibleCount === 0 && searchTerm);
+    }
+
+    function showEmptyState(show) {
+        let emptyState = document.getElementById('searchEmptyState');
+        const gridView = document.getElementById('brandsGridView');
+
+        if (show && ! emptyState) {
+            emptyState = document.createElement('div');
+            emptyState.id = 'searchEmptyState';
+            emptyState.className = 'col-12';
+            emptyState.innerHTML = `
+                <div class="brands-empty">
+                    <i class="bi bi-search"></i>
+                    <h5>Không tìm thấy thương hiệu</h5>
+                    <p>Vui lòng thử lại với từ khóa khác</p>
+                    <button class="btn btn-primary" onclick="resetSearch()">
+                        <i class="bi bi-arrow-clockwise"></i> Đặt lại
+                    </button>
+                </div>
+            `;
+            gridView. appendChild(emptyState);
+        }
+
+        if (emptyState) {
+            emptyState.style.display = show ?  'block' : 'none';
+        }
+    }
+
+    function resetSearch() {
+        const searchInput = document.getElementById('searchBrands');
+        if (searchInput) {
+            searchInput.value = '';
+            searchBrands('');
+        }
+    }
+
+    function sortBrands(sortBy) {
+        const gridView = document.getElementById('brandsGridView');
+        const gridCards = Array.from(gridView.querySelectorAll('.brand-card'));
+
+        gridCards.sort((a, b) => {
+            const nameA = a.getAttribute('data-brand-name') || '';
+            const nameB = b.getAttribute('data-brand-name') || '';
+            return sortBy === 'name_desc' ? nameB.localeCompare(nameA) : nameA.localeCompare(nameB);
+        });
+
+        gridCards.forEach(card => gridView.appendChild(card));
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const savedView = localStorage.getItem('brandsView') || 'grid';
+        changeView(savedView);
+
+        const searchInput = document.getElementById('searchBrands');
+        if (searchInput) {
+            let searchTimeout;
+            searchInput.addEventListener('input', function (e) {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(() => searchBrands(e.target.value), 300);
+            });
+        }
+
+        const sortSelect = document.getElementById('sortBy');
+        sortSelect?.addEventListener('change', function () {
+            sortBrands(this.value);
+        });
+
+        const brandModal = document.getElementById('brandModal');
+        brandModal?.addEventListener('hidden.bs.modal', function () {
+            this.querySelector('form').reset();
+        });
+
+        brandModal?.addEventListener('shown.bs.modal', function () {
+            document.getElementById('brandName')?.focus();
+        });
+
+        const toasts = document.querySelectorAll('.toast.show');
+        toasts.forEach(toast => {
+            const bsToast = new bootstrap.Toast(toast);
+            setTimeout(() => bsToast.hide(), 5000);
+        });
+    });
+
+</script>
+</body>
+</html>

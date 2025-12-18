@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hồ sơ của tôi - Admin Dashboard</title>
+
+    <!-- Bootstrap 5.3 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Dashboard CSS -->
+    <link rel="stylesheet" th:href="@{/css/Dashboard.css}" />
+    <!-- Profile CSS -->
+    <link rel="stylesheet" th:href="@{/css/Profile.css}" />
+</head>
+<body>
+
+<!-- Include Sidebar -->
+<div th:replace="~{fragments/sidebar :: sidebar}"></div>
+
+<!-- Main Content -->
+<div class="main-content">
+    <!-- Include Topbar -->
+    <div th:replace="~{fragments/topbar :: topbar}"></div>
+
+    <!-- Error/Success Messages -->
+    <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+        <span th:text="${error}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+
+    <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="bi bi-check-circle-fill me-2"></i>
+        <span th:text="${success}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+
+    <!-- Content Area -->
+    <div class="content-area" th:if="${profile != null}">
+        <div class="row g-4">
+            <!-- Left Column - Profile Info -->
+            <div class="col-lg-4">
+                <!-- Profile Card -->
+                <div class="profile-card fade-in-up">
+                    <div class="profile-header">
+                        <div class="profile-avatar-wrapper">
+                            <div class="profile-avatar">
+                                <img th:src="${profile.avatarUrl != null ? profile.avatarUrl : 'https://ui-avatars.com/api/?name=' + profile.fullName + '&background=4f46e5&color=fff&size=150'}"
+                                     th:alt="${profile.fullName}"
+                                     id="avatarPreview">
+                                <div class="avatar-badge">
+                                    <i class="bi bi-patch-check-fill"></i>
+                                </div>
+                            </div>
+                            <form id="avatarForm" th:action="@{/admin/profile/update-avatar}" method="post" enctype="multipart/form-data" style="display: none;">
+                                <input type="hidden" name="maNhanVien" th:value="${profile.id}">
+                                <input type="file" id="avatarInput" name="avatar" accept="image/*" onchange="document.getElementById('avatarForm').submit();">
+                            </form>
+                            <button class="avatar-upload-btn" onclick="document.getElementById('avatarInput').click()">
+                                <i class="bi bi-camera-fill"></i>
+                            </button>
+                        </div>
+                        <h3 class="profile-name" th:text="${profile.fullName}">User Name</h3>
+                        <p class="profile-role" th:text="${profile.rolesDisplay}">Nhân viên</p>
+
+                        <div class="profile-badges">
+                            <span class="badge bg-success">
+                                <i class="bi bi-shield-check"></i>
+                                Verified
+                            </span>
+                            <span class="badge bg-info" th:if="${profile.isAdmin()}">
+                                <i class="bi bi-star-fill"></i>
+                                Administrator
+                            </span>
+                            <span class="badge bg-warning" th:if="${profile.isManager()}">
+                                <i class="bi bi-briefcase-fill"></i>
+                                Manager
+                            </span>
+                            <span class="badge bg-warning" th:if="${profile.isStaff()}">
+                                <i class="bi bi-briefcase-fill"></i>
+                                Staff
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="profile-stats">
+                        <div class="stat-item">
+                            <h4>-</h4>
+                            <p>Sản phẩm</p>
+                        </div>
+                        <div class="stat-item">
+                            <h4>-</h4>
+                            <p>Đơn hàng</p>
+                        </div>
+                        <div class="stat-item">
+                            <h4>-</h4>
+                            <p>Đánh giá</p>
+                        </div>
+                    </div>
+
+                    <div class="profile-info">
+                        <div class="info-item">
+                            <i class="bi bi-envelope-fill"></i>
+                            <div>
+                                <small>Email</small>
+                                <p th:text="${profile.email}">email@example.com</p>
+                            </div>
+                        </div>
+                        <div class="info-item">
+                            <i class="bi bi-phone-fill"></i>
+                            <div>
+                                <small>Số điện thoại</small>
+                                <p th:text="${profile.phone != null ? profile.phone : 'Chưa cập nhật'}">Chưa cập nhật</p>
+                            </div>
+                        </div>
+                        <div class="info-item">
+                            <i class="bi bi-geo-alt-fill"></i>
+                            <div>
+                                <small>Địa chỉ</small>
+                                <p th:text="${profile.address != null ? profile.address : 'Chưa cập nhật'}">Chưa cập nhật</p>
+                            </div>
+                        </div>
+                        <div class="info-item">
+                            <i class="bi bi-calendar-fill"></i>
+                            <div>
+                                <small>Tham gia</small>
+                                <p th:text="${profile.createdAt != null ? #dates.format(profile.createdAt, 'dd/MM/yyyy') : '-'}">-</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="profile-actions">
+                        <button class="btn btn-primary btn-block" onclick="document.getElementById('edit-tab').click()">
+                            <i class="bi bi-pencil"></i>
+                            Chỉnh sửa hồ sơ
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Quick Links -->
+                <div class="quick-links fade-in-up" style="animation-delay: 0.1s;">
+                    <h6 class="quick-links-title">
+                        <i class="bi bi-link-45deg"></i>
+                        Liên kết nhanh
+                    </h6>
+                    <a href="/admin/settings" class="quick-link-item">
+                        <i class="bi bi-gear"></i>
+                        <span>Cài đặt tài khoản</span>
+                        <i class="bi bi-chevron-right"></i>
+                    </a>
+                    <a href="/admin/security" class="quick-link-item">
+                        <i class="bi bi-shield-lock"></i>
+                        <span>Bảo mật</span>
+                        <i class="bi bi-chevron-right"></i>
+                    </a>
+                    <a href="/admin/activity-log" class="quick-link-item">
+                        <i class="bi bi-clock-history"></i>
+                        <span>Nhật ký hoạt động</span>
+                        <i class="bi bi-chevron-right"></i>
+                    </a>
+                    <a href="/admin/notifications" class="quick-link-item">
+                        <i class="bi bi-bell"></i>
+                        <span>Thông báo</span>
+                        <i class="bi bi-chevron-right"></i>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Right Column - Detailed Info -->
+            <div class="col-lg-8">
+                <!-- Tabs -->
+                <div class="profile-tabs fade-in-up">
+                    <ul class="nav nav-tabs" id="profileTabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="overview-tab" data-bs-toggle="tab"
+                                    data-bs-target="#overview" type="button" role="tab">
+                                <i class="bi bi-person"></i>
+                                Tổng quan
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="edit-tab" data-bs-toggle="tab"
+                                    data-bs-target="#edit" type="button" role="tab">
+                                <i class="bi bi-pencil"></i>
+                                Chỉnh sửa
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="security-tab" data-bs-toggle="tab"
+                                    data-bs-target="#security" type="button" role="tab">
+                                <i class="bi bi-shield-lock"></i>
+                                Bảo mật
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="activity-tab" data-bs-toggle="tab"
+                                    data-bs-target="#activity" type="button" role="tab">
+                                <i class="bi bi-activity"></i>
+                                Hoạt động
+                            </button>
+                        </li>
+                    </ul>
+
+                    <div class="tab-content" id="profileTabContent">
+                        <!-- Overview Tab -->
+                        <div class="tab-pane fade show active" id="overview" role="tabpanel">
+                            <!-- About -->
+                            <div class="profile-section">
+                                <div class="section-header">
+                                    <h5 class="section-title">
+                                        <i class="bi bi-person-circle"></i>
+                                        Giới thiệu
+                                    </h5>
+                                    <button class="btn btn-sm btn-outline-primary" onclick="document.getElementById('edit-tab').click()">
+                                        <i class="bi bi-pencil"></i>
+                                        Chỉnh sửa
+                                    </button>
+                                </div>
+                                <div class="section-body">
+                                    <p class="text-muted" th:text="${profile.bio != null ? profile.bio : 'Chưa có thông tin giới thiệu'}">
+                                        Chưa có thông tin giới thiệu
+                                    </p>
+                                </div>
+                            </div>
+
+                            <!-- Personal Information -->
+                            <div class="profile-section">
+                                <div class="section-header">
+                                    <h5 class="section-title">
+                                        <i class="bi bi-info-circle"></i>
+                                        Thông tin cá nhân
+                                    </h5>
+                                    <button class="btn btn-sm btn-outline-primary" onclick="document.getElementById('edit-tab').click()">
+                                        <i class="bi bi-pencil"></i>
+                                        Chỉnh sửa
+                                    </button>
+                                </div>
+                                <div class="section-body">
+                                    <div class="info-grid">
+                                        <div class="info-row">
+                                            <span class="info-label">Mã nhân viên:</span>
+                                            <span class="info-value" th:text="${profile.id}">-</span>
+                                        </div>
+                                        <div class="info-row">
+                                            <span class="info-label">Họ và tên:</span>
+                                            <span class="info-value" th:text="${profile.fullName}">-</span>
+                                        </div>
+                                        <div class="info-row">
+                                            <span class="info-label">Email:</span>
+                                            <span class="info-value" th:text="${profile.email}">-</span>
+                                        </div>
+                                        <div class="info-row">
+                                            <span class="info-label">Số điện thoại:</span>
+                                            <span class="info-value" th:text="${profile.phone != null ? profile.phone : 'Chưa cập nhật'}">-</span>
+                                        </div>
+                                        <div class="info-row">
+                                            <span class="info-label">Ngày sinh:</span>
+                                            <span class="info-value" th:text="${profile.dateOfBirth != null ? #dates.format(profile.dateOfBirth, 'dd/MM/yyyy') : 'Chưa cập nhật'}">-</span>
+                                        </div>
+                                        <div class="info-row">
+                                            <span class="info-label">Giới tính:</span>
+                                            <span class="info-value" th:text="${profile.gender != null ? profile.gender : 'Chưa cập nhật'}">-</span>
+                                        </div>
+                                        <div class="info-row">
+                                            <span class="info-label">Địa chỉ:</span>
+                                            <span class="info-value" th:text="${profile.address != null ? profile.address : 'Chưa cập nhật'}">-</span>
+                                        </div>
+                                        <div class="info-row" th:if="${profile.website != null}">
+                                            <span class="info-label">Website:</span>
+                                            <span class="info-value">
+                                                <a th:href="${profile.website}" target="_blank" th:text="${profile.website}">-</a>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Work Information -->
+                            <div class="profile-section">
+                                <div class="section-header">
+                                    <h5 class="section-title">
+                                        <i class="bi bi-briefcase"></i>
+                                        Thông tin công việc
+                                    </h5>
+                                </div>
+                                <div class="section-body">
+                                    <div class="info-grid">
+                                        <div class="info-row">
+                                            <span class="info-label">Vai trò:</span>
+                                            <span class="info-value" th:text="${profile.rolesDisplay}">-</span>
+                                        </div>
+                                        <div class="info-row">
+                                            <span class="info-label">Ngày vào làm:</span>
+                                            <span class="info-value" th:text="${profile.createdAt != null ? #dates.format(profile.createdAt, 'dd/MM/yyyy') : '-'}">-</span>
+                                        </div>
+                                        <div class="info-row">
+                                            <span class="info-label">Trạng thái:</span>
+                                            <span class="info-value">
+                                                <span th:if="${profile.status}" class="badge bg-success">Đang hoạt động</span>
+                                                <span th:unless="${profile.status}" class="badge bg-danger">Ngừng hoạt động</span>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Edit Tab -->
+                        <div class="tab-pane fade" id="edit" role="tabpanel">
+                            <div class="profile-section">
+                                <div class="section-header">
+                                    <h5 class="section-title">
+                                        <i class="bi bi-pencil-square"></i>
+                                        Chỉnh sửa thông tin
+                                    </h5>
+                                </div>
+                                <div class="section-body">
+                                    <form id="editProfileForm"
+                                          th:action="@{/admin/profile/update}"
+                                          method="post"
+                                          th:object="${profile}">
+
+
+                                        <div class="row g-3">
+
+
+                                            <!-- Họ và tên -->
+                                            <div class="col-12">
+                                                <label class="form-label">Họ và tên <span class="text-danger">*</span></label>
+                                                <input type="text" class="form-control"
+                                                       th:field="*{fullName}" required>
+                                            </div>
+
+
+                                            <!-- Email -->
+                                            <div class="col-md-6">
+                                                <label class="form-label">Email <span class="text-danger">*</span></label>
+                                                <input type="email" class="form-control"
+                                                       th:field="*{email}" required>
+                                            </div>
+
+
+                                            <!-- Phone -->
+                                            <div class="col-md-6">
+                                                <label class="form-label">Số điện thoại</label>
+                                                <input type="tel" class="form-control"
+                                                       th:field="*{phone}">
+                                            </div>
+
+
+                                            <!-- Date of Birth -->
+                                            <div class="col-md-6">
+                                                <label class="form-label">Ngày sinh</label>
+                                                <input type="date" class="form-control"
+                                                       th:field="*{dateOfBirth}">
+                                            </div>
+
+
+                                            <!-- Gender -->
+                                            <div class="col-md-6">
+                                                <label class="form-label">Giới tính</label>
+                                                <select class="form-select" th:field="*{gender}">
+                                                    <option value="">-- Chọn giới tính --</option>
+                                                    <option value="Nam">Nam</option>
+                                                    <option value="Nữ">Nữ</option>
+                                                    <option value="Khác">Khác</option>
+                                                </select>
+                                            </div>
+
+
+                                            <!-- Address -->
+                                            <div class="col-12">
+                                                <label class="form-label">Địa chỉ</label>
+                                                <input type="text" class="form-control"
+                                                       th:field="*{address}">
+                                            </div>
+
+
+                                            <!-- Bio -->
+                                            <div class="col-12">
+                                                <label class="form-label">Giới thiệu</label>
+                                                <textarea class="form-control" rows="4"
+                                                          th:field="*{bio}"></textarea>
+                                            </div>
+
+
+                                            <!-- Website -->
+                                            <div class="col-12">
+                                                <label class="form-label">Website</label>
+                                                <input type="url" class="form-control"
+                                                       th:field="*{website}" placeholder="https://example.com">
+                                            </div>
+
+
+                                        </div>
+
+
+                                        <div class="form-actions mt-4">
+                                            <button type="button" class="btn btn-secondary"
+                                                    onclick="document.getElementById('overview-tab').click()">
+                                                <i class="bi bi-x-circle"></i>
+                                                Hủy
+                                            </button>
+
+
+                                            <button type="submit" class="btn btn-success">
+                                                <i class="bi bi-check-circle"></i>
+                                                Lưu thay đổi
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Security Tab -->
+                        <div class="tab-pane fade" id="security" role="tabpanel">
+                            <!-- Change Password -->
+                            <div class="profile-section">
+                                <div class="section-header">
+                                    <h5 class="section-title">
+                                        <i class="bi bi-key"></i>
+                                        Đổi mật khẩu
+                                    </h5>
+                                </div>
+                                <div class="section-body">
+                                    <form id="changePasswordForm" th:action="@{/admin/profile/change-password}" method="post">
+                                        <div class="row g-3">
+                                            <div class="col-12">
+                                                <label class="form-label">Mật khẩu hiện tại</label>
+                                                <div class="input-group">
+                                                    <input type="password" class="form-control" id="currentPassword" name="currentPassword" required>
+                                                    <button class="btn btn-outline-secondary" type="button" onclick="togglePasswordVisibility('currentPassword')">
+                                                        <i class="bi bi-eye"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            <div class="col-12">
+                                                <label class="form-label">Mật khẩu mới</label>
+                                                <div class="input-group">
+                                                    <input type="password" class="form-control" id="newPassword" name="newPassword" required>
+                                                    <button class="btn btn-outline-secondary" type="button" onclick="togglePasswordVisibility('newPassword')">
+                                                        <i class="bi bi-eye"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            <div class="col-12">
+                                                <label class="form-label">Xác nhận mật khẩu mới</label>
+                                                <div class="input-group">
+                                                    <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" required>
+                                                    <button class="btn btn-outline-secondary" type="button" onclick="togglePasswordVisibility('confirmPassword')">
+                                                        <i class="bi bi-eye"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="form-actions">
+                                            <button type="submit" class="btn btn-primary">
+                                                <i class="bi bi-shield-check"></i>
+                                                Đổi mật khẩu
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+
+                            <!-- Two-Factor Authentication -->
+                            <div class="profile-section">
+                                <div class="section-header">
+                                    <h5 class="section-title">
+                                        <i class="bi bi-shield-lock"></i>
+                                        Xác thực hai yếu tố (2FA)
+                                    </h5>
+                                </div>
+                                <div class="section-body">
+                                    <!-- SMS 2FA -->
+                                    <div class="security-option">
+                                        <div class="security-option-info">
+                                            <h6>
+                                                <i class="bi bi-phone"></i>
+                                                Xác thực qua SMS
+                                            </h6>
+                                            <p class="text-muted">Nhận mã xác thực qua tin nhắn SMS</p>
+                                            <span class="badge bg-success" id="sms2faStatus" style="display: none;">
+                    <i class="bi bi-check-circle"></i>
+                    Đã kích hoạt
+                </span>
+                                            <span class="badge bg-secondary" id="sms2faStatusOff">
+                    Chưa kích hoạt
+                </span>
+                                        </div>
+                                        <button class="btn btn-outline-primary" id="enableSms2faBtn" onclick="showEnableSms2faModal()">
+                                            <i class="bi bi-plus-circle"></i>
+                                            Bật
+                                        </button>
+                                        <button class="btn btn-outline-danger" id="disableSms2faBtn" style="display: none;" onclick="disableSms2fa()">
+                                            <i class="bi bi-x-circle"></i>
+                                            Tắt
+                                        </button>
+                                    </div>
+
+                                    <!-- Email 2FA -->
+                                    <div class="security-option">
+                                        <div class="security-option-info">
+                                            <h6>
+                                                <i class="bi bi-envelope"></i>
+                                                Xác thực qua Email
+                                            </h6>
+                                            <p class="text-muted">Nhận mã xác thực qua email của bạn</p>
+                                            <span class="badge bg-success" id="email2faStatus" style="display: none;">
+                    <i class="bi bi-check-circle"></i>
+                    Đã kích hoạt
+                </span>
+                                            <span class="badge bg-secondary" id="email2faStatusOff">
+                    Chưa kích hoạt
+                </span>
+                                        </div>
+                                        <button class="btn btn-outline-primary" id="enableEmail2faBtn" onclick="showEnableEmail2faModal()">
+                                            <i class="bi bi-plus-circle"></i>
+                                            Bật
+                                        </button>
+                                        <button class="btn btn-outline-danger" id="disableEmail2faBtn" style="display: none;" onclick="disableEmail2fa()">
+                                            <i class="bi bi-x-circle"></i>
+                                            Tắt
+                                        </button>
+                                    </div>
+
+                                    <!-- App Authenticator 2FA -->
+                                    <div class="security-option">
+                                        <div class="security-option-info">
+                                            <h6>
+                                                <i class="bi bi-qr-code"></i>
+                                                Xác thực qua App
+                                            </h6>
+                                            <p class="text-muted">Sử dụng Google Authenticator hoặc các app tương tự</p>
+                                            <span class="badge bg-secondary">Chưa khả dụng</span>
+                                        </div>
+                                        <button class="btn btn-outline-primary" disabled>
+                                            <i class="bi bi-plus-circle"></i>
+                                            Bật
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Modal: Kích hoạt SMS 2FA -->
+                            <div class="modal fade" id="enableSms2faModal" tabindex="-1">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title">
+                                                <i class="bi bi-phone"></i>
+                                                Kích hoạt xác thực SMS
+                                            </h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <div id="step1" class="step-content">
+                                                <div class="alert alert-info">
+                                                    <i class="bi bi-info-circle"></i>
+                                                    Nhập số điện thoại của bạn để nhận mã xác thực
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label class="form-label">Số điện thoại</label>
+                                                    <input type="tel" class="form-control" id="phoneInput"
+                                                           placeholder="+84xxxxxxxxx"
+                                                           th:value="${profile.phone}">
+                                                    <small class="text-muted">Định dạng: +84xxxxxxxxx</small>
+                                                </div>
+                                                <div id="sendSmsError" class="alert alert-danger" style="display: none;"></div>
+                                            </div>
+
+                                            <div id="step2" class="step-content" style="display: none;">
+                                                <div class="alert alert-success">
+                                                    <i class="bi bi-check-circle"></i>
+                                                    Mã xác thực đã được gửi đến số điện thoại của bạn
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label class="form-label">Nhập mã xác thực (6 số)</label>
+                                                    <input type="text" class="form-control text-center" id="verificationCode"
+                                                           maxlength="6" placeholder="000000"
+                                                           style="font-size: 24px; letter-spacing: 10px;">
+                                                    <small class="text-muted">Mã có hiệu lực trong 5 phút</small>
+                                                </div>
+                                                <div id="verifyError" class="alert alert-danger" style="display: none;"></div>
+                                                <div class="text-center">
+                                                    <button class="btn btn-link" onclick="resendSmsCode()">
+                                                        <i class="bi bi-arrow-clockwise"></i>
+                                                        Gửi lại mã
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                                            <button type="button" class="btn btn-primary" id="sendSmsBtn" onclick="sendSmsCode()">
+                                                <i class="bi bi-send"></i>
+                                                Gửi mã
+                                            </button>
+                                            <button type="button" class="btn btn-success" id="verifyBtn" style="display: none;" onclick="verifySmsCode()">
+                                                <i class="bi bi-check-circle"></i>
+                                                Xác nhận
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Modal: Kích hoạt Email 2FA -->
+                            <div class="modal fade" id="enableEmail2faModal" tabindex="-1">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title">
+                                                <i class="bi bi-envelope"></i>
+                                                Kích hoạt xác thực Email
+                                            </h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <div id="emailStep1" class="step-content">
+                                                <div class="alert alert-info">
+                                                    <i class="bi bi-info-circle"></i>
+                                                    Mã xác thực sẽ được gửi đến email của bạn
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label class="form-label">Email</label>
+                                                    <input type="email" class="form-control" id="emailInput"
+                                                           th:value="${profile.email}" readonly>
+                                                    <small class="text-muted">Mã sẽ được gửi đến email này</small>
+                                                </div>
+                                                <div id="sendEmailError" class="alert alert-danger" style="display: none;"></div>
+                                            </div>
+
+                                            <div id="emailStep2" class="step-content" style="display: none;">
+                                                <div class="alert alert-success">
+                                                    <i class="bi bi-check-circle"></i>
+                                                    Mã xác thực đã được gửi đến email của bạn
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label class="form-label">Nhập mã xác thực (6 số)</label>
+                                                    <input type="text" class="form-control text-center" id="emailVerificationCode"
+                                                           maxlength="6" placeholder="000000"
+                                                           style="font-size: 24px; letter-spacing: 10px;">
+                                                    <small class="text-muted">Mã có hiệu lực trong 10 phút</small>
+                                                </div>
+                                                <div id="verifyEmailError" class="alert alert-danger" style="display: none;"></div>
+                                                <div class="text-center">
+                                                    <button class="btn btn-link" onclick="resendEmailCode()">
+                                                        <i class="bi bi-arrow-clockwise"></i>
+                                                        Gửi lại mã
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                                            <button type="button" class="btn btn-primary" id="sendEmailBtn" onclick="sendEmailCode()">
+                                                <i class="bi bi-send"></i>
+                                                Gửi mã
+                                            </button>
+                                            <button type="button" class="btn btn-success" id="verifyEmailBtn" style="display: none;" onclick="verifyEmailCode()">
+                                                <i class="bi bi-check-circle"></i>
+                                                Xác nhận
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Sessions -->
+                            <div class="profile-section">
+                                <div class="section-header">
+                                    <h5 class="section-title">
+                                        <i class="bi bi-display"></i>
+                                        Phiên đăng nhập
+                                    </h5>
+                                </div>
+                                <div class="section-body">
+                                    <div class="session-list">
+                                        <div class="session-item current">
+                                            <div class="session-icon">
+                                                <i class="bi bi-laptop"></i>
+                                            </div>
+                                            <div class="session-info">
+                                                <h6>Windows - Chrome</h6>
+                                                <p>Hà Nội, Việt Nam • <span th:text="${#dates.format(#dates.createNow(), 'dd/MM/yyyy HH:mm:ss')}">-</span></p>
+                                                <span class="badge bg-success">Phiên hiện tại</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-actions">
+                                        <button class="btn btn-outline-danger" disabled>
+                                            <i class="bi bi-box-arrow-right"></i>
+                                            Đăng xuất tất cả các phiên khác
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Activity Tab -->
+                        <div class="tab-pane fade" id="activity" role="tabpanel">
+                            <div class="profile-section">
+                                <div class="section-header">
+                                    <h5 class="section-title">
+                                        <i class="bi bi-clock-history"></i>
+                                        Hoạt động gần đây
+                                    </h5>
+                                </div>
+                                <div class="section-body">
+                                    <div class="activity-timeline">
+                                        <div class="activity-item">
+                                            <div class="activity-icon bg-success">
+                                                <i class="bi bi-box-seam"></i>
+                                            </div>
+                                            <div class="activity-content">
+                                                <h6>Đăng nhập hệ thống</h6>
+                                                <p>Đăng nhập thành công vào hệ thống</p>
+                                                <span class="activity-time">
+                                                    <i class="bi bi-clock"></i>
+                                                    Vừa xong
+                                                </span>
+                                            </div>
+                                        </div>
+
+                                        <div class="activity-item">
+                                            <div class="activity-icon bg-primary">
+                                                <i class="bi bi-person-check"></i>
+                                            </div>
+                                            <div class="activity-content">
+                                                <h6>Xem hồ sơ</h6>
+                                                <p>Truy cập trang hồ sơ cá nhân</p>
+                                                <span class="activity-time">
+                                                    <i class="bi bi-clock"></i>
+                                                    Hôm nay
+                                                </span>
+                                            </div>
+                                        </div>
+
+                                        <div class="activity-item">
+                                            <div class="activity-icon bg-info">
+                                                <i class="bi bi-calendar-event"></i>
+                                            </div>
+                                            <div class="activity-content">
+                                                <h6>Tạo tài khoản</h6>
+                                                <p th:text="'Tham gia hệ thống vào ' + ${profile.createdAt != null ? #dates.format(profile.createdAt, 'dd/MM/yyyy') : 'N/A'}">Tham gia hệ thống</p>
+                                                <span class="activity-time">
+                                                    <i class="bi bi-clock"></i>
+                                                    <span th:text="${profile.createdAt != null ? #dates.format(profile.createdAt, 'dd/MM/yyyy') : '-'}">-</span>
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="text-center mt-4">
+                                        <button class="btn btn-outline-primary" disabled>
+                                            <i class="bi bi-arrow-clockwise"></i>
+                                            Chức năng đang phát triển
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- jQuery -->
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<!-- Dashboard JS -->
+<script th:src="@{/javascript/Dashboard.js}"></script>
+<!-- Profile JS -->
+<script th:src="@{/javascript/Profile.js}"></script>
+
+<script>
+    // Auto-open tab based on URL parameter
+    document.addEventListener('DOMContentLoaded', function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const tab = urlParams.get('tab');
+
+        if (tab === 'security') {
+            document.getElementById('security-tab').click();
+        } else if (tab === 'edit') {
+            document.getElementById('edit-tab').click();
+        } else if (tab === 'activity') {
+            document.getElementById('activity-tab').click();
+        }
+    });
+</script>
+
+</body>
+</html>

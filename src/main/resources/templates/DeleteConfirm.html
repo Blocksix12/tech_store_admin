@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Xóa vai trò - Admin Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/Dashboard.css}" />
+    <style>
+        .delete-container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        .warning-card {
+            background: white;
+            border-radius: 12px;
+            padding: 32px;
+            border: 3px solid #dc3545;
+            box-shadow: 0 4px 6px rgba(220, 53, 69, 0.1);
+        }
+        .warning-icon {
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            50% {
+                transform: scale(1.1);
+                opacity: 0.8;
+            }
+        }
+        .role-preview {
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 24px 0;
+        }
+        .preview-item {
+            padding: 12px 0;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        .preview-item:last-child {
+            border-bottom: none;
+        }
+        .warning-list {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 16px;
+            border-radius: 4px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Include Sidebar -->
+<div th:replace="~{fragments/sidebar :: sidebar}"></div>
+
+<!-- Main Content -->
+<div class="main-content">
+    <!-- Include Topbar -->
+    <div th:replace="~{fragments/topbar :: topbar}"></div>
+
+    <!-- Content Area -->
+    <div class="content-area">
+        <div class="delete-container">
+            <div class="warning-card">
+                <!-- Warning Header -->
+                <div class="text-center mb-4">
+                    <div class="warning-icon mb-3">
+                        <i class="bi bi-exclamation-triangle-fill text-danger" style="font-size: 4rem;"></i>
+                    </div>
+                    <h2 class="text-danger mb-2">Xác nhận xóa vai trò</h2>
+                    <p class="text-muted mb-0">Hành động này không thể hoàn tác!</p>
+                </div>
+
+                <!-- Alert -->
+                <div class="alert alert-danger mb-4">
+                    <i class="bi bi-shield-exclamation me-2"></i>
+                    <strong>Cảnh báo quan trọng:</strong> Bạn đang thực hiện thao tác xóa vai trò khỏi hệ thống. Vui lòng đọc kỹ thông tin bên dưới.
+                </div>
+
+                <!-- Role Information -->
+                <h5 class="mb-3">
+                    <i class="bi bi-info-circle me-2"></i>
+                    Thông tin vai trò sẽ bị xóa:
+                </h5>
+
+                <div class="role-preview">
+                    <div class="preview-item">
+                        <div class="row">
+                            <div class="col-4">
+                                <small class="text-muted">Tên vai trò:</small>
+                            </div>
+                            <div class="col-8">
+                                <span class="badge bg-primary" th:text="${role.roleNameDisplay}">
+                                    Quản trị viên
+                                </span>
+                                <small class="text-muted ms-2" th:text="${'(' + role.roleName + ')'}">
+                                    (ADMIN)
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="preview-item">
+                        <div class="row">
+                            <div class="col-4">
+                                <small class="text-muted">Mã vai trò:</small>
+                            </div>
+                            <div class="col-8">
+                                <code th:text="${role.roleID}">UUID-123-456</code>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="preview-item">
+                        <div class="row">
+                            <div class="col-4">
+                                <small class="text-muted">Mô tả:</small>
+                            </div>
+                            <div class="col-8">
+                                <span th:text="${role.description ?: 'Chưa có mô tả'}">
+                                    Quản trị viên hệ thống
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="preview-item">
+                        <div class="row">
+                            <div class="col-4">
+                                <small class="text-muted">Số quyền hạn:</small>
+                            </div>
+                            <div class="col-8">
+                                <span class="badge bg-info"
+                                      th:text="${role.permissions != null ? role.permissions.size() + ' quyền' : '0 quyền'}">
+                                    5 quyền
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Warning List -->
+                <div class="warning-list">
+                    <h6 class="mb-3">
+                        <i class="bi bi-exclamation-circle-fill text-warning me-2"></i>
+                        Lưu ý quan trọng:
+                    </h6>
+                    <ul class="mb-0">
+                        <li class="mb-2">
+                            <strong>Không thể khôi phục:</strong> Vai trò này sẽ bị xóa vĩnh viễn khỏi hệ thống
+                        </li>
+                        <li class="mb-2">
+                            <strong>Mất liên kết quyền hạn:</strong> Tất cả quyền hạn liên kết với vai trò này sẽ bị loại bỏ
+                        </li>
+                        <li class="mb-2">
+                            <strong>Ảnh hưởng người dùng:</strong> Người dùng đang sử dụng vai trò này có thể bị ảnh hưởng đến quyền truy cập
+                        </li>
+                        <li>
+                            <strong>Kiểm tra kỹ:</strong> Đảm bảo bạn đã kiểm tra và hiểu rõ hậu quả trước khi thực hiện
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Confirmation Form -->
+                <form th:action="@{/admin/web/roles/delete/{id}(id=${role.roleID})}"
+                      method="post"
+                      id="deleteForm">
+
+                    <!-- Confirmation Checkbox -->
+                    <div class="form-check mb-4">
+                        <input class="form-check-input" type="checkbox" id="confirmDelete" required>
+                        <label class="form-check-label fw-semibold" for="confirmDelete">
+                            Tôi đã đọc và hiểu rõ hậu quả của việc xóa vai trò này
+                        </label>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="d-flex justify-content-between align-items-center gap-3">
+                        <a th:href="@{/admin/web/roles}" class="btn btn-outline-secondary btn-lg flex-fill">
+                            <i class="bi bi-x-circle me-2"></i>Hủy bỏ
+                        </a>
+                        <button type="submit" class="btn btn-danger btn-lg flex-fill" id="deleteButton" disabled>
+                            <i class="bi bi-trash me-2"></i>Xác nhận xóa
+                        </button>
+                    </div>
+                </form>
+
+                <!-- Additional Info -->
+                <div class="text-center mt-4 pt-4 border-top">
+                    <small class="text-muted">
+                        <i class="bi bi-shield-check me-1"></i>
+                        Hệ thống quản lý vai trò an toàn và bảo mật
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // Enable delete button only when checkbox is checked
+    const confirmCheckbox = document.getElementById('confirmDelete');
+    const deleteButton = document.getElementById('deleteButton');
+
+    confirmCheckbox.addEventListener('change', function() {
+        deleteButton.disabled = !this.checked;
+        if (this.checked) {
+            deleteButton.classList.remove('btn-danger');
+            deleteButton.classList.add('btn-danger');
+        }
+    });
+
+    // Confirm before submit
+    document.getElementById('deleteForm').addEventListener('submit', function(e) {
+        if (!confirm('Bạn có CHẮC CHẮN muốn xóa vai trò này? Hành động này không thể hoàn tác!')) {
+            e.preventDefault();
+            return false;
+        }
+
+        // Show loading
+        deleteButton.disabled = true;
+        deleteButton.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Đang xóa...';
+    });
+</script>
+<script th:src="@{/javascript/Dashboard.js}"></script>
+</body>
+</html>
