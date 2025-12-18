@@ -1,0 +1,366 @@
+/* Product List Specific Styles */
+
+/* Bulk Actions */
+.bulk-actions {
+    background: #fff3cd;
+    border: 1px solid #ffc107;
+    border-radius: 15px;
+    padding: 15px 20px;
+    margin-bottom: 20px;
+    display: none;
+    align-items: center;
+    gap: 15px;
+    animation: slideDown 0.3s ease-out;
+}
+
+.bulk-actions.show {
+    display: flex;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Filters Bar */
+.filters-bar {
+    background: white;
+    border-radius: 15px;
+    padding: 25px;
+    margin-bottom: 25px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.filters-row {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+}
+
+.filters-left {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+    flex: 1;
+}
+
+.filter-group {
+    min-width: 200px;
+    flex: 1;
+}
+
+.filter-group label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #6c757d;
+    margin-bottom: 8px;
+    display: block;
+}
+
+.filter-group select,
+.filter-group input {
+    width: 100%;
+    padding: 10px 15px;
+    border: 1px solid #e0e0e0;
+    border-radius: 10px;
+    font-size: 14px;
+    transition: all 0.3s;
+}
+
+.filter-group select:focus,
+.filter-group input:focus {
+    border-color: #1e3c72;
+    box-shadow: 0 0 0 0.2rem rgba(30, 60, 114, 0.15);
+    outline: none;
+}
+
+/* Product Info Cell */
+.product-info-cell {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.product-image {
+    width: 60px;
+    height: 60px;
+    border-radius: 12px;
+    object-fit: cover;
+    border: 1px solid #e9ecef;
+    transition: all 0.3s;
+}
+
+.product-image:hover {
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.product-details h6 {
+    margin: 0 0 5px 0;
+    font-size: 15px;
+    font-weight: 600;
+    color: #2c3e50;
+    line-height: 1.4;
+}
+
+.product-sku {
+    font-size: 13px;
+    color: #6c757d;
+}
+
+/* Stock Info */
+.stock-info {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.stock-count {
+    font-weight: 600;
+    color: #2c3e50;
+    font-size: 14px;
+}
+
+/* Status Badges */
+.status-badge {
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    display: inline-block;
+    text-align: center;
+}
+
+.status-badge.active {
+    background: #d4edda;
+    color: #155724;
+}
+
+.status-badge.inactive {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.status-badge.draft {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.status-badge.out-of-stock {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.status-badge.low-stock {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.status-badge.in-stock {
+    background: #d4edda;
+    color: #155724;
+}
+
+/* Pagination */
+.pagination-wrapper {
+    padding: 20px 25px;
+    border-top: 1px solid #e9ecef;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.pagination-info {
+    font-size: 14px;
+    color: #6c757d;
+}
+
+.pagination {
+    margin: 0;
+    display: flex;
+    gap: 5px;
+}
+
+.page-link {
+    border: 1px solid #e0e0e0;
+    color: #2c3e50;
+    padding: 8px 15px;
+    border-radius: 8px;
+    transition: all 0.3s;
+}
+
+.page-link:hover {
+    background: #f8f9fa;
+    border-color: #1e3c72;
+    color: #1e3c72;
+}
+
+.page-item.active .page-link {
+    background: #1e3c72;
+    border-color: #1e3c72;
+    color: white;
+}
+
+.page-item.disabled .page-link {
+    background: #f8f9fa;
+    border-color: #e0e0e0;
+    color: #6c757d;
+    cursor: not-allowed;
+}
+
+/* Action Buttons */
+.action-btn-delete:hover {
+    background: #dc3545 !important;
+    border-color: #dc3545 !important;
+    color: white !important;
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+    .filters-row {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .filters-left {
+        width: 100%;
+    }
+
+    .filter-group {
+        min-width: 150px;
+    }
+
+    .table-actions {
+        width: 100%;
+        justify-content: flex-start;
+    }
+}
+
+@media (max-width: 768px) {
+    .filters-left {
+        flex-direction: column;
+    }
+
+    .filter-group {
+        width: 100%;
+        min-width: 100%;
+    }
+
+    .bulk-actions {
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .bulk-actions .ms-auto {
+        margin-left: 0 !important;
+        width: 100%;
+    }
+
+    .product-info-cell {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .product-image {
+        width: 100%;
+        height: auto;
+        max-width: 150px;
+    }
+
+    .pagination-wrapper {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .pagination {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .page-link {
+        padding: 6px 12px;
+        font-size: 13px;
+    }
+}
+
+@media (max-width: 576px) {
+    .table-actions {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .table-actions .btn {
+        width: 100%;
+    }
+}
+
+/* Table Enhancements */
+.table thead th {
+    position: sticky;
+    top: 0;
+    background: #f8f9fa;
+    z-index: 10;
+}
+
+.table tbody tr {
+    transition: all 0.2s;
+}
+
+.table tbody tr:hover {
+    background: #f8f9fa;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+/* Loading State */
+.loading-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.9);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    border-radius: 15px;
+}
+
+.spinner-border {
+    width: 3rem;
+    height: 3rem;
+    border-width: 0.3em;
+}
+
+/* Empty State */
+.empty-state {
+    text-align: center;
+    padding: 60px 20px;
+}
+
+.empty-state i {
+    font-size: 64px;
+    color: #dee2e6;
+    margin-bottom: 20px;
+}
+
+.empty-state h5 {
+    color: #6c757d;
+    font-weight: 600;
+    margin-bottom: 10px;
+}
+
+.empty-state p {
+    color: #adb5bd;
+    margin-bottom: 20px;
+}

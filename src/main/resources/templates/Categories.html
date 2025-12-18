@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản lý Danh mục - Admin Dashboard</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/Dashboard.css}" />
+    <link rel="stylesheet" th:href="@{/css/Categories.css}" />
+</head>
+<body>
+
+<!-- Include Sidebar -->
+<div th:replace="~{fragments/sidebar :: sidebar}"></div>
+
+<!-- Main Content -->
+<div class="main-content">
+    <!-- Include Topbar -->
+    <div th:replace="~{fragments/topbar :: topbar}"></div>
+
+    <!-- Content Area -->
+    <div class="content-area">
+        <!-- Success/Error Messages -->
+        <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="bi bi-check-circle-fill me-2"></i>
+            <span th:text="${successMessage}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+
+        <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+            <span th:text="${errorMessage}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+
+        <div class="row g-4">
+            <!-- Left Column - Category Tree -->
+            <div class="col-lg-8">
+                <div class="custom-table fade-in-up">
+                    <div class="table-header">
+                        <h5 class="table-title">
+                            <i class="bi bi-folder-fill"></i>
+                            <span th:text="${totalCategories != null ? totalCategories : 0} + ' Danh mục'">0 Danh mục</span>
+                        </h5>
+                        <div class="table-actions">
+                            <button class="btn btn-sm btn-outline-primary" onclick="expandAll()">
+                                <i class="bi bi-arrows-expand"></i> Mở rộng
+                            </button>
+                            <button class="btn btn-sm btn-outline-secondary" onclick="collapseAll()">
+                                <i class="bi bi-arrows-collapse"></i> Thu gọn
+                            </button>
+                            <a th:href="@{/admin/categories/add}" class="btn btn-sm btn-primary">
+                                <i class="bi bi-plus-lg"></i> Thêm danh mục
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="category-tree">
+                        <!-- Empty State -->
+                        <div th:if="${categories == null or #lists.isEmpty(categories)}"
+                             class="text-center py-5">
+                            <i class="bi bi-folder-x" style="font-size: 4rem; color: #dee2e6;"></i>
+                            <h5 class="mt-3 text-muted">Chưa có danh mục nào</h5>
+                            <p class="text-muted">Hãy thêm danh mục đầu tiên của bạn</p>
+                            <a th:href="@{/admin/categories/add}" class="btn btn-primary mt-2">
+                                <i class="bi bi-plus-lg"></i> Thêm danh mục
+                            </a>
+                        </div>
+
+                        <!-- ✅ ROOT CATEGORIES LOOP - Removed parent check -->
+                        <th:block th:each="category : ${categories}">
+                            <div class="category-item"
+                                 th:attr="data-category-id=${category.categoryId}">
+
+                                <div class="category-content">
+                                    <!-- Toggle Button -->
+                                    <button class="category-toggle"
+                                            th:classappend="${category.subCategories == null or #lists. isEmpty(category.subCategories)} ? 'invisible' : ''"
+                                            onclick="toggleCategory(this)">
+                                        <i class="bi bi-chevron-right"></i>
+                                    </button>
+
+                                    <!-- Category Icon/Image -->
+                                    <div class="category-icon"
+                                         th:classappend="${category.imageUrl != null and !category.imageUrl.isEmpty()} ? 'has-image' : ''">
+                                        <img th:if="${category.imageUrl != null and !category.imageUrl.isEmpty()}"
+                                             th:src="${category.imageUrl}"
+                                             th:alt="${category.categoryName}"
+                                             class="category-image"
+                                             onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+
+                                        <i class="bi bi-folder-fill"
+                                           th:style="${category.imageUrl != null and !category.imageUrl. isEmpty()} ? 'display: none;' : ''"></i>
+                                    </div>
+
+                                    <!-- Category Info -->
+                                    <div class="category-info">
+                                        <div class="category-name" th:text="${category. categoryName}">Category Name</div>
+                                        <div class="category-meta">
+                                            <!-- ✅ FIXED: Display actual product count -->
+                                            <span class="badge bg-primary"
+                                                  th:text="${category.productCount != null ?  category.productCount : 0} + ' sản phẩm'">0 sản phẩm</span>
+                                            <span class="badge"
+                                                  th:classappend="${category.status != null and category.status.name() == 'ACTIVE'} ?  'bg-success' : 'bg-warning'"
+                                                  th:text="${category. status != null ?  category.status.displayName : 'N/A'}">
+                                                Hiển thị
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    <!-- Category Actions -->
+                                    <div class="category-actions">
+                                        <a th:href="@{/admin/categories/edit/{id}(id=${category. categoryId})}"
+                                           class="btn btn-sm btn-outline-success"
+                                           title="Sửa">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                        <a th:href="@{/admin/categories/delete/{id}(id=${category. categoryId})}"
+                                           class="btn btn-sm btn-outline-danger"
+                                           title="Xóa"
+                                           onclick="return confirm('Bạn có chắc muốn xóa danh mục này?')">
+                                            <i class="bi bi-trash"></i>
+                                        </a>
+                                    </div>
+                                </div>
+
+                                <!-- SUB CATEGORIES (Level 2) -->
+                                <div class="category-children"
+                                     th:if="${category.subCategories != null and ! #lists.isEmpty(category.subCategories)}">
+
+                                    <th:block th:each="subCategory : ${category.subCategories}">
+                                        <div class="category-item"
+                                             th:attr="data-category-id=${subCategory.categoryId}">
+
+                                            <div class="category-content">
+                                                <!-- Toggle for sub-sub categories -->
+                                                <button class="category-toggle"
+                                                        th:classappend="${subCategory.subCategories == null or #lists.isEmpty(subCategory.subCategories)} ? 'invisible' : ''"
+                                                        onclick="toggleCategory(this)">
+                                                    <i class="bi bi-chevron-right"></i>
+                                                </button>
+
+                                                <!-- Sub Category Icon/Image -->
+                                                <div class="category-icon"
+                                                     th:classappend="${subCategory.imageUrl != null and !subCategory.imageUrl.isEmpty()} ? 'has-image' : ''">
+                                                    <img th:if="${subCategory.imageUrl != null and !subCategory.imageUrl.isEmpty()}"
+                                                         th:src="${subCategory. imageUrl}"
+                                                         th:alt="${subCategory.categoryName}"
+                                                         class="category-image"
+                                                         onerror="this. style.display='none'; this. nextElementSibling.style. display='flex';">
+
+                                                    <i class="bi bi-tag-fill"
+                                                       th:style="${subCategory.imageUrl != null and !subCategory. imageUrl.isEmpty()} ? 'display: none;' : ''"></i>
+                                                </div>
+
+                                                <div class="category-info">
+                                                    <div class="category-name" th:text="${subCategory.categoryName}">Sub Category</div>
+                                                    <div class="category-meta">
+                                                        <!-- ✅ FIXED: Display actual product count -->
+                                                        <span class="badge bg-primary"
+                                                              th:text="${subCategory.productCount != null ? subCategory.productCount : 0} + ' sản phẩm'">0 sản phẩm</span>
+                                                        <span class="badge"
+                                                              th:classappend="${subCategory.status != null and subCategory.status.name() == 'ACTIVE'} ? 'bg-success' : 'bg-warning'"
+                                                              th:text="${subCategory.status != null ? subCategory.status. displayName : 'N/A'}">
+                                                            Hiển thị
+                                                        </span>
+                                                    </div>
+                                                </div>
+
+                                                <div class="category-actions">
+                                                    <a th:href="@{/admin/categories/edit/{id}(id=${subCategory.categoryId})}"
+                                                       class="btn btn-sm btn-outline-success"
+                                                       title="Sửa">
+                                                        <i class="bi bi-pencil"></i>
+                                                    </a>
+                                                    <a th:href="@{/admin/categories/delete/{id}(id=${subCategory.categoryId})}"
+                                                       class="btn btn-sm btn-outline-danger"
+                                                       title="Xóa"
+                                                       onclick="return confirm('Bạn có chắc muốn xóa danh mục này?')">
+                                                        <i class="bi bi-trash"></i>
+                                                    </a>
+                                                </div>
+                                            </div>
+
+                                            <!-- SUB-SUB CATEGORIES (Level 3) -->
+                                            <div class="category-children"
+                                                 th:if="${subCategory.subCategories != null and !#lists.isEmpty(subCategory.subCategories)}">
+
+                                                <th:block th:each="subSubCategory : ${subCategory.subCategories}">
+                                                    <div class="category-item"
+                                                         th:attr="data-category-id=${subSubCategory.categoryId}">
+
+                                                        <div class="category-content">
+                                                            <span class="category-toggle invisible"></span>
+
+                                                            <!-- Sub-Sub Category Icon/Image -->
+                                                            <div class="category-icon"
+                                                                 th:classappend="${subSubCategory.imageUrl != null and !subSubCategory.imageUrl.isEmpty()} ? 'has-image' : ''">
+                                                                <img th:if="${subSubCategory.imageUrl != null and !subSubCategory. imageUrl.isEmpty()}"
+                                                                     th:src="${subSubCategory.imageUrl}"
+                                                                     th:alt="${subSubCategory.categoryName}"
+                                                                     class="category-image"
+                                                                     onerror="this. style.display='none'; this. nextElementSibling.style. display='flex';">
+
+                                                                <i class="bi bi-tags-fill"
+                                                                   th:style="${subSubCategory.imageUrl != null and !subSubCategory.imageUrl.isEmpty()} ? 'display: none;' : ''"></i>
+                                                            </div>
+
+                                                            <div class="category-info">
+                                                                <div class="category-name" th:text="${subSubCategory. categoryName}">Sub Sub Category</div>
+                                                                <div class="category-meta">
+                                                                    <!-- ✅ FIXED: Display actual product count -->
+                                                                    <span class="badge bg-primary"
+                                                                          th:text="${subSubCategory.productCount != null ? subSubCategory.productCount : 0} + ' sản phẩm'">0 sản phẩm</span>
+                                                                    <span class="badge"
+                                                                          th:classappend="${subSubCategory.status != null and subSubCategory.status.name() == 'ACTIVE'} ? 'bg-success' : 'bg-warning'"
+                                                                          th:text="${subSubCategory.status != null ? subSubCategory.status.displayName : 'N/A'}">
+                                                                        Hiển thị
+                                                                    </span>
+                                                                </div>
+                                                            </div>
+
+                                                            <div class="category-actions">
+                                                                <a th:href="@{/admin/categories/edit/{id}(id=${subSubCategory.categoryId})}"
+                                                                   class="btn btn-sm btn-outline-success"
+                                                                   title="Sửa">
+                                                                    <i class="bi bi-pencil"></i>
+                                                                </a>
+                                                                <a th:href="@{/admin/categories/delete/{id}(id=${subSubCategory.categoryId})}"
+                                                                   class="btn btn-sm btn-outline-danger"
+                                                                   title="Xóa"
+                                                                   onclick="return confirm('Bạn có chắc muốn xóa danh mục này?')">
+                                                                    <i class="bi bi-trash"></i>
+                                                                </a>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </th:block>
+                                            </div>
+                                        </div>
+                                    </th:block>
+                                </div>
+                            </div>
+                        </th:block>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column - Stats -->
+            <div class="col-lg-4">
+                <!-- Stats -->
+                <div class="chart-container mb-4 fade-in-up" style="animation-delay: 0.1s;">
+                    <h5 class="widget-title">
+                        <i class="bi bi-bar-chart-fill"></i>
+                        Thống kê danh mục
+                    </h5>
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <div class="stat-icon bg-primary">
+                                <i class="bi bi-folder"></i>
+                            </div>
+                            <div class="stat-details">
+                                <div class="stat-value" th:text="${totalCategories != null ? totalCategories : 0}">0</div>
+                                <div class="stat-label">Tổng danh mục</div>
+                            </div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-icon bg-success">
+                                <i class="bi bi-eye"></i>
+                            </div>
+                            <div class="stat-details">
+                                <div class="stat-value" th:text="${activeCategories != null ? activeCategories : 0}">0</div>
+                                <div class="stat-label">Đang hiển thị</div>
+                            </div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-icon bg-warning">
+                                <i class="bi bi-eye-slash"></i>
+                            </div>
+                            <div class="stat-details">
+                                <div class="stat-value" th:text="${inactiveCategories != null ? inactiveCategories : 0}">0</div>
+                                <div class="stat-label">Đang ẩn</div>
+                            </div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-icon bg-info">
+                                <i class="bi bi-box-seam"></i>
+                            </div>
+                            <div class="stat-details">
+                                <!-- ✅ FIXED: Display actual total products -->
+                                <div class="stat-value" th:text="${totalProducts != null ? totalProducts : 0}">0</div>
+                                <div class="stat-label">Tổng sản phẩm</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="chart-container fade-in-up" style="animation-delay: 0.2s;">
+                    <h5 class="widget-title">
+                        <i class="bi bi-lightning-fill"></i>
+                        Thao tác nhanh
+                    </h5>
+                    <div class="d-grid gap-2 mt-3">
+                        <a th:href="@{/admin/categories/add}" class="btn btn-primary">
+                            <i class="bi bi-plus-circle"></i> Thêm danh mục mới
+                        </a>
+                        <button class="btn btn-outline-secondary" onclick="expandAll()">
+                            <i class="bi bi-arrows-expand"></i> Mở rộng tất cả
+                        </button>
+                        <button class="btn btn-outline-secondary" onclick="collapseAll()">
+                            <i class="bi bi-arrows-collapse"></i> Thu gọn tất cả
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script th:src="@{/javascript/Dashboard.js}"></script>
+
+<script>
+    // Toggle category children
+    function toggleCategory(button) {
+        const categoryItem = button.closest('.category-item');
+        const children = categoryItem.querySelector(':scope > .category-children');
+        const icon = button.querySelector('i');
+
+        if (children) {
+            children.classList.toggle('expanded');
+            icon.classList.toggle('bi-chevron-right');
+            icon.classList.toggle('bi-chevron-down');
+            button.classList.toggle('active');
+        }
+    }
+
+    // Expand all categories
+    function expandAll() {
+        document.querySelectorAll('.category-children').forEach(children => {
+            children.classList. add('expanded');
+        });
+        document.querySelectorAll('.category-toggle:not(. invisible) i').forEach(icon => {
+            icon.classList.remove('bi-chevron-right');
+            icon.classList.add('bi-chevron-down');
+        });
+        document.querySelectorAll('.category-toggle:not(.invisible)').forEach(btn => {
+            btn.classList. add('active');
+        });
+    }
+
+    // Collapse all categories
+    function collapseAll() {
+        document.querySelectorAll('.category-children').forEach(children => {
+            children.classList.remove('expanded');
+        });
+        document.querySelectorAll('.category-toggle:not(.invisible) i').forEach(icon => {
+            icon.classList.remove('bi-chevron-down');
+            icon.classList.add('bi-chevron-right');
+        });
+        document.querySelectorAll('.category-toggle:not(. invisible)').forEach(btn => {
+            btn.classList.remove('active');
+        });
+    }
+
+    // Auto dismiss alerts after 5 seconds
+    setTimeout(function() {
+        const alerts = document.querySelectorAll('.alert');
+        alerts. forEach(alert => {
+            const bsAlert = new bootstrap.Alert(alert);
+            bsAlert.close();
+        });
+    }, 5000);
+</script>
+
+</body>
+</html>

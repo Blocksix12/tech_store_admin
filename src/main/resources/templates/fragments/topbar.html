@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<body>
+
+<!-- Topbar Fragment -->
+<div th:fragment="topbar" class="topbar">
+    <div class="topbar-left">
+        <button class="mobile-menu-btn" onclick="toggleSidebar()">
+            <i class="bi bi-list"></i>
+        </button>
+        <div>
+            <h1 class="page-title" th:text="${pageTitle} ?: 'Dashboard'">Dashboard</h1>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="/admin">Trang chủ</a></li>
+                    <li class="breadcrumb-item active" aria-current="page" th:text="${pageTitle} ?: 'Dashboard'">Dashboard</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+
+    <div class="topbar-right">
+        <!-- Search -->
+        <div class="search-box">
+            <i class="bi bi-search"></i>
+            <input type="text" class="form-control" placeholder="Tìm kiếm sản phẩm, đơn hàng...">
+        </div>
+
+        <!-- Notifications -->
+        <div class="dropdown">
+            <div class="topbar-icon" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="bi bi-bell-fill"></i>
+                <span class="badge bg-danger">5</span>
+            </div>
+            <ul class="dropdown-menu dropdown-menu-end">
+                <li class="px-3 py-2"><strong>Thông báo</strong></li>
+                <li><hr class="dropdown-divider"></li>
+                <li>
+                    <a class="dropdown-item" href="#">
+                        <i class="bi bi-cart-check text-success"></i>
+                        <span>3 đơn hàng mới</span>
+                    </a>
+                </li>
+                <li>
+                    <a class="dropdown-item" href="#">
+                        <i class="bi bi-exclamation-triangle text-warning"></i>
+                        <span>12 sản phẩm sắp hết</span>
+                    </a>
+                </li>
+                <li>
+                    <a class="dropdown-item" href="#">
+                        <i class="bi bi-star text-info"></i>
+                        <span>8 đánh giá mới</span>
+                    </a>
+                </li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item text-center" href="#">Xem tất cả</a></li>
+            </ul>
+        </div>
+
+        <!-- Messages -->
+        <div class="dropdown">
+            <div class="topbar-icon" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="bi bi-chat-dots-fill"></i>
+                <span class="badge bg-success">2</span>
+            </div>
+            <ul class="dropdown-menu dropdown-menu-end">
+                <li class="px-3 py-2"><strong>Tin nhắn</strong></li>
+                <li><hr class="dropdown-divider"></li>
+                <li>
+                    <a class="dropdown-item" href="#">
+                        <i class="bi bi-person-circle"></i>
+                        <span>Khách hàng yêu cầu hỗ trợ</span>
+                    </a>
+                </li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item text-center" href="#">Xem tất cả</a></li>
+            </ul>
+        </div>
+
+        <!-- User Menu -->
+        <div class="dropdown">
+            <div class="user-menu" data-bs-toggle="dropdown" aria-expanded="false">
+
+                <!-- Avatar -->
+                <div class="user-avatar">
+                    <img th:if="${avatar != null and avatar != ''}"
+                         th:src="${avatar}"
+                         alt="Avatar"
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+                         style="width:40px;height:40px;border-radius:50%;object-fit:cover;">
+
+                    <!-- Fallback chữ cái -->
+                    <span th:if="${avatar == null or avatar == ''}"
+                          th:text="${fullName != null ? fullName.substring(0,1).toUpperCase() : 'A'}"
+                          style="display:flex;align-items:center;justify-content:center;
+                         width:40px;height:40px;
+                         background:#667eea;color:#fff;
+                         border-radius:50%;font-weight:bold;">
+                A
+            </span>
+                </div>
+
+                <!-- User info -->
+                <div class="user-info">
+                    <div class="user-name"
+                         th:text="${fullName != null ? fullName : username}">
+                        Admin User
+                    </div>
+
+                    <!-- Role -->
+                    <div class="user-role">
+                <span th:text="${role}"
+                      style="font-size:0.8em;color:#888;">
+                    ADMIN
+                </span>
+                    </div>
+                </div>
+
+                <i class="bi bi-chevron-down"></i>
+            </div>
+
+            <!-- Dropdown -->
+            <ul class="dropdown-menu dropdown-menu-end">
+
+                <li class="dropdown-header">
+                    <div style="text-align:center;padding:10px;">
+                        <img th:if="${avatar != null and avatar != ''}"
+                             th:src="${avatar}"
+                             alt="Avatar"
+                             style="width:60px;height:60px;border-radius:50%;
+                            object-fit:cover;margin-bottom:8px;">
+
+                        <div style="font-weight:bold;"
+                             th:text="${fullName != null ? fullName : username}">
+                            Admin User
+                        </div>
+
+                        <div style="font-size:0.85em;color:#888;"
+                             th:text="${email}">
+                            admin@example.com
+                        </div>
+
+                        <div style="font-size:0.75em;color:#aaa;"
+                             th:text="${role}">
+                            ADMIN
+                        </div>
+                    </div>
+                </li>
+
+                <li><hr class="dropdown-divider"></li>
+
+                <!-- Profile -->
+                <li>
+                    <a class="dropdown-item"
+                       th:href="@{/admin/profile/{id}(id=${userId})}">
+                        <i class="bi bi-person"></i>
+                        <span>Hồ sơ của tôi</span>
+                    </a>
+                </li>
+
+                <!-- Settings -->
+                <li>
+                    <a class="dropdown-item" href="/admin/settings">
+                        <i class="bi bi-gear"></i>
+                        <span>Cài đặt</span>
+                    </a>
+                </li>
+
+                <!-- Activity -->
+                <li>
+                    <a class="dropdown-item" href="/admin/activity-log">
+                        <i class="bi bi-clock-history"></i>
+                        <span>Nhật ký hoạt động</span>
+                    </a>
+                </li>
+
+                <li><hr class="dropdown-divider"></li>
+
+                <!-- Logout -->
+                <li>
+                    <form th:action="@{/auth/logout}" method="post">
+                        <button type="submit"
+                                class="dropdown-item"
+                                style="color:#dc3545;">
+                            <i class="bi bi-box-arrow-right"></i>
+                            <span>Đăng xuất</span>
+                        </button>
+                    </form>
+                </li>
+
+            </ul>
+        </div>
+
+    </div>
+</div>
+
+</body>
+</html>

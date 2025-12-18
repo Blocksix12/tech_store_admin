@@ -1,0 +1,158 @@
+/* Giữ lại chỉ những style không liên quan tới sidebar/topbar (layout nội dung chính, table, modal, v.v.) */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background: #f8f9fa;
+}
+
+.main-content {
+    margin-left: 260px;
+    padding: 20px;
+    min-height: 100vh;
+}
+
+.page-title {
+    font-size: 24px;
+    font-weight: 700;
+    color: #1a1d29;
+    margin: 0;
+}
+
+.breadcrumb {
+    margin: 5px 0 0 0;
+    padding: 0;
+    background: none;
+}
+
+.content-card {
+    background: white;
+    border-radius: 12px;
+    padding: 25px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.card-header-custom {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid #f1f3f5;
+}
+
+.filter-section {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+.table-custom {
+    width: 100%;
+    margin-bottom: 0;
+}
+
+.table-custom thead {
+    background: #f8f9fa;
+}
+
+.table-custom th {
+    font-weight: 600;
+    color: #495057;
+    border-bottom: 2px solid #dee2e6;
+    padding: 12px;
+    white-space: nowrap;
+}
+
+.table-custom td {
+    padding: 12px;
+    vertical-align: middle;
+}
+
+.badge-stock {
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-weight: 500;
+    font-size: 13px;
+}
+
+.badge-stock.in-stock {
+    background: #d1f4e0;
+    color: #0a7c42;
+}
+
+.badge-stock.low-stock {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.badge-stock.out-stock {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.btn-action {
+    padding: 6px 12px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-size: 14px;
+}
+
+.btn-action:hover {
+    transform: translateY(-2px);
+}
+
+.pagination-custom {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid #dee2e6;
+}
+
+.modal-header-custom {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 12px 12px 0 0;
+}
+
+.modal-header-custom .btn-close {
+    filter: brightness(0) invert(1);
+}
+
+.form-label.required::after {
+    content: " *";
+    color: #dc3545;
+}
+
+/* helper cho nút Thêm Biến thể đặt dưới topbar */
+.topbar-actions {
+    margin-top: 12px;
+    margin-bottom: 18px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+}
+
+@media (max-width: 768px) {
+    .main-content {
+        margin-left: 0;
+    }
+
+    .table-responsive {
+        overflow-x: auto;
+    }
+
+    .topbar-actions {
+        justify-content: center;
+    }
+}
