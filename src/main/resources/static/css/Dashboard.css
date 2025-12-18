@@ -982,3 +982,14 @@ body {
     margin: 8px 0;
     border-color: #e2e8f0;
 }
+
+.menu-item.open {
+    background: rgba(99, 102, 241, 0.15);
+    color: #6366f1;
+}
+
+.submenu-item.active {
+    background: rgba(99, 102, 241, 0.15);
+    color: #4f46e5;
+    font-weight: 600;
+}
