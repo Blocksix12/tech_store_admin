@@ -6,6 +6,16 @@ import org.springframework.stereotype.Repository;
 
 import java.math.BigDecimal;
 import java.util.List;
+<<<<<<< HEAD
+import java.util.Optional;
+
+@Repository
+public interface DisplaySizeRepository extends JpaRepository<DisplaySize, String> {
+    Optional<DisplaySize> findBySizeInch(BigDecimal sizeInch);
+    boolean existsBySizeInch(BigDecimal sizeInch);
+    List<DisplaySize> findAllByOrderBySizeInchAsc();
+}
+=======
 
 @Repository
 public interface DisplaySizeRepository extends JpaRepository<DisplaySize, String> {
@@ -18,3 +28,4 @@ public interface DisplaySizeRepository extends JpaRepository<DisplaySize, String
     // Kiểm tra size có tồn tại không
     boolean existsBySizeInch(BigDecimal sizeInch);
 }
+>>>>>>> a4a014af87307103265b91d7afcd2e53131a4ebb

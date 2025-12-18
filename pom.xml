@@ -155,11 +155,15 @@
             <groupId>org.thymeleaf.extras</groupId>
             <artifactId>thymeleaf-extras-springsecurity6</artifactId>
         </dependency>
+<<<<<<< HEAD
+=======
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
         </dependency>
+>>>>>>> a4a014af87307103265b91d7afcd2e53131a4ebb
     </dependencies>
+
 
     <build>
         <plugins>

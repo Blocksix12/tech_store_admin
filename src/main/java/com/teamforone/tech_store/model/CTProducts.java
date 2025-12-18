@@ -17,22 +17,22 @@ import java.util.UUID;
 @Table(name = "ctproducts")
 public class CTProducts {
     @Id
-    @Column(name = "product_id", nullable = false)
+    @Column(name = "product_id", nullable = false, columnDefinition = "CHAR(36)")
     private String productId;
 
     @Id
-    @Column(name = "colorID", nullable = false)
+    @Column(name = "colorID", nullable = false, columnDefinition = "CHAR(36)")
     private String colorId;
 
     @Id
-    @Column(name = "storageID", nullable = false)
+    @Column(name = "storageID", nullable = false, columnDefinition = "CHAR(36)")
     private String storageId;
 
     @Id
-    @Column(name = "sizeID", nullable = false)
+    @Column(name = "sizeID", nullable = false, columnDefinition = "CHAR(36)")
     private String sizeId;
 
-    @Column(name = "price", nullable = false)
+    @Column(name = "price", nullable = false, columnDefinition = "CHAR(36)")
     private Double price;
 
     @Column(name = "sale_price")

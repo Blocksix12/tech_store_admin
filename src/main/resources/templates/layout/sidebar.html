@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<!-- Sidebar Fragment -->
+<div class="sidebar" id="sidebar" th:fragment="sidebar">
+    <div class="sidebar-brand">
+        <i class="bi bi-shop-window"></i>
+        <span class="sidebar-brand-text">E-Commerce</span>
+    </div>
+
+    <div class="sidebar-menu">
+        <div class="menu-section-title">Main</div>
+
+        <!-- Dashboard -->
+        <a th:href="@{/admin/dashboard}"
+           class="menu-item"
+           th:classappend="${activePage == 'dashboard'} ? 'active'">
+            <i class="bi bi-grid-fill"></i>
+            <span>Dashboard</span>
+        </a>
+
+        <div class="menu-section-title">Quản lý</div>
+
+        <!-- Quản lý sản phẩm -->
+        <div>
+            <div class="menu-item" onclick="toggleSubmenu(this)">
+                <i class="bi bi-box-seam-fill"></i>
+                <span>Sản phẩm</span>
+                <i class="bi bi-chevron-down"></i>
+            </div>
+            <div class="submenu">
+                <a th:href="@{/admin/products}" class="submenu-item">Danh sách sản phẩm</a>
+                <a th:href="@{/admin/products/add}" class="submenu-item">Thêm sản phẩm</a>
+                <a th:href="@{/admin/categories}" class="submenu-item">Danh mục</a>
+                <a th:href="@{/admin/brands}" class="submenu-item">Thương hiệu</a>
+            </div>
+        </div>
+
+        <!-- Quản lý tồn kho -->
+        <div>
+            <div class="menu-item" onclick="toggleSubmenu(this)">
+                <i class="bi bi-boxes"></i>
+                <span>Tồn kho</span>
+                <i class="bi bi-chevron-down"></i>
+            </div>
+            <div class="submenu">
+                <a th:href="@{/admin/inventory}" class="submenu-item">Quản lý kho</a>
+                <a th:href="@{/admin/inventory/warehouses}" class="submenu-item">Kho hàng</a>
+                <a th:href="@{/admin/inventory/stock-in}" class="submenu-item">Nhập kho</a>
+                <a th:href="@{/admin/inventory/stock-out}" class="submenu-item">Xuất kho</a>
+            </div>
+        </div>
+
+        <!-- Quản lý đơn hàng -->
+        <div>
+            <div class="menu-item" onclick="toggleSubmenu(this)">
+                <i class="bi bi-cart-check-fill"></i>
+                <span>Đơn hàng</span>
+                <i class="bi bi-chevron-down"></i>
+            </div>
+            <div class="submenu">
+                <a th:href="@{/admin/orders}" class="submenu-item">Danh sách đơn hàng</a>
+                <a th:href="@{/admin/orders/pending}" class="submenu-item">
+                    Chờ xử lý
+                    <span class="badge bg-warning text-dark">5</span>
+                </a>
+                <a th:href="@{/admin/orders/processing}" class="submenu-item">Đang xử lý</a>
+            </div>
+        </div>
+
+        <!-- Quản lý khách hàng -->
+        <a th:href="@{/admin/users}"
+           class="menu-item"
+           th:classappend="${activePage == 'users'} ? 'active'">
+            <i class="bi bi-people-fill"></i>
+            <span>Khách hàng</span>
+        </a>
+
+        <div class="menu-section-title">Marketing & Content</div>
+
+        <!-- Marketing -->
+        <div>
+            <div class="menu-item" onclick="toggleSubmenu(this)">
+                <i class="bi bi-megaphone-fill"></i>
+                <span>Marketing</span>
+                <i class="bi bi-chevron-down"></i>
+            </div>
+            <div class="submenu">
+                <a th:href="@{/admin/promotions}" class="submenu-item">Khuyến mãi</a>
+                <a th:href="@{/admin/coupons}" class="submenu-item">Mã giảm giá</a>
+                <a th:href="@{/admin/campaigns}" class="submenu-item">Chiến dịch</a>
+            </div>
+        </div>
+
+        <!-- Phản hồi & Đánh giá -->
+        <a th:href="@{/admin/reviews}" class="menu-item">
+            <i class="bi bi-star-fill"></i>
+            <span>Phản hồi & Đánh giá</span>
+            <span class="badge bg-info">8</span>
+        </a>
+
+        <div class="menu-section-title">System</div>
+
+        <!-- Cài đặt -->
+        <div>
+            <div class="menu-item" onclick="toggleSubmenu(this)">
+                <i class="bi bi-gear-fill"></i>
+                <span>Cài đặt</span>
+                <i class="bi bi-chevron-down"></i>
+            </div>
+            <div class="submenu">
+                <a th:href="@{/admin/settings/general}" class="submenu-item">Cài đặt chung</a>
+                <a th:href="@{/admin/settings/shipping}" class="submenu-item">Vận chuyển</a>
+                <a th:href="@{/admin/settings/payment}" class="submenu-item">Thanh toán</a>
+                <a th:href="@{/admin/settings/users}" class="submenu-item">Quản trị viên</a>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
