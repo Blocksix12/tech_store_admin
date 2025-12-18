@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.annotation.Order;  // ← THÊM DÒNG NÀY
+import org.springframework.core.annotation.Order;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -21,6 +21,7 @@ public class SecurityConfiguration {
 
     private static final String[] WHITE_LIST_URL = {
             "/auth/**",
+            "/admin/2fa/**",
             "/css/**",
             "/js/**",
             "/javascript/**",
@@ -46,7 +47,6 @@ public class SecurityConfiguration {
             "/admin/settings",
             "/admin/settings/**",
             "/admin/profile",
-            "/admin/2fa/**",
             "/admin/CTProduct",
             "/admin/addCTProduct",
             "/admin/product-variants",
@@ -62,13 +62,12 @@ public class SecurityConfiguration {
     };
 
     @Bean
-    @Order(2)  // ← THÊM DÒNG NÀY - Ưu tiên thấp hơn
+    @Order(2)
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .securityMatcher("/admin/api/**", "/admin/permissions/**", "/admin/roles/**")  // ← THÊM DÒNG NÀY
+                .securityMatcher("/admin/api/**", "/admin/permissions/**", "/admin/roles/**")
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(WHITE_LIST_URL).permitAll()
                         .requestMatchers(SECURED_API_URL).authenticated()
                         .anyRequest().permitAll()
                 )
@@ -76,6 +75,23 @@ public class SecurityConfiguration {
                         session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+
+        return http.build();
+    }
+
+    @Bean
+    @Order(1)
+    public SecurityFilterChain publicSecurityFilterChain(HttpSecurity http) throws Exception {
+        http
+                .securityMatcher("/**")
+                .csrf(AbstractHttpConfigurer::disable)
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(WHITE_LIST_URL).permitAll()
+                        .anyRequest().authenticated()
+                )
+                .sessionManagement(session ->
+                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                );
 
         return http.build();
     }

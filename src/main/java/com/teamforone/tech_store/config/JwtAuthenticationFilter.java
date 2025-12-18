@@ -29,7 +29,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtService jwtService;
     private final UserDetailsService userDetailsService;
 
-    // ✅ Các path cần kiểm tra JWT
+    // ✅ Các path cần kiểm tra JWT (sync với SecurityConfiguration)
     private static final String[] SECURED_PATHS = {
             "/admin/api/",
             "/admin/permissions/",
@@ -44,16 +44,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         String requestPath = request.getRequestURI();
 
-        // ✅ Chỉ kiểm tra JWT cho secured paths
+        // ✅ CHỈ kiểm tra JWT cho secured API paths
         boolean isSecuredPath = Arrays.stream(SECURED_PATHS)
                 .anyMatch(requestPath::startsWith);
 
         if (!isSecuredPath) {
-            // Bỏ qua JWT filter cho các trang HTML views
+            // Bỏ qua JWT cho các trang HTML views và public endpoints
             filterChain.doFilter(request, response);
             return;
         }
 
+        // ✅ Kiểm tra Authorization header
         String authHeader = request.getHeader("Authorization");
 
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
