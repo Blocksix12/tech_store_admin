@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Báo cáo Tồn kho - TechStore Admin</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link th:href="@{/css/Dashboard.css}" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e8ecf1 100%);
+        }
+
+        /* Statistics Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card-modern {
+            background: white;
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card-modern::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            transition: width 0.3s ease;
+        }
+
+        .stat-card-modern:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-card-modern:hover::before {
+            width: 6px;
+        }
+
+        .stat-card-modern.primary::before { background: linear-gradient(180deg, #6366f1 0%, #4f46e5 100%); }
+        .stat-card-modern.danger::before { background: linear-gradient(180deg, #ef4444 0%, #dc2626 100%); }
+        .stat-card-modern.warning::before { background: linear-gradient(180deg, #f59e0b 0%, #d97706 100%); }
+        .stat-card-modern.success::before { background: linear-gradient(180deg, #10b981 0%, #059669 100%); }
+
+        .stat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+
+        .stat-icon-wrapper {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .stat-icon-wrapper.primary { background: rgba(99, 102, 241, 0.1); color: #6366f1; }
+        .stat-icon-wrapper.danger { background: rgba(239, 68, 68, 0.1); color: #ef4444; }
+        .stat-icon-wrapper.warning { background: rgba(245, 158, 11, 0.1); color: #f59e0b; }
+        .stat-icon-wrapper.success { background: rgba(16, 185, 129, 0.1); color: #10b981; }
+
+        .stat-label {
+            font-size: 0.875rem;
+            color: #64748b;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #1e293b;
+            margin-bottom: 0.5rem;
+            line-height: 1;
+        }
+
+        .stat-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .stat-badge.danger { background: rgba(239, 68, 68, 0.1); color: #ef4444; }
+        .stat-badge.success { background: rgba(16, 185, 129, 0.1); color: #10b981; }
+
+        /* Filter Card */
+        .filter-card {
+            background: white;
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            margin-bottom: 1.5rem;
+        }
+
+        .filter-title {
+            font-size: 1.125rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* Table Card */
+        .table-card {
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .table-card-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .table-card-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #1e293b;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin: 0;
+        }
+
+        .table-responsive {
+            overflow-x: auto;
+        }
+
+        .table-modern {
+            width: 100%;
+            margin: 0;
+        }
+
+        .table-modern thead {
+            background: #f8fafc;
+        }
+
+        .table-modern thead th {
+            padding: 1rem 1.5rem;
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border: none;
+        }
+
+        .table-modern tbody td {
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid #f1f5f9;
+            vertical-align: middle;
+        }
+
+        .table-modern tbody tr {
+            transition: background 0.2s ease;
+        }
+
+        .table-modern tbody tr:hover {
+            background: #f8fafc;
+        }
+
+        /* Product Image */
+        .product-img-wrapper {
+            width: 50px;
+            height: 50px;
+            border-radius: 10px;
+            overflow: hidden;
+            background: #f1f5f9;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .product-img-wrapper img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* Status Badges */
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.375rem;
+            padding: 0.375rem 0.875rem;
+            border-radius: 9999px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .status-badge::before {
+            content: '';
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: currentColor;
+        }
+
+        .status-badge.out-stock {
+            background: rgba(239, 68, 68, 0.1);
+            color: #ef4444;
+        }
+
+        .status-badge.low-stock {
+            background: rgba(245, 158, 11, 0.1);
+            color: #f59e0b;
+        }
+
+        .status-badge.in-stock {
+            background: rgba(16, 185, 129, 0.1);
+            color: #10b981;
+        }
+
+        /* Buttons */
+        .btn-modern {
+            padding: 0.625rem 1.25rem;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary-modern {
+            background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+            color: white;
+        }
+
+        .btn-primary-modern:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(99, 102, 241, 0.4);
+        }
+
+        .btn-success-modern {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+        }
+
+        .btn-success-modern:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(16, 185, 129, 0.4);
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+        }
+
+        .empty-state i {
+            font-size: 4rem;
+            color: #cbd5e1;
+            margin-bottom: 1rem;
+        }
+
+        .empty-state h5 {
+            color: #64748b;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .empty-state p {
+            color: #94a3b8;
+            margin: 0;
+        }
+
+        /* Breadcrumb */
+        .breadcrumb-modern {
+            background: none;
+            padding: 1rem 0;
+            margin: 0;
+        }
+
+        .breadcrumb-modern .breadcrumb-item {
+            font-size: 0.875rem;
+        }
+
+        .breadcrumb-modern .breadcrumb-item + .breadcrumb-item::before {
+            content: '›';
+            font-size: 1.2rem;
+            color: #94a3b8;
+        }
+
+        .breadcrumb-modern .breadcrumb-item a {
+            color: #6366f1;
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+
+        .breadcrumb-modern .breadcrumb-item a:hover {
+            color: #4f46e5;
+        }
+
+        .breadcrumb-modern .breadcrumb-item.active {
+            color: #64748b;
+            font-weight: 500;
+        }
+
+        /* Page Header */
+        .page-header-modern {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem 0 2rem;
+            border-bottom: 1px solid #e2e8f0;
+            margin-bottom: 2rem;
+        }
+
+        .page-title-modern {
+            font-size: 1.875rem;
+            font-weight: 800;
+            color: #1e293b;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .page-title-modern i {
+            color: #6366f1;
+        }
+
+        /* Form Controls */
+        .form-control-modern,
+        .form-select-modern {
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 0.625rem 1rem;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .form-control-modern:focus,
+        .form-select-modern:focus {
+            border-color: #6366f1;
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+            outline: none;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .page-header-modern {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+
+            .stat-value {
+                font-size: 1.5rem;
+            }
+        }
+        /* ===== FIX LAYOUT WITH SIDEBAR ===== */
+        .main-content {
+            margin-left: 260px; /* đúng bằng width sidebar */
+            width: calc(100% - 260px);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Responsive: mobile */
+        @media (max-width: 992px) {
+            .main-content {
+                margin-left: 260px;     /* TRÙNG width sidebar */
+                width: calc(100% - 260px);
+                min-height: 100vh;
+                padding-left: 1.5rem;
+                padding-right: 1.5rem;
+            }
+        }
+        .table-responsive {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        .table-modern {
+            min-width: 1000px; /* tránh table co quá nhỏ */
+        }
+        .container-fluid {
+            padding-left: 0;
+            padding-right: 0;
+        }
+
+
+    </style>
+</head>
+<body>
+<div class="container-fluid">
+    <div class="row">
+        <div th:replace="~{fragments/sidebar :: sidebar}"></div>
+
+        <main class="main-content px-4">
+            <!-- Breadcrumb -->
+            <nav aria-label="breadcrumb" class="mt-3">
+                <ol class="breadcrumb breadcrumb-modern">
+                    <li class="breadcrumb-item" th:each="breadcrumb : ${breadcrumbs}">
+                        <a th:if="${breadcrumb.url != ''}"
+                           th:href="@{${breadcrumb.url}}"
+                           th:text="${breadcrumb.name}"></a>
+                        <span th:unless="${breadcrumb.url != ''}"
+                              th:text="${breadcrumb.name}"
+                              class="active"></span>
+                    </li>
+                </ol>
+            </nav>
+
+            <!-- Page Header -->
+            <div class="page-header-modern">
+                <h1 class="page-title-modern">
+                    <i class="bi bi-boxes"></i>
+                    Báo cáo Tồn kho
+                </h1>
+                <div class="d-flex gap-2">
+                    <a href="/admin/reports/inventory/export" class="btn-success-modern btn-modern">
+                        <i class="bi bi-file-earmark-excel"></i>
+                        Xuất Excel
+                    </a>
+                </div>
+            </div>
+
+            <!-- Statistics Cards -->
+            <div class="stats-grid">
+                <div class="stat-card-modern primary">
+                    <div class="stat-header">
+                        <div>
+                            <div class="stat-label">Tổng sản phẩm</div>
+                            <div class="stat-value" th:text="${totalProducts} ?: '0'">0</div>
+                            <div class="stat-badge success">
+                                <i class="bi bi-check-circle-fill"></i>
+                                Tất cả biến thể
+                            </div>
+                        </div>
+                        <div class="stat-icon-wrapper primary">
+                            <i class="bi bi-boxes"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stat-card-modern danger">
+                    <div class="stat-header">
+                        <div>
+                            <div class="stat-label">Hết hàng</div>
+                            <div class="stat-value" th:text="${outOfStock} ?: '0'">0</div>
+                            <div class="stat-badge danger">
+                                <i class="bi bi-exclamation-triangle-fill"></i>
+                                Cần nhập ngay
+                            </div>
+                        </div>
+                        <div class="stat-icon-wrapper danger">
+                            <i class="bi bi-x-circle"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stat-card-modern warning">
+                    <div class="stat-header">
+                        <div>
+                            <div class="stat-label">Sắp hết</div>
+                            <div class="stat-value" th:text="${lowStock} ?: '0'">0</div>
+                            <div class="stat-badge danger">
+                                <i class="bi bi-arrow-down"></i>
+                                Tồn kho < 10
+                            </div>
+                        </div>
+                        <div class="stat-icon-wrapper warning">
+                            <i class="bi bi-exclamation-circle"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stat-card-modern success">
+                    <div class="stat-header">
+                        <div>
+                            <div class="stat-label">Còn hàng</div>
+                            <div class="stat-value" th:text="${inStock} ?: '0'">0</div>
+                            <div class="stat-badge success">
+                                <i class="bi bi-check-circle-fill"></i>
+                                Tình trạng tốt
+                            </div>
+                        </div>
+                        <div class="stat-icon-wrapper success">
+                            <i class="bi bi-check-circle"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Filter Card -->
+            <div class="filter-card">
+                <div class="filter-title">
+                    <i class="bi bi-funnel"></i>
+                    Bộ lọc tìm kiếm
+                </div>
+                <form method="get" th:action="@{/admin/reports/inventory}">
+                    <div class="row g-3 align-items-end">
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold">Trạng thái tồn kho</label>
+                            <select name="status" class="form-select form-select-modern">
+                                <option value="">Tất cả trạng thái</option>
+                                <option value="out" th:selected="${param.status != null && param.status[0] == 'out'}">
+                                    Hết hàng
+                                </option>
+                                <option value="low" th:selected="${param.status != null && param.status[0] == 'low'}">
+                                    Sắp hết
+                                </option>
+                                <option value="in" th:selected="${param.status != null && param.status[0] == 'in'}">
+                                    Còn hàng
+                                </option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="d-flex gap-2">
+                                <button type="submit" class="btn-primary-modern btn-modern flex-fill">
+                                    <i class="bi bi-search"></i>
+                                    Tìm kiếm
+                                </button>
+                                <a href="/admin/reports/inventory" class="btn btn-outline-secondary btn-modern">
+                                    <i class="bi bi-arrow-clockwise"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Inventory Table -->
+            <div class="table-card">
+                <div class="table-card-header">
+                    <h5 class="table-card-title">
+                        <i class="bi bi-table"></i>
+                        Danh sách tồn kho
+                    </h5>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-modern">
+                        <thead>
+                        <tr>
+                            <th>Hình ảnh</th>
+                            <th>Tên sản phẩm</th>
+                            <th>Danh mục</th>
+                            <th>Thương hiệu</th>
+                            <th class="text-end">Tồn kho</th>
+                            <th class="text-center">Biến thể</th>
+                            <th class="text-center">Trạng thái</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="item : ${inventory}">
+                            <td>
+                                <div class="product-img-wrapper">
+                                    <img th:if="${item.productImage != null && item.productImage != ''}"
+                                         th:src="${item.productImage}"
+                                         alt="Product">
+                                    <i th:unless="${item.productImage != null && item.productImage != ''}"
+                                       class="bi bi-image text-muted"
+                                       style="font-size: 1.5rem;"></i>
+                                </div>
+                            </td>
+                            <td>
+                                <strong th:text="${item.productName}"></strong>
+                            </td>
+                            <td>
+                                <span th:text="${item.categoryName}"></span>
+                            </td>
+                            <td>
+                                <span th:text="${item.brandName}"></span>
+                            </td>
+                            <td class="text-end">
+                                <strong style="font-size: 1.1rem;"
+                                        th:text="${#numbers.formatInteger(item.totalStock, 0, 'COMMA')}"></strong>
+                            </td>
+                            <td class="text-center">
+                                <span class="badge bg-secondary" th:text="${item.variantCount}"></span>
+                            </td>
+                            <td class="text-center">
+                                <span th:if="${item.stockStatus == 'OUT_OF_STOCK'}"
+                                      class="status-badge out-stock"
+                                      th:text="${item.stockStatusText}"></span>
+                                <span th:if="${item.stockStatus == 'LOW_STOCK'}"
+                                      class="status-badge low-stock"
+                                      th:text="${item.stockStatusText}"></span>
+                                <span th:if="${item.stockStatus == 'IN_STOCK'}"
+                                      class="status-badge in-stock"
+                                      th:text="${item.stockStatusText}"></span>
+                            </td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(inventory)}">
+                            <td colspan="7">
+                                <div class="empty-state">
+                                    <i class="bi bi-inbox"></i>
+                                    <h5>Không có dữ liệu</h5>
+                                    <p>Chưa có thông tin tồn kho để hiển thị</p>
+                                </div>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script th:src="@{/javascript/Dashboard.js}"></script>
+</body>
+</html>
