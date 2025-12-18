@@ -2,12 +2,14 @@ package com.teamforone.tech_store.controller.admin;
 
 import com.teamforone.tech_store.model.ShippingMethod;
 import com.teamforone.tech_store.service.admin.ShippingMethodService;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/shipping")
+@PreAuthorize("hasAnyRole('STAFF','MANAGER','ADMIN')")
 public class ShippingController {
     private final ShippingMethodService shippingService;
     public ShippingController(ShippingMethodService shippingService){ this.shippingService = shippingService; }

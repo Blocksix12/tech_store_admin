@@ -18,6 +18,7 @@ import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -52,6 +53,7 @@ public class ProductController {
         this.fileStorageService = fileStorageService;
     }
     @GetMapping("/products")
+    @PreAuthorize("hasAnyRole('STAFF','MANAGER','ADMIN')")
     public String getAllProducts(
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size,
@@ -105,6 +107,7 @@ public class ProductController {
     }
 
     @PostMapping("/products/add")
+    @PreAuthorize("hasAnyRole('MANAGER','ADMIN')")
     public String addProduct(@Valid @ModelAttribute("product") ProductRequest productRequest,
                              BindingResult result,
                              Model model,
@@ -202,6 +205,7 @@ public class ProductController {
 
 
     @PostMapping("/products/update/{id}")
+    @PreAuthorize("hasAnyRole('MANAGER','ADMIN')")
     public String updateProduct(@PathVariable String id,
                                 @Valid @ModelAttribute("product") ProductRequest productRequest,
                                 BindingResult result,
@@ -268,6 +272,7 @@ public class ProductController {
 
     // POST - Xử lý xóa sản phẩm
     @PostMapping("/products/delete/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public String deleteProduct(@PathVariable String id, RedirectAttributes redirectAttributes) {
         try {
             Product product = productService.findProductById(id);

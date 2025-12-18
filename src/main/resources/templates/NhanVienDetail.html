@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chi tiết nhân viên - Admin Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/Dashboard.css}" />
+    <style>
+        .profile-card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            overflow: hidden;
+        }
+
+        .profile-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 40px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .profile-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -20%;
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+        }
+
+        .profile-avatar-section {
+            display: flex;
+            align-items: center;
+            gap: 30px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .profile-avatar {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            border: 5px solid white;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            object-fit: cover;
+            background: white;
+        }
+
+        .profile-info {
+            color: white;
+            flex: 1;
+        }
+
+        .profile-name {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .profile-username {
+            font-size: 18px;
+            opacity: 0.9;
+            margin-bottom: 15px;
+        }
+
+        .profile-badges {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .profile-badge {
+            background: rgba(255,255,255,0.2);
+            backdrop-filter: blur(10px);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .profile-actions {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 10px;
+            z-index: 2;
+        }
+
+        .profile-actions .btn {
+            background: rgba(255,255,255,0.2);
+            backdrop-filter: blur(10px);
+            color: white;
+            border: 2px solid rgba(255,255,255,0.3);
+            padding: 8px 16px;
+            border-radius: 10px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .profile-actions .btn:hover {
+            background: white;
+            color: #667eea;
+        }
+
+        .detail-section {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e9ecef;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-title i {
+            color: #667eea;
+            font-size: 24px;
+        }
+
+        .info-row {
+            display: flex;
+            padding: 15px 0;
+            border-bottom: 1px solid #f1f3f5;
+        }
+
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+        .info-label {
+            width: 200px;
+            font-weight: 600;
+            color: #495057;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .info-label i {
+            color: #667eea;
+            font-size: 18px;
+        }
+
+        .info-value {
+            flex: 1;
+            color: #6c757d;
+        }
+
+        .status-badge {
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 14px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .status-active {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-locked {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .role-card-mini {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: linear-gradient(135deg, #f8f9ff 0%, #f0f2ff 100%);
+            border: 2px solid #667eea;
+            border-radius: 10px;
+            padding: 12px 16px;
+            margin: 8px 8px 8px 0;
+            font-weight: 600;
+        }
+
+        .role-icon-mini {
+            width: 35px;
+            height: 35px;
+            border-radius: 8px;
+            background: #667eea;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        .permission-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .permission-item {
+            background: #f8f9fa;
+            padding: 10px 15px;
+            border-radius: 8px;
+            border-left: 3px solid #667eea;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .permission-item i {
+            color: #667eea;
+        }
+
+        .stats-mini {
+            display: flex;
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .stat-box {
+            flex: 1;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 13px;
+            opacity: 0.9;
+        }
+
+        .timeline {
+            position: relative;
+            padding-left: 30px;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 8px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: #e9ecef;
+        }
+
+        .timeline-item {
+            position: relative;
+            padding-bottom: 25px;
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -26px;
+            top: 5px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #667eea;
+            border: 3px solid white;
+            box-shadow: 0 0 0 2px #667eea;
+        }
+
+        .timeline-date {
+            font-size: 12px;
+            color: #6c757d;
+            font-weight: 600;
+        }
+
+        .timeline-content {
+            margin-top: 5px;
+            font-size: 14px;
+            color: #495057;
+        }
+
+        @media (max-width: 768px) {
+            .profile-avatar-section {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .info-row {
+                flex-direction: column;
+                gap: 8px;
+            }
+
+            .info-label {
+                width: 100%;
+            }
+
+            .profile-actions {
+                position: static;
+                justify-content: center;
+                margin-top: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Include Sidebar -->
+<div th:replace="~{fragments/sidebar :: sidebar}"></div>
+
+<!-- Main Content -->
+<div class="main-content">
+    <!-- Include Topbar -->
+    <div th:replace="~{fragments/topbar :: topbar}"></div>
+
+    <!-- Content Area -->
+    <div class="content-area">
+        <!-- Header -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h2 class="mb-1"><i class="bi bi-person-lines-fill me-2"></i>Chi tiết nhân viên</h2>
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb mb-0">
+                        <li class="breadcrumb-item"><a href="/admin">Trang chủ</a></li>
+                        <li class="breadcrumb-item"><a href="/admin/nhanvien">Nhân viên</a></li>
+                        <li class="breadcrumb-item active">Chi tiết</li>
+                    </ol>
+                </nav>
+            </div>
+            <a th:href="@{/admin/nhanvien}" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left me-1"></i>Quay lại
+            </a>
+        </div>
+
+        <!-- Profile Card -->
+        <div class="profile-card mb-4">
+            <div class="profile-header">
+                <!-- Action Buttons -->
+                <div class="profile-actions">
+                    <a th:href="@{/admin/nhanvien/update/{id}(id=${nhanVien.id})}" class="btn">
+                        <i class="bi bi-pencil me-1"></i>Chỉnh sửa
+                    </a>
+                    <a th:href="@{/admin/nhanvien/{id}/roles(id=${nhanVien.id})}" class="btn">
+                        <i class="bi bi-shield-lock me-1"></i>Phân quyền
+                    </a>
+                </div>
+
+                <!-- Profile Info -->
+                <div class="profile-avatar-section">
+                    <img th:src="${nhanVien.avatarUrl != null ? nhanVien.avatarUrl : '/images/default-avatar.png'}"
+                         th:alt="${nhanVien.fullName}"
+                         class="profile-avatar"
+                         onerror="this.src='/images/default-avatar.png'">
+
+                    <div class="profile-info">
+                        <h1 class="profile-name" th:text="${nhanVien.fullName}">Tên nhân viên</h1>
+                        <div class="profile-username">@<span th:text="${nhanVien.username}">username</span></div>
+
+                        <div class="profile-badges">
+                            <span class="profile-badge" th:if="${nhanVien.status.name() == 'ACTIVE'}">
+                                <i class="bi bi-check-circle-fill"></i>
+                                Hoạt động
+                            </span>
+                            <span class="profile-badge" th:unless="${nhanVien.status.name() == 'ACTIVE'}">
+                                <i class="bi bi-lock-fill"></i>
+                                Bị khóa
+                            </span>
+                            <span class="profile-badge" th:if="${nhanVien.isAdmin()}">
+                                <i class="bi bi-shield-fill-check"></i>
+                                Quản trị viên
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- Left Column -->
+            <div class="col-lg-8">
+                <!-- Basic Information -->
+                <div class="detail-section">
+                    <div class="section-title">
+                        <i class="bi bi-person-vcard"></i>
+                        <span>Thông tin cơ bản</span>
+                    </div>
+
+                    <div class="info-row">
+                        <div class="info-label">
+                            <i class="bi bi-tag"></i>
+                            <span>ID</span>
+                        </div>
+                        <div class="info-value">
+                            <code th:text="${nhanVien.id}">ID</code>
+                        </div>
+                    </div>
+
+                    <div class="info-row">
+                        <div class="info-label">
+                            <i class="bi bi-envelope"></i>
+                            <span>Email</span>
+                        </div>
+                        <div class="info-value">
+                            <a th:href="'mailto:' + ${nhanVien.email}" th:text="${nhanVien.email}">email@example.com</a>
+                        </div>
+                    </div>
+
+                    <div class="info-row">
+                        <div class="info-label">
+                            <i class="bi bi-telephone"></i>
+                            <span>Số điện thoại</span>
+                        </div>
+                        <div class="info-value">
+                            <a th:href="'tel:' + ${nhanVien.phone}" th:text="${nhanVien.phone}">0123456789</a>
+                        </div>
+                    </div>
+
+                    <div class="info-row" th:if="${nhanVien.dateOfBirth != null}">
+                        <div class="info-label">
+                            <i class="bi bi-cake"></i>
+                            <span>Ngày sinh</span>
+                        </div>
+                        <div class="info-value" th:text="${#dates.format(nhanVien.dateOfBirth, 'dd/MM/yyyy')}">
+                            01/01/1990
+                        </div>
+                    </div>
+
+                    <div class="info-row" th:if="${nhanVien.gender != null}">
+                        <div class="info-label">
+                            <i class="bi bi-gender-ambiguous"></i>
+                            <span>Giới tính</span>
+                        </div>
+                        <div class="info-value">
+                            <span th:if="${nhanVien.gender.name() == 'MALE'}">Nam</span>
+                            <span th:if="${nhanVien.gender.name() == 'FEMALE'}">Nữ</span>
+                            <span th:if="${nhanVien.gender.name() == 'OTHER'}">Khác</span>
+                        </div>
+                    </div>
+
+                    <div class="info-row" th:if="${nhanVien.address != null and !nhanVien.address.isEmpty()}">
+                        <div class="info-label">
+                            <i class="bi bi-geo-alt"></i>
+                            <span>Địa chỉ</span>
+                        </div>
+                        <div class="info-value" th:text="${nhanVien.address}">Địa chỉ</div>
+                    </div>
+
+                    <div class="info-row" th:if="${nhanVien.website != null and !nhanVien.website.isEmpty()}">
+                        <div class="info-label">
+                            <i class="bi bi-globe"></i>
+                            <span>Website</span>
+                        </div>
+                        <div class="info-value">
+                            <a th:href="${nhanVien.website}" target="_blank" th:text="${nhanVien.website}">website.com</a>
+                        </div>
+                    </div>
+
+                    <div class="info-row">
+                        <div class="info-label">
+                            <i class="bi bi-check-circle"></i>
+                            <span>Trạng thái</span>
+                        </div>
+                        <div class="info-value">
+                            <span th:if="${nhanVien.status.name() == 'ACTIVE'}" class="status-badge status-active">
+                                <i class="bi bi-check-circle-fill"></i>
+                                Hoạt động
+                            </span>
+                            <span th:unless="${nhanVien.status.name() == 'ACTIVE'}" class="status-badge status-locked">
+                                <i class="bi bi-lock-fill"></i>
+                                Bị khóa
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bio Section -->
+                <div class="detail-section" th:if="${nhanVien.bio != null and !nhanVien.bio.isEmpty()}">
+                    <div class="section-title">
+                        <i class="bi bi-file-text"></i>
+                        <span>Tiểu sử</span>
+                    </div>
+                    <p th:text="${nhanVien.bio}" class="mb-0">Bio content...</p>
+                </div>
+
+                <!-- Roles & Permissions -->
+                <div class="detail-section">
+                    <div class="section-title">
+                        <i class="bi bi-shield-check"></i>
+                        <span>Vai trò & Quyền hạn</span>
+                    </div>
+
+                    <div th:if="${nhanVien.roles != null and !nhanVien.roles.isEmpty()}">
+                        <div th:each="role : ${nhanVien.roles}">
+                            <div class="role-card-mini">
+                                <div class="role-icon-mini">
+                                    <i th:class="${role.roleName.name() == 'ADMIN'} ? 'bi bi-shield-fill-check' :
+                                                 (${role.roleName.name() == 'MANAGER'} ? 'bi bi-person-badge' : 'bi bi-person')"></i>
+                                </div>
+                                <div>
+                                    <div style="font-weight: 700;" th:text="${role.roleNameDisplay}">Role Name</div>
+                                    <small class="text-muted" th:text="${role.description}">Description</small>
+                                </div>
+                            </div>
+
+                            <!-- Permissions of this role -->
+                            <div class="permission-grid" th:if="${role.permissions != null and !role.permissions.isEmpty()}">
+                                <div class="permission-item" th:each="permission : ${role.permissions}">
+                                    <i class="bi bi-check-circle-fill"></i>
+                                    <span th:text="${permission.name}">Permission</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div th:unless="${nhanVien.roles != null and !nhanVien.roles.isEmpty()}"
+                         class="text-muted text-center py-4">
+                        <i class="bi bi-shield-x" style="font-size: 3rem;"></i>
+                        <p class="mt-2 mb-0">Chưa được phân quyền</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column -->
+            <div class="col-lg-4">
+                <!-- Activity Stats -->
+                <div class="detail-section">
+                    <div class="section-title">
+                        <i class="bi bi-graph-up-arrow"></i>
+                        <span>Thống kê</span>
+                    </div>
+
+                    <div class="stats-mini">
+                        <div class="stat-box">
+                            <div class="stat-value" th:text="${nhanVien.roles != null ? nhanVien.roles.size() : 0}">0</div>
+                            <div class="stat-label">Vai trò</div>
+                        </div>
+                        <div class="stat-box" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                            <div class="stat-value">
+                                <span th:text="${nhanVien.roles != null ? nhanVien.roles.stream().mapToInt(r -> r.permissions != null ? r.permissions.size() : 0).sum() : 0}">0</span>
+                            </div>
+                            <div class="stat-label">Quyền hạn</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Timeline -->
+                <div class="detail-section">
+                    <div class="section-title">
+                        <i class="bi bi-clock-history"></i>
+                        <span>Lịch sử</span>
+                    </div>
+
+                    <div class="timeline">
+                        <div class="timeline-item" th:if="${nhanVien.updatedAt != null}">
+                            <div class="timeline-date" th:text="${#dates.format(nhanVien.updatedAt, 'dd/MM/yyyy HH:mm')}">Date</div>
+                            <div class="timeline-content">
+                                <i class="bi bi-pencil text-warning"></i>
+                                Cập nhật thông tin
+                            </div>
+                        </div>
+
+                        <div class="timeline-item" th:if="${nhanVien.createdAt != null}">
+                            <div class="timeline-date" th:text="${#dates.format(nhanVien.createdAt, 'dd/MM/yyyy HH:mm')}">Date</div>
+                            <div class="timeline-content">
+                                <i class="bi bi-plus-circle text-success"></i>
+                                Tạo tài khoản
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="detail-section">
+                    <div class="section-title">
+                        <i class="bi bi-lightning"></i>
+                        <span>Thao tác nhanh</span>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <a th:href="@{/admin/nhanvien/update/{id}(id=${nhanVien.id})}" class="btn btn-primary">
+                            <i class="bi bi-pencil me-2"></i>Chỉnh sửa thông tin
+                        </a>
+                        <a th:href="@{/admin/nhanvien/{id}/roles(id=${nhanVien.id})}" class="btn btn-warning">
+                            <i class="bi bi-shield-lock me-2"></i>Quản lý phân quyền
+                        </a>
+                        <a th:href="@{/admin/nhanvien/delete/{id}(id=${nhanVien.id})}" class="btn btn-danger">
+                            <i class="bi bi-trash me-2"></i>Xóa nhân viên
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script th:src="@{/javascript/Dashboard.js}"></script>
+</body>
+</html>

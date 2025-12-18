@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Danh sách Nhân viên - Admin Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/Dashboard.css}" />
+    <style>
+        .employee-avatar {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #e9ecef;
+        }
+
+        .role-badge {
+            font-size: 0.75rem;
+            padding: 4px 8px;
+            margin: 2px;
+            border-radius: 6px;
+        }
+
+        .status-badge {
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+
+        .table-actions .btn {
+            padding: 6px 10px;
+            font-size: 0.875rem;
+        }
+
+        .stats-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            margin-bottom: 20px;
+        }
+
+        .stats-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        .filter-section {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+    </style>
+</head>
+<body>
+
+<!-- Include Sidebar -->
+<div th:replace="~{fragments/sidebar :: sidebar}"></div>
+
+<!-- Main Content -->
+<div class="main-content">
+    <!-- Include Topbar -->
+    <div th:replace="~{fragments/topbar :: topbar}"></div>
+
+    <!-- Content Area -->
+    <div class="content-area">
+        <!-- Header -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h2 class="mb-1"><i class="bi bi-people-fill me-2"></i>Danh sách Nhân viên</h2>
+                <p class="text-muted mb-0">Quản lý thông tin nhân viên và phân quyền hệ thống</p>
+            </div>
+            <a th:href="@{/admin/nhanvien/add}" class="btn btn-primary">
+                <i class="bi bi-plus-circle me-1"></i>Thêm nhân viên mới
+            </a>
+        </div>
+
+        <!-- Statistics Cards -->
+        <div class="row g-3 mb-4">
+            <div class="col-md-3">
+                <div class="stats-card">
+                    <div class="d-flex align-items-center">
+                        <div class="stats-icon" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                            <i class="bi bi-people"></i>
+                        </div>
+                        <div class="ms-3">
+                            <h3 class="mb-0" th:text="${nhanViens != null ? nhanViens.size() : 0}">0</h3>
+                            <p class="text-muted mb-0 small">Tổng nhân viên</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stats-card">
+                    <div class="d-flex align-items-center">
+                        <div class="stats-icon" style="background: linear-gradient(135deg, #2dce89 0%, #20a464 100%); color: white;">
+                            <i class="bi bi-check-circle"></i>
+                        </div>
+                        <div class="ms-3">
+                            <h3 class="mb-0" th:text="${activeCount}">0</h3>
+                            <p class="text-muted mb-0 small">Đang hoạt động</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stats-card">
+                    <div class="d-flex align-items-center">
+                        <div class="stats-icon" style="background: linear-gradient(135deg, #f5365c 0%, #ec0c38 100%); color: white;">
+                            <i class="bi bi-lock"></i>
+                        </div>
+                        <div class="ms-3">
+                            <h3 class="mb-0" th:text="${lockedCount}">0</h3>
+                            <p class="text-muted mb-0 small">Bị khóa</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stats-card">
+                    <div class="d-flex align-items-center">
+                        <div class="stats-icon" style="background: linear-gradient(135deg, #fb6340 0%, #f5365c 100%); color: white;">
+                            <i class="bi bi-shield-check"></i>
+                        </div>
+                        <div class="ms-3">
+                            <h3 class="mb-0" th:text="${adminCount}">0</h3>
+                            <p class="text-muted mb-0 small">Quản trị viên</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Alert Messages -->
+        <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="bi bi-check-circle-fill me-2"></i>
+            <span th:text="${success}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+
+        <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+            <span th:text="${error}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+
+        <!-- Filter Section -->
+        <div class="filter-section">
+            <form method="get" th:action="@{/admin/nhanvien}">
+                <div class="row g-3">
+                    <div class="col-md-3">
+                        <label class="form-label small">Tìm kiếm</label>
+                        <input type="text" name="search" class="form-control" placeholder="Tên, email, SĐT...">
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label small">Trạng thái</label>
+                        <select name="status" class="form-select">
+                            <option value="">Tất cả</option>
+                            <option value="ACTIVE">Hoạt động</option>
+                            <option value="LOCKED">Bị khóa</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label small">Vai trò</label>
+                        <select name="role" class="form-select">
+                            <option value="">Tất cả</option>
+                            <option value="ADMIN">Admin</option>
+                            <option value="MANAGER">Manager</option>
+                            <option value="STAFF">Staff</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label small">&nbsp;</label>
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary flex-fill">
+                                <i class="bi bi-search me-1"></i>Tìm kiếm
+                            </button>
+                            <a th:href="@{/admin/nhanvien}" class="btn btn-outline-secondary">
+                                <i class="bi bi-arrow-clockwise"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- Employees Table -->
+        <div class="card shadow-sm border-0">
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                        <tr>
+                            <th style="width: 5%;" class="px-4">#</th>
+                            <th style="width: 22%;">Nhân viên</th>
+                            <th style="width: 15%;">Email</th>
+                            <th style="width: 12%;">Số điện thoại</th>
+                            <th style="width: 16%;">Vai trò</th>
+                            <th style="width: 10%;" class="text-center">Trạng thái</th>
+                            <th style="width: 20%;" class="text-center">Thao tác</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="nhanVien, iterStat : ${nhanViens}">
+                            <td class="px-4" th:text="${iterStat.count}">1</td>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <img th:src="${nhanVien.avatarUrl != null ? nhanVien.avatarUrl : '/images/default-avatar.png'}"
+                                         th:alt="${nhanVien.fullName}"
+                                         class="employee-avatar me-3"
+                                         onerror="this.src='/images/default-avatar.png'">
+                                    <div>
+                                        <div class="fw-semibold" th:text="${nhanVien.fullName}">Tên nhân viên</div>
+                                        <small class="text-muted">@<span th:text="${nhanVien.username}">username</span></small>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <span th:text="${nhanVien.email}" class="text-muted small">email@example.com</span>
+                            </td>
+                            <td>
+                                <span th:text="${nhanVien.phone}" class="text-muted small">0123456789</span>
+                            </td>
+                            <td>
+                                <!-- Hiển thị roles -->
+                                <div th:if="${nhanVien.roles != null and !nhanVien.roles.isEmpty()}">
+                                    <span class="badge bg-primary role-badge"
+                                          th:each="role, rStat : ${nhanVien.roles}"
+                                          th:if="${rStat.index < 2}"
+                                          th:text="${role.roleNameDisplay}">
+                                        Role
+                                    </span>
+                                    <span class="badge bg-secondary role-badge"
+                                          th:if="${nhanVien.roles.size() > 2}"
+                                          th:text="'+' + ${nhanVien.roles.size() - 2}">
+                                        +1
+                                    </span>
+                                </div>
+                                <span th:unless="${nhanVien.roles != null and !nhanVien.roles.isEmpty()}"
+                                      class="text-muted small">
+                                    <i class="bi bi-dash-circle"></i> Chưa có
+                                </span>
+                            </td>
+                            <td class="text-center">
+                                <span th:if="${nhanVien.status.name() == 'ACTIVE'}"
+                                      class="badge bg-success status-badge">
+                                    <i class="bi bi-check-circle"></i> Hoạt động
+                                </span>
+                                <span th:unless="${nhanVien.status.name() == 'ACTIVE'}"
+                                      class="badge bg-danger status-badge">
+                                    <i class="bi bi-lock"></i> Bị khóa
+                                </span>
+                            </td>
+                            <td class="text-center">
+                                <div class="btn-group table-actions" role="group">
+                                    <a th:href="@{/admin/nhanvien/detail/{id}(id=${nhanVien.id})}"
+                                       class="btn btn-sm btn-outline-info"
+                                       title="Chi tiết">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                    <!-- NÚT PHÂN QUYỀN -->
+                                    <a th:href="@{/admin/nhanvien/{id}/roles(id=${nhanVien.id})}"
+                                       class="btn btn-sm btn-outline-warning"
+                                       title="Phân quyền">
+                                        <i class="bi bi-shield-lock"></i>
+                                    </a>
+                                    <a th:href="@{/admin/nhanvien/update/{id}(id=${nhanVien.id})}"
+                                       class="btn btn-sm btn-outline-success"
+                                       title="Sửa">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+                                    <a th:href="@{/admin/nhanvien/delete/{id}(id=${nhanVien.id})}"
+                                       class="btn btn-sm btn-outline-danger"
+                                       title="Xóa">
+                                        <i class="bi bi-trash"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr th:if="${nhanViens == null or nhanViens.isEmpty()}">
+                            <td colspan="7" class="text-center py-5">
+                                <i class="bi bi-inbox display-1 text-muted d-block mb-3"></i>
+                                <p class="text-muted mb-3">Chưa có nhân viên nào trong hệ thống</p>
+                                <a th:href="@{/admin/nhanvien/add}" class="btn btn-primary">
+                                    <i class="bi bi-plus-circle me-1"></i>Thêm nhân viên đầu tiên
+                                </a>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script th:src="@{/javascript/Dashboard.js}"></script>
+</body>
+</html>

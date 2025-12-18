@@ -3,6 +3,9 @@ package com.teamforone.tech_store.dto.request;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.Date;
 
 @Data
 @NoArgsConstructor
@@ -19,4 +22,8 @@ public class RegisterRequest {
     private String email;
     @NotBlank(message = "Phone number is required, must not be blank")
     private String phoneNumber;
+
+    private String avatarUrl;
+    private MultipartFile avatarFile;
+
 }

@@ -8,6 +8,7 @@ import com.teamforone.tech_store.service. admin.BrandService;
 import com.teamforone.tech_store.service.admin.impl.FileStorageService;
 import jakarta.validation.Valid;
 import org.springframework. beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework. stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -104,6 +105,7 @@ public class BrandController {
 //    }
 
     @GetMapping("/brands")
+    @PreAuthorize("hasAnyRole('STAFF','MANAGER','ADMIN')")
     public String showBrandsPage(@RequestParam(required = false) String status,
                                  @RequestParam(defaultValue = "false") boolean withStats,
                                  Model model) {
@@ -221,6 +223,7 @@ public class BrandController {
     }
 
     @PostMapping("/brands/add")
+    @PreAuthorize("hasAnyRole('MANAGER','ADMIN')")
     public String addBrand(@Valid @ModelAttribute("brandRequest") BrandRequest brandRequest,
                            BindingResult result,
                            Model model,
@@ -297,6 +300,7 @@ public class BrandController {
     }
 
     @PostMapping("/brands/update/{id}")
+    @PreAuthorize("hasAnyRole('MANAGER','ADMIN')")
     public String updateBrand(@PathVariable("id") String brandID,
                               @Valid @ModelAttribute("brandRequest") BrandRequest brandRequest,
                               BindingResult result,
@@ -356,6 +360,7 @@ public class BrandController {
     }
 
     @PostMapping("/brands/delete/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public String deleteBrand(@PathVariable("id") String brandID,
                               RedirectAttributes redirectAttributes) {
         try {
@@ -387,6 +392,7 @@ public class BrandController {
     }
 
     @PostMapping("/brands/activate/{id}")
+    @PreAuthorize("hasAnyRole('MANAGER','ADMIN')")
     public String activateBrand(@PathVariable("id") String brandID,
                                 RedirectAttributes redirectAttributes) {
         try {

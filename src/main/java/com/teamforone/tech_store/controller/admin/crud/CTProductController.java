@@ -4,6 +4,7 @@ import com.teamforone.tech_store.dto.request.CTProductRequest;
 import com.teamforone.tech_store.service.admin.CTProductService;
 import com.teamforone.tech_store.service.admin.ProductService;
 import jakarta.validation.Valid;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -24,6 +25,7 @@ public class CTProductController {
         this.productService = productService;
     }
 
+    @PreAuthorize("hasAnyRole('STAFF','MANAGER','ADMIN')")
     @GetMapping("/product-variants")
     public String listCTProducts(
             @RequestParam(required = false) String productFilter,
@@ -111,6 +113,7 @@ public class CTProductController {
         return "AddCTProduct";
     }
 
+    @PreAuthorize("hasAnyRole('MANAGER','ADMIN')")
     @PostMapping("/product-variants/add")
     public String addProductVariant(
             @Valid @ModelAttribute("ctProductRequest") CTProductRequest ctProductRequest,

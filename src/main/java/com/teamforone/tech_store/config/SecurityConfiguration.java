@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -19,34 +20,53 @@ public class SecurityConfiguration {
     @Autowired
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private static final String[] WHITE_LIST_URL = {
-            "/auth/admin/register",
-            "/admin/2fa/phone/**",
-            "/admin/2fa/email/**",
-            "/auth/admin/update/{id}",
-            "/auth/login",
-            "/api/v1/auth/refresh-token",
-            "/api/v1/auth/verify",
-            "/admin/**",
+            "/auth/**",
+            "/api/v1/auth/**",
             "/css/**",
             "/js/**",
-            "/javascript/**",
             "/images/**",
             "/static/**",
             "/favicon.ico",
-            "/webjars/**",
-            "/**"
+            "/webjars/**"
     };
 
 
 
+
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity htpp) throws Exception {
-        htpp.csrf(AbstractHttpConfigurer::disable)
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+
+        http
+                .csrf(csrf -> csrf.disable())
+                .sessionManagement(session ->
+                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                )
                 .authorizeHttpRequests(auth -> auth
+
+                        // ===== PUBLIC =====
                         .requestMatchers(WHITE_LIST_URL).permitAll()
+                        .requestMatchers(
+                                "/admin/2fa/**"
+                        ).permitAll()
+
+                        // ===== ADMIN RULE =====
+                        .requestMatchers(HttpMethod.GET, "/admin/**")
+                        .hasAnyRole("STAFF", "MANAGER", "ADMIN")
+
+                        .requestMatchers(HttpMethod.POST, "/admin/**")
+                        .hasAnyRole("MANAGER", "ADMIN")
+
+                        .requestMatchers(HttpMethod.PUT, "/admin/**")
+                        .hasAnyRole("MANAGER", "ADMIN")
+
+                        .requestMatchers(HttpMethod.DELETE, "/admin/**")
+                        .hasRole("ADMIN")
+
+                        // ===== OTHERS =====
                         .anyRequest().authenticated()
-                ).sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
-        return htpp.build();
+
+        return http.build();
     }
 }

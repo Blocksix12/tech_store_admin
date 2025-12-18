@@ -3,6 +3,7 @@ package com.teamforone.tech_store.config;
 import com.teamforone.tech_store.service.admin.impl.JwtService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -35,42 +36,72 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                     FilterChain filterChain)
             throws ServletException, IOException {
 
-        String authHeader = request.getHeader("Authorization");
+        String token = resolveToken(request);
 
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+        if (!StringUtils.hasText(token)) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        String token = authHeader.substring(7);
+        if (!jwtService.verifyToken(token)
+                || SecurityContextHolder.getContext().getAuthentication() != null) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
+        // 🔑 Extract từ JWT
         String username = jwtService.extractUsername(token);
+        String userId   = jwtService.extractUserId(token);
+        String userType = jwtService.extractUserType(token);
+        String role     = jwtService.extractRole(token);
 
-        if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+        // 🔐 Load UserDetails (BẮT BUỘC)
+        UserDetails userDetails =
+                userDetailsService.loadUserByUsername(username);
 
-            if (jwtService.verifyToken(token)) {
-                // Lấy roles từ token dưới dạng String và convert thành List
-                String rolesString = jwtService.extractRoles(token);
-                List<GrantedAuthority> authorities;
+        // 🔐 Authority
+        List<GrantedAuthority> authorities = List.of(
+                new SimpleGrantedAuthority("ROLE_" + role)
+        );
 
-                if (StringUtils.hasText(rolesString)) {
-                    authorities = Arrays.stream(rolesString.split(","))
-                            .map(String::trim)
-                            .map(SimpleGrantedAuthority::new)
-                            .collect(Collectors.toList());
-                } else {
-                    authorities = Collections.emptyList();
+        // ✅ CustomAuthenticationToken
+        CustomAuthenticationToken authToken =
+                new CustomAuthenticationToken(
+                        userDetails,
+                        null,
+                        authorities,
+                        userId,
+                        userType
+                );
+
+        authToken.setDetails(
+                new WebAuthenticationDetailsSource().buildDetails(request)
+        );
+
+        SecurityContextHolder.getContext().setAuthentication(authToken);
+
+        filterChain.doFilter(request, response);
+    }
+
+    /**
+     * 🔑 Cookie → Header
+     */
+    private String resolveToken(HttpServletRequest request) {
+
+        if (request.getCookies() != null) {
+            for (Cookie cookie : request.getCookies()) {
+                if ("access_token".equals(cookie.getName())) {
+                    return cookie.getValue();
                 }
-
-                UsernamePasswordAuthenticationToken authToken =
-                        new UsernamePasswordAuthenticationToken(userDetails, null, authorities);
-
-                authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                SecurityContextHolder.getContext().setAuthentication(authToken);
             }
         }
 
-        filterChain.doFilter(request, response);
+        String bearer = request.getHeader("Authorization");
+        if (StringUtils.hasText(bearer) && bearer.startsWith("Bearer ")) {
+            return bearer.substring(7);
+        }
+
+        return null;
     }
 
 }

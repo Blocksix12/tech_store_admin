@@ -81,47 +81,117 @@
         <!-- User Menu -->
         <div class="dropdown">
             <div class="user-menu" data-bs-toggle="dropdown" aria-expanded="false">
+
+                <!-- Avatar -->
                 <div class="user-avatar">
-                    <span th:text="${#authentication.name?.substring(0,1)?.toUpperCase()}">A</span>
+                    <img th:if="${avatar != null and avatar != ''}"
+                         th:src="${avatar}"
+                         alt="Avatar"
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+                         style="width:40px;height:40px;border-radius:50%;object-fit:cover;">
+
+                    <!-- Fallback chữ cái -->
+                    <span th:if="${avatar == null or avatar == ''}"
+                          th:text="${fullName != null ? fullName.substring(0,1).toUpperCase() : 'A'}"
+                          style="display:flex;align-items:center;justify-content:center;
+                         width:40px;height:40px;
+                         background:#667eea;color:#fff;
+                         border-radius:50%;font-weight:bold;">
+                A
+            </span>
                 </div>
+
+                <!-- User info -->
                 <div class="user-info">
-                    <div class="user-name" th:text="${#authentication.name}">Admin User</div>
-                    <div sec:authorize="isAuthenticated()">
-                        <span sec:authentication="authorities"></span>
+                    <div class="user-name"
+                         th:text="${fullName != null ? fullName : username}">
+                        Admin User
+                    </div>
+
+                    <!-- Role -->
+                    <div class="user-role">
+                <span th:text="${role}"
+                      style="font-size:0.8em;color:#888;">
+                    ADMIN
+                </span>
                     </div>
                 </div>
+
                 <i class="bi bi-chevron-down"></i>
             </div>
+
+            <!-- Dropdown -->
             <ul class="dropdown-menu dropdown-menu-end">
+
+                <li class="dropdown-header">
+                    <div style="text-align:center;padding:10px;">
+                        <img th:if="${avatar != null and avatar != ''}"
+                             th:src="${avatar}"
+                             alt="Avatar"
+                             style="width:60px;height:60px;border-radius:50%;
+                            object-fit:cover;margin-bottom:8px;">
+
+                        <div style="font-weight:bold;"
+                             th:text="${fullName != null ? fullName : username}">
+                            Admin User
+                        </div>
+
+                        <div style="font-size:0.85em;color:#888;"
+                             th:text="${email}">
+                            admin@example.com
+                        </div>
+
+                        <div style="font-size:0.75em;color:#aaa;"
+                             th:text="${role}">
+                            ADMIN
+                        </div>
+                    </div>
+                </li>
+
+                <li><hr class="dropdown-divider"></li>
+
+                <!-- Profile -->
                 <li>
-                    <a class="dropdown-item" href="/admin/profile">
+                    <a class="dropdown-item"
+                       th:href="@{/admin/profile/{id}(id=${userId})}">
                         <i class="bi bi-person"></i>
                         <span>Hồ sơ của tôi</span>
                     </a>
                 </li>
+
+                <!-- Settings -->
                 <li>
                     <a class="dropdown-item" href="/admin/settings">
                         <i class="bi bi-gear"></i>
                         <span>Cài đặt</span>
                     </a>
                 </li>
+
+                <!-- Activity -->
                 <li>
                     <a class="dropdown-item" href="/admin/activity-log">
                         <i class="bi bi-clock-history"></i>
                         <span>Nhật ký hoạt động</span>
                     </a>
                 </li>
+
                 <li><hr class="dropdown-divider"></li>
+
+                <!-- Logout -->
                 <li>
-                    <form th:action="@{/logout}" method="post">
-                        <button type="submit" class="dropdown-item">
+                    <form th:action="@{/auth/logout}" method="post">
+                        <button type="submit"
+                                class="dropdown-item"
+                                style="color:#dc3545;">
                             <i class="bi bi-box-arrow-right"></i>
                             <span>Đăng xuất</span>
                         </button>
                     </form>
                 </li>
+
             </ul>
         </div>
+
     </div>
 </div>
 

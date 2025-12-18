@@ -3,6 +3,7 @@ package com.teamforone.tech_store.controller.admin;
 import com.teamforone.tech_store.dto.request.SettingsGeneralDTO;
 import com.teamforone.tech_store.model.*;
 import com.teamforone.tech_store.service.admin.*;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,6 +15,7 @@ import java.io.IOException;
 
 @Controller
 @RequestMapping("/admin/settings")
+@PreAuthorize("hasAnyRole('STAFF','MANAGER','ADMIN')")
 public class SettingsController {
     private final SettingsGeneralService generalService;
     private final ShippingMethodService shippingService;

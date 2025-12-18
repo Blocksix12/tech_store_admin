@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản lý vai trò - Admin Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/Dashboard.css}" />
+    <style>
+        .role-badge {
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-weight: 500;
+        }
+        .permission-badge {
+            font-size: 0.75rem;
+            padding: 4px 8px;
+            margin: 2px;
+        }
+        .table-actions .btn {
+            padding: 4px 8px;
+            font-size: 0.875rem;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Include Sidebar -->
+<div th:replace="~{fragments/sidebar :: sidebar}"></div>
+
+<!-- Main Content -->
+<div class="main-content">
+    <!-- Include Topbar -->
+    <div th:replace="~{fragments/topbar :: topbar}"></div>
+
+    <!-- Content Area -->
+    <div class="content-area">
+        <!-- Header -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h2 class="mb-1"><i class="bi bi-shield-lock me-2"></i>Quản lý vai trò</h2>
+                <p class="text-muted mb-0">Quản lý vai trò và phân quyền hệ thống</p>
+            </div>
+            <a th:href="@{/admin/roles/add}" class="btn btn-primary">
+                <i class="bi bi-plus-circle me-1"></i>Thêm vai trò mới
+            </a>
+        </div>
+
+        <!-- Alert Messages -->
+        <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="bi bi-check-circle-fill me-2"></i>
+            <span th:text="${success}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+
+        <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+            <span th:text="${error}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+
+        <!-- Roles Table -->
+        <div class="card shadow-sm border-0">
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                        <tr>
+                            <th style="width: 5%;" class="px-4">#</th>
+                            <th style="width: 20%;">Vai trò</th>
+                            <th style="width: 30%;">Mô tả</th>
+                            <th style="width: 25%;">Quyền hạn</th>
+                            <th style="width: 20%;" class="text-center">Thao tác</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="role, iterStat : ${roles}">
+                            <td class="px-4" th:text="${iterStat.count}">1</td>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="role-icon me-2">
+                                        <i class="bi bi-shield-fill text-primary"></i>
+                                    </div>
+                                    <div>
+                                        <div class="fw-semibold" th:text="${role.roleNameDisplay}">Quản trị viên</div>
+                                        <small class="text-muted" th:text="${role.roleName}">ADMIN</small>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <span th:text="${role.description}" class="text-muted">Quản trị viên hệ thống</span>
+                            </td>
+                            <td>
+                                <div th:if="${role.permissions != null and !role.permissions.isEmpty()}">
+                                        <span class="badge bg-primary permission-badge"
+                                              th:each="permission, pStat : ${role.permissions}"
+                                              th:if="${pStat.index < 3}"
+                                              th:text="${permission.name}">
+                                            Permission
+                                        </span>
+                                    <span class="badge bg-secondary permission-badge"
+                                          th:if="${role.permissions.size() > 3}"
+                                          th:text="'+' + ${role.permissions.size() - 3}">
+                                            +2
+                                        </span>
+                                </div>
+                                <span th:unless="${role.permissions != null and !role.permissions.isEmpty()}"
+                                      class="text-muted">
+                                        <i class="bi bi-dash-circle"></i> Chưa có quyền
+                                    </span>
+                            </td>
+                            <td class="text-center">
+                                <div class="btn-group table-actions" role="group">
+                                    <a th:href="@{/admin/roles/detail/{id}(id=${role.roleID})}"
+                                       class="btn btn-sm btn-outline-info"
+                                       title="Chi tiết">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                    <a th:href="@{/admin/roles/delete/{id}(id=${role.roleID})}"
+                                       class="btn btn-sm btn-outline-danger"
+                                       title="Xóa">
+                                        <i class="bi bi-trash"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr th:if="${roles == null or roles.isEmpty()}">
+                            <td colspan="5" class="text-center py-5">
+                                <i class="bi bi-inbox display-1 text-muted d-block mb-3"></i>
+                                <p class="text-muted mb-0">Chưa có vai trò nào trong hệ thống</p>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script th:src="@{/javascript/Dashboard.js}"></script>
+</body>
+</html>

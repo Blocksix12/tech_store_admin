@@ -1,8 +1,10 @@
 package com.teamforone.tech_store.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 
+@AllArgsConstructor
 @Getter
 public class LoginRequest {
     @NotBlank(message = "Username is required")

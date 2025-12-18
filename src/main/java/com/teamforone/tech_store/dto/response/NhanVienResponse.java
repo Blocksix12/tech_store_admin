@@ -8,6 +8,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Data
 @NoArgsConstructor
@@ -21,4 +22,29 @@ public class NhanVienResponse {
     private String phoneNumber;
 
     private Set<RoleResponse> roles;
+
+    public String getRolesName() {
+        if (roles == null || roles.isEmpty()) {
+            return "STAFF";
+        }
+        return roles.stream()
+                .map(RoleResponse::getName)
+                .collect(Collectors.joining(", "));
+    }
+
+    public boolean isAdmin() {
+        if (roles == null || roles.isEmpty()) {
+            return false;
+        }
+        return roles.stream()
+                .anyMatch(role -> "ADMIN".equalsIgnoreCase(role.getName()));
+    }
+
+    public boolean isManager() {
+        if (roles == null || roles.isEmpty()) {
+            return false;
+        }
+        return roles.stream()
+                .anyMatch(role -> "MANAGER".equalsIgnoreCase(role.getName()));
+    }
 }
