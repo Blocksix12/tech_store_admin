@@ -1,5 +1,8 @@
 package com.teamforone.tech_store.enums;
 
+import lombok.Getter;
+
+@Getter
 public enum BrandStatus {
     ACTIVE("Đang hoạt động"),
     INACTIVE("Ngừng hoạt động"),
@@ -10,10 +13,6 @@ public enum BrandStatus {
 
     BrandStatus(String displayName) {
         this. displayName = displayName;
-    }
-
-    public String getDisplayName() {
-        return displayName;
     }
 
     public String getBadgeClass() {

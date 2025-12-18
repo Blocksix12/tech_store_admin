@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chi tiết vai trò - Admin Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/Dashboard.css}" />
+    <style>
+        .info-section {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+            border: 1px solid #e5e7eb;
+        }
+        .section-header {
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #f3f4f6;
+        }
+        .section-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: #1f2937;
+            margin: 0;
+        }
+        .info-item {
+            padding: 12px 0;
+            border-bottom: 1px solid #f3f4f6;
+        }
+        .info-item:last-child {
+            border-bottom: none;
+        }
+        .info-label {
+            font-size: 0.875rem;
+            color: #6b7280;
+            margin-bottom: 4px;
+        }
+        .info-value {
+            font-weight: 500;
+            color: #1f2937;
+        }
+        .permission-card {
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 8px;
+            transition: all 0.2s;
+        }
+        .permission-card:hover {
+            background-color: #f9fafb;
+            border-color: #3b82f6;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Include Sidebar -->
+<div th:replace="~{fragments/sidebar :: sidebar}"></div>
+
+<!-- Main Content -->
+<div class="main-content">
+    <!-- Include Topbar -->
+    <div th:replace="~{fragments/topbar :: topbar}"></div>
+
+    <!-- Content Area -->
+    <div class="content-area">
+        <div class="row g-4">
+            <!-- Left Column - Main Info -->
+            <div class="col-lg-8">
+                <!-- Header -->
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div>
+                        <h2 class="mb-1">
+                            <i class="bi bi-info-circle me-2"></i>
+                            Chi tiết vai trò
+                        </h2>
+                        <p class="text-muted mb-0">Thông tin chi tiết về vai trò trong hệ thống</p>
+                    </div>
+                    <a th:href="@{/admin/web/roles}" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-left me-1"></i>Quay lại
+                    </a>
+                </div>
+
+                <!-- Basic Information -->
+                <div class="info-section">
+                    <div class="section-header">
+                        <h5 class="section-title">
+                            <i class="bi bi-shield-lock-fill me-2"></i>
+                            Thông tin vai trò
+                        </h5>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">
+                            <i class="bi bi-fingerprint me-1"></i>Mã vai trò
+                        </div>
+                        <div class="info-value">
+                            <code th:text="${role.roleID}">UUID-123-456</code>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">
+                            <i class="bi bi-tag-fill me-1"></i>Tên vai trò
+                        </div>
+                        <div class="info-value">
+                            <span class="badge bg-primary fs-6" th:text="${role.roleNameDisplay}">
+                                Quản trị viên
+                            </span>
+                            <small class="text-muted ms-2" th:text="${'(' + role.roleName + ')'}">
+                                (ADMIN)
+                            </small>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">
+                            <i class="bi bi-file-text me-1"></i>Mô tả
+                        </div>
+                        <div class="info-value" th:text="${role.description ?: 'Chưa có mô tả'}">
+                            Quản trị viên hệ thống với đầy đủ quyền hạn
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Permissions -->
+                <div class="info-section">
+                    <div class="section-header">
+                        <h5 class="section-title">
+                            <i class="bi bi-key-fill me-2"></i>
+                            Quyền hạn
+                            <span class="badge bg-primary ms-2"
+                                  th:text="${role.permissions != null ? role.permissions.size() : 0}">
+                                0
+                            </span>
+                        </h5>
+                    </div>
+
+                    <div th:if="${role.permissions != null and !role.permissions.isEmpty()}">
+                        <div th:each="permission : ${role.permissions}" class="permission-card">
+                            <div class="d-flex align-items-start">
+                                <i class="bi bi-check-circle-fill text-success me-2 mt-1"></i>
+                                <div class="flex-grow-1">
+                                    <h6 class="mb-1" th:text="${permission.name}">
+                                        Permission Name
+                                    </h6>
+                                    <small class="text-muted" th:text="${permission.description}">
+                                        Permission Description
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div th:unless="${role.permissions != null and !role.permissions.isEmpty()}"
+                         class="text-center text-muted py-5">
+                        <i class="bi bi-lock display-1"></i>
+                        <p class="mt-3">Vai trò này chưa có quyền hạn nào</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column - Actions & Stats -->
+            <div class="col-lg-4">
+                <!-- Actions -->
+                <div class="info-section">
+                    <div class="section-header">
+                        <h5 class="section-title">
+                            <i class="bi bi-lightning-fill me-2"></i>
+                            Thao tác
+                        </h5>
+                    </div>
+                    <div class="d-grid gap-2">
+                        <a th:href="@{/admin/web/roles}" class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-left me-2"></i>Quay lại danh sách
+                        </a>
+                        <a th:href="@{/admin/web/roles/delete/{id}(id=${role.roleID})}"
+                           class="btn btn-danger">
+                            <i class="bi bi-trash me-2"></i>Xóa vai trò
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Statistics -->
+                <div class="info-section">
+                    <div class="section-header">
+                        <h5 class="section-title">
+                            <i class="bi bi-graph-up-arrow me-2"></i>
+                            Thống kê
+                        </h5>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Tổng quyền hạn</div>
+                        <div class="info-value">
+                            <span class="badge bg-primary"
+                                  th:text="${role.permissions != null ? role.permissions.size() : 0}">
+                                0
+                            </span>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Trạng thái</div>
+                        <div class="info-value">
+                            <span class="badge bg-success">
+                                <i class="bi bi-check-circle me-1"></i>Đang hoạt động
+                            </span>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Ngày tạo</div>
+                        <div class="info-value" id="currentDate"></div>
+                    </div>
+                </div>
+
+                <!-- Info -->
+                <div class="info-section border-start border-warning border-4">
+                    <h6 class="mb-3">
+                        <i class="bi bi-info-circle-fill text-info me-2"></i>
+                        Thông tin quan trọng
+                    </h6>
+                    <ul class="small text-muted mb-0 ps-3">
+                        <li class="mb-2">Vai trò này được sử dụng để phân quyền cho người dùng</li>
+                        <li class="mb-2">Xóa vai trò có thể ảnh hưởng đến người dùng hiện tại</li>
+                        <li class="mb-2">Kiểm tra kỹ trước khi thực hiện thao tác xóa</li>
+                        <li>Liên hệ quản trị viên nếu cần hỗ trợ</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // Set current date
+    document.getElementById('currentDate').textContent = new Date().toLocaleDateString('vi-VN');
+</script>
+<script th:src="@{/javascript/Dashboard.js}"></script>
+</body>
+</html>

@@ -9,6 +9,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UuidGenerator;
 
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -29,4 +30,8 @@ public class Cart {
     @CreationTimestamp
     @Column(name = "created_at")
     private Date createdAt;
+
+    // 1 giỏ hàng có nhiều item
+    @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<CartItem> items;
 }
